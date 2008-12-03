@@ -1,0 +1,21 @@
+              -------------------
+              LLRP Commander
+              -------------------
+              Christof Roduner
+              -------------------
+              10/26/2008
+              -------------------
+
+
+Status
+
+  The LLRP Commander binary is available as pre-release
+  software. It is licensed under the GNU Lesser General Public License (LGPL).
+	
+  The source code will be available for download within the next two
+  weeks (as part of the upcoming release of the LLRP Commander).
+
+Download
+
+  {{{http://maven-repository.fosstrak.org/snapshots/org/fosstrak/llrp-commander/llrp_commander.zip}llrp_commander.zip}}
+

@@ -1,0 +1,123 @@
+       ------
+                                    Developers guide - Message Repository
+                                    ------
+                                    ------
+
+
+Developers guide - Message Repository
+
+* Content
+	
+	[[1]] {{{#Overview}Overview}}
+	
+	[[2]] {{{#Interface}Repository Interface}}
+	
+	[[3]] {{{#JavaDB}JavaDB Repository}}
+	
+	[[4]] {{{#view}Message Repository View}}
+	
+	
+
+* {Overview}
+
+	Message Repository provides a stable storage interface for incoming LLRP messages. 
+	It stores not only the XML-Format LLRP messages, but also manages the key 
+	attributes of the message (like message type, receiving time, from 
+	which reader, etc) as indexes.	
+		
+	
+* {Interface}
+
+	The interface <<Repository>> defines all operations to maintain the Message Logs.
+	After <<ResourceCenter>> module initializes the instance of the Repository, 
+	the <<Repository>> registers itself	in the Reader Management Module. When new 
+	messages come from the reader, the Reader Management Module calls back the put() 
+	function to store the message in XML text format.
+
+	Note: If the incoming message is not valid, the Reader Management Module will 
+	catch the exception first and will not pass it to the <<Repository>>. In other word, 
+	the stored messages are always valid.
+
+	The functions in the interface include:
+	
+	* open()
+	
+	* put()
+	
+	* get()
+	
+	* getTopN()
+
+	* clearAll()
+	
+	* close()
+
++---+
+public void open()
++---+
+	
+	How the resource layer (File System, Database, and etc.) initializes
+	its resources. This function will be called when the commander starts.
+	
+
++---+
+public void close()
++---+
+	
+	How the resource layer (File System, Database, and etc.) closes and destroys
+	related resource handlers. This function will be called when the commander exits.
+	 
+	
++---+
+public LLRPMessageItem get(String aMsgSysId)
++---+
+	
+	Get the LLRP Message Item from repository according to the unique Message ID.
+	 
+
++---+
+public void put(LLRPMessageItem aMessage)
++---+
+	
+	Put the LLRP Message Item to the repository.	 
+
+
++---+
+public ArrayList<LLRPMessageItem> getTopN(int aRowNum)
++---+
+	
+	Get the Top N LLRP Message items (desc by issue time). Please notice 
+	that the returned objects only includes metadatas for the MessageList view, 
+	there is NO	message content in those objects because of performance concern.
+	
+
++---+
+public void clearAll()
++---+
+	
+	Clear all the items in repository.
+	
+
+	
+* {JavaDB}
+
+	The LLRP message repository implementation based on Sun JavaDB.
+ 	Please make sure the derby.jar in the build path before you can
+ 	start the database.
+
+
+	We implemented the JavaDB Repostory on Sun JavaDB (oringinally Derby) 
+	engine. When JavaDBRepostory starts up, it checks the existence of defined 
+	database <<llrpMsgDB>>. If it doesn’t exist, it creates the database 
+	instance and the table <<LLRP_MSG>>. 
+	
+	
+* {view}
+	
+	The MessageBox view follows the Eclipse Label/Content Provider pattern.
+	<<MessageItem.java>> represents The single entry in the table view; it records the 
+	meta-data of the message (without XML Content). <<MessageboxViewLabelProvider.java>>
+	extends the LabelProvider, provides column text/image interpretation. 
+	<<MessageBoxView.java>> act as one ViewPart, it holds one Eclipse TableViewer.
+	
+
