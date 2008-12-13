@@ -37,7 +37,7 @@
       <editor
             class="org.fosstrak.llrp.commander.editors.LLRPEditor"
             default="true"
-            extensions="xml"
+            extensions="llrp"
             icon="icons/Message.gif"
             id="org.fosstrak.llrp.commander.editors.LLRPEditor"
             name="LLRP Message Editor">
