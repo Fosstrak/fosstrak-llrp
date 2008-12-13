@@ -54,7 +54,7 @@ public class NewLLRPMessageWizardPage extends WizardPage {
 	
 	private final String WIZARD_PAGE_TITLE = "LLRP Message";
 	private final String WIZARD_PAGE_DESCRIPTION = "Create a new LLRP message.";
-	private final String FILE_EXTENSION = "xml";
+	private final String FILE_EXTENSION = "llrp";
 	
 	private final String DEFAULT_MESSAGE_TYPE = "ADD_ROSPEC";
 	

@@ -542,7 +542,7 @@ public class ResourceCenter {
 			IFolder repoFolder = project.getFolder(ResourceCenter.REPO_SUBFOLDER);
 			if (repoFolder.exists()) {
 				
-				IFile msgFile = repoFolder.getFile(aMsgId + ".xml");
+				IFile msgFile = repoFolder.getFile(aMsgId + ".llrp");
 				
 				if (!msgFile.exists()) {
 					StringBufferInputStream stream = new StringBufferInputStream(
