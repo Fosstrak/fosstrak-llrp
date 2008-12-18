@@ -44,6 +44,7 @@ import org.eclipse.ui.ide.IDE;
 import org.eclipse.swt.graphics.Image;
 import org.fosstrak.llrp.commander.repository.*;
 import org.fosstrak.llrp.commander.util.LLRP;
+import org.fosstrak.llrp.commander.util.MessageBoxRefresh;
 import org.fosstrak.llrp.commander.util.Utility;
 import org.fosstrak.llrp.commander.views.MessageboxView;
 import org.fosstrak.llrp.commander.views.ReaderExplorerView;
@@ -118,6 +119,9 @@ public class ResourceCenter {
 	 * Only store meta data, without XML content, to save the memory
 	 */
 	private ArrayList<LLRPMessageItem> messageList;
+	
+	/** the worker thread that refreshes the message box periodically. */
+	private MessageBoxRefresh messageBoxRefresh = null;
 
 	
     /**
@@ -205,19 +209,9 @@ public class ResourceCenter {
 		aNewMessage.setContent("");
 		messageList.add(0, aNewMessage);
 		
-		// SWT threads do not allow other threads to access 
-		// the SWT widgets. to circumvent this issue one has 
-		// to run the call through a asyncExec/syncExec API 
-		// on the corresponding display
-		final LLRPMessageItem msgItem = aNewMessage;
-		if (null != messageboxView) {
-			messageboxView.getDisplay().asyncExec(
-				new Runnable() {
-					public void run() {
-						messageboxView.updateViewer();		
-					}
-				}
-			);
+		// flag the refresher to refresh the messagebox 
+		if (messageBoxRefresh != null) {
+			messageBoxRefresh.setDirty();
 		}
 	}
 	
@@ -413,7 +407,6 @@ public class ResourceCenter {
 		log.info("Disconnecting all readers...");
 		AdaptorManagement.getInstance().disconnectReaders();
 		
-		// FIXME: i think this is not in the right place here...???
 		AdaptorManagement.getInstance().shutdown();
 	}
 
@@ -469,6 +462,12 @@ public class ResourceCenter {
 	
 	public void setMessageboxView(MessageboxView aMessagebox) {
 		messageboxView = aMessagebox;
+		if (messageBoxRefresh == null) {
+			messageBoxRefresh = new MessageBoxRefresh(aMessagebox);
+			new Thread(messageBoxRefresh).start();
+		} else {
+			messageBoxRefresh.setMessageBox(aMessagebox);
+		}
 	}
 
 	/**
