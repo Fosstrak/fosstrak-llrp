@@ -207,7 +207,7 @@ public class ResourceCenter {
 	public void addToMessageMetadataList(LLRPMessageItem aNewMessage) {
 		//Remove XML Content to save the memory, then put into the 1st place of the list
 		aNewMessage.setContent("");
-		messageList.add(0, aNewMessage);
+		messageList.add(aNewMessage);
 		
 		// flag the refresher to refresh the messagebox 
 		if (messageBoxRefresh != null) {

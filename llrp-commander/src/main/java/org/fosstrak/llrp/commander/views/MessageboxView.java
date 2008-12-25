@@ -166,6 +166,37 @@ public class MessageboxView extends TableViewPart implements ISelectionListener 
 	}
 	
 	/**
+	 * comparator to compare two llrp message item elements. if 
+	 * the timestamp of the second element is smaller than the timestamp 
+	 * of the first, then a negative number is returned. otherwise 
+	 * a positive value.
+	 * @author sawielan
+	 *
+	 */
+	class NewMessageComparator extends ViewerComparator {
+		
+		/**
+		 * compares two elements and returns a negative number if element2 is 
+		 * more recent than element1.
+		 * @param viewer the viewer.
+		 * @param element1 the first element to compare.
+		 * @param element2 the second element to compare.
+		 */
+		public int compare(Viewer viewer, Object element1, Object element2) {
+			if ((element1 instanceof LLRPMessageItem) && 
+					(element2 instanceof LLRPMessageItem)) {
+				
+				LLRPMessageItem msg1 = (LLRPMessageItem) element1;
+				LLRPMessageItem msg2 = (LLRPMessageItem) element2;
+
+				// compare the two timestamps...
+				return (int)(msg2.getTime().getTime() - msg1.getTime().getTime());				
+			}
+			return 0;
+		}
+	}
+	
+	/**
 	 * The constructor.
 	 */
 	public MessageboxView() {
@@ -191,6 +222,7 @@ public class MessageboxView extends TableViewPart implements ISelectionListener 
 		viewer.setLabelProvider(new MessageboxViewLabelProvider());
 		viewer.addFilter(filter);
 		viewer.setSorter(null);
+		viewer.setComparator(new NewMessageComparator());
 
 		viewer.refresh();
 		
@@ -314,14 +346,10 @@ public class MessageboxView extends TableViewPart implements ISelectionListener 
 	 * Refresh the message list in the viewer from selected adapter or reader.
 	 */
 	public void updateViewer() {
-		
-		getViewer().getTable().removeAll();
-		
-		// Set the filtering condition
 		filter.setCondition(selectedAdapter, selectedReader);
-		
 		ArrayList<LLRPMessageItem> list = ResourceCenter.getInstance().getMessageMetadataList();
 		getViewer().add(list.toArray());
+		ResourceCenter.getInstance().clearMessageMetadataList();
 	}
 
 }
