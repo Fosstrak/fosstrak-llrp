@@ -33,6 +33,7 @@ import org.eclipse.core.runtime.CoreException;
 import org.eclipse.core.resources.IFile;
 import org.eclipse.core.resources.IFolder;
 import org.eclipse.core.resources.IProject;
+import org.eclipse.core.resources.IResource;
 import org.eclipse.core.resources.IWorkspaceRoot;
 import org.eclipse.core.resources.ResourcesPlugin;
 import org.eclipse.jface.resource.ImageDescriptor;
@@ -93,6 +94,12 @@ public class ResourceCenter {
 	 */
 	public final static String SAMPLE_SUBFOLDER = "Sample";
 	
+	/** folder storing the configuration files. */
+	public final static String CONFIG_SUBFOLDER = "cfg";
+	
+	/** the name of the configuration file for the reader configuration. */
+	public final static String RDR_CFG_FILE = "rdrCfg.properties";
+	
 	private static ResourceCenter instance;
 	
 	private JavaDBRepository repo;
@@ -128,10 +135,10 @@ public class ResourceCenter {
      * Private Constructor, internally called.
      */
 	private ResourceCenter() {
-		
+
 		// load class LLRP
 		LLRP.getLlrpDefintion();
-		
+			
 		setEclipseProjectName(DEFAULT_ECLIPSE_PROJECT);
 		setReaderDefinitionFilename(DEFAULT_READER_DEF_FILENAME);
 		
@@ -142,18 +149,78 @@ public class ResourceCenter {
 		readerConfigMap = new HashMap<String, String>();
 		readerROSpecMap = new HashMap<String, String>();
 		
+		
 		repo = new JavaDBRepository();
 		repo.open();
 		
+		startAdaptorMgmt();
+	}
+	
+	private boolean initialized = false;
+	public void startAdaptorMgmt() {
+		if (initialized) {
+			log.info("adaptor management already initialized");
+			return;
+		}
+		IProject project = getEclipseProject();
+		// refresh the workspace...
+		try {
+			project.refreshLocal(IResource.DEPTH_INFINITE, null);
+		} catch (CoreException e1) {
+			e1.printStackTrace();
+		}
+		
+		// check if the configuration folder exists.
+		IFolder configFolder = project.getFolder(
+				ResourceCenter.CONFIG_SUBFOLDER);
+		if (!configFolder.exists()) {
+			try {
+				log.info("create new config folder...");
+				configFolder.create(true, true, null);
+				log.info("created config folder.");
+			} catch (Exception e) {
+				e.printStackTrace();
+			}
+		}
+		
+		// check if the reader configuration exists.
+		IFile cfg = configFolder.getFile(
+				ResourceCenter.RDR_CFG_FILE
+				);
+		
+		if (cfg.exists()) {
+			log.info("found configuration file - good.");
+		} else {
+			log.info("reader configuration file missing. create new...");
+			String defaultCFG = Utility.findWithFullPath(
+					"/readerDefaultConfig.properties");
+			
+			try {
+				// copy the file
+				InputStream in = new FileInputStream(new File(defaultCFG));					
+				cfg.create(in, false, null);
+				in.close();
+				
+			} catch (Exception e) {
+				e.printStackTrace();
+			}
+		}
+		
 		AdaptorManagement.getInstance().setRepository(repo);
-		String readConfig = Utility.findWithFullPath("/readerDefaultConfig.properties");
+		IWorkspaceRoot myWorkspaceRoot = ResourcesPlugin.getWorkspace().getRoot();
+		String readConfig = myWorkspaceRoot.getLocation().toString() + 
+				cfg.getFullPath().toString();
+		
 		String storeConfig = readConfig;
 		boolean commitChanges = true;
 		try {
-			AdaptorManagement.getInstance().initialize(readConfig, storeConfig, commitChanges, null, repo);
+			AdaptorManagement.getInstance().initialize(
+					readConfig, storeConfig, commitChanges, null, repo);
 		} catch (LLRPRuntimeException e) {
 			e.printStackTrace();
 		}
+		
+		initialized = true;
 	}
 	
 	

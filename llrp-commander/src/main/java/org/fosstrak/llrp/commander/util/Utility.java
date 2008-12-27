@@ -23,10 +23,19 @@ package org.fosstrak.llrp.commander.util;
 import java.io.IOException;
 import java.net.URL;
 
+import org.apache.log4j.Logger;
 import org.fosstrak.llrp.adaptor.AdaptorManagement;
 
+/**
+ * helper class that holds utility routines.
+ * @author sawielan
+ *
+ */
 public class Utility {
 
+	/** the logger. */
+	private static Logger log = Logger.getLogger(Utility.class);
+	
 	/**
 	 * searches the full system path for this resource.
 	 * @param fileName the name of the resource.
@@ -42,7 +51,7 @@ public class Utility {
 			if (url != null) {
 				value = url.getFile();	
 			}
-			System.out.println("found resource: " + value);
+			log.debug("found resource: " + value);
 		} catch (IOException e) {
 			e.printStackTrace();
 		}
