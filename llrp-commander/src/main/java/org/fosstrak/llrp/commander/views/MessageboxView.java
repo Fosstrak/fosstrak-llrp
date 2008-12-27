@@ -28,7 +28,9 @@ import org.eclipse.jface.viewers.*;
 import org.eclipse.jface.action.*;
 import org.eclipse.ui.*;
 import org.fosstrak.llrp.client.LLRPMessageItem;
+import org.fosstrak.llrp.client.Repository;
 import org.fosstrak.llrp.commander.*;
+import org.fosstrak.llrp.commander.repository.JavaDBRepository;
 import org.apache.log4j.Logger;
 
 /**
@@ -115,7 +117,12 @@ public class MessageboxView extends TableViewPart implements ISelectionListener 
 	 */
 	protected Display display = null;
 	
-	class MessageFilter extends ViewerFilter {
+	/**
+	 * filter according the selected adapter. 
+	 * @author sawielan
+	 *
+	 */
+	private class MessageFilter extends ViewerFilter {
 		
 		private String adapterName, readerName;
 		
@@ -132,10 +139,25 @@ public class MessageboxView extends TableViewPart implements ISelectionListener 
 			
 			if (aElement instanceof LLRPMessageItem) {
 				LLRPMessageItem item = (LLRPMessageItem) aElement;
-
-				if (item.getAdapter().equals(adapterName)
-						&& (readerName == null || item.getReader().equals(readerName))) {
-					return true;
+				
+				if ((adapterName == null) || (item.getAdapter() == null)) {
+					return false;
+				} else {
+					if (adapterName.trim().equals(item.getAdapter().trim())) {
+						
+						// compare the reader. if the readerName is null then 
+						// the user selected a whole adapter and this means 
+						// that we dont care about the readerName.
+						if (readerName == null) {
+							return true;
+						}
+						
+						if ((item.getReader() != null) && 
+								(item.getReader().trim().equals(
+										readerName.trim()))) {
+							return true;
+						}
+					}
 				}
 			}
 			return false;
@@ -151,7 +173,7 @@ public class MessageboxView extends TableViewPart implements ISelectionListener 
 	 * @author Ulrich Etter, ETHZ
 	 *
 	 */
-	class ROAccessReportFilter extends ViewerFilter {
+	private class ROAccessReportFilter extends ViewerFilter {
 		
 		public boolean select(Viewer aViewer, Object aParentElement, Object aElement) {
 			if (aElement instanceof LLRPMessageItem) {
@@ -173,7 +195,7 @@ public class MessageboxView extends TableViewPart implements ISelectionListener 
 	 * @author sawielan
 	 *
 	 */
-	class NewMessageComparator extends ViewerComparator {
+	private class NewMessageComparator extends ViewerComparator {
 		
 		/**
 		 * compares two elements and returns a negative number if element2 is 
@@ -276,11 +298,11 @@ public class MessageboxView extends TableViewPart implements ISelectionListener 
 			public void run() {
 				if (rOAccessReportFilterAction.isChecked()){
 					getViewer().addFilter(rOAccessReportFilter);
-					updateViewer();
+					updateViewer(false);
 				}
 				else{
 					getViewer().removeFilter(rOAccessReportFilter);
-					updateViewer();
+					updateViewer(false);
 				}
 			}
 		};
@@ -331,12 +353,12 @@ public class MessageboxView extends TableViewPart implements ISelectionListener 
 					selectedAdapter = aAdapterName;
 					selectedReader = readerNode.getName();
 					
-					updateViewer();
+					updateViewer(true);
 				} else {
 					selectedAdapter = readerNode.getName();
 					selectedReader = null;
 					
-					updateViewer();
+					updateViewer(true);
 				}
 			}
 		}
@@ -344,12 +366,41 @@ public class MessageboxView extends TableViewPart implements ISelectionListener 
 	
 	/**
 	 * Refresh the message list in the viewer from selected adapter or reader.
+	 * @param reload flag whether to reload the whole list of messages. if set 
+	 * to true all the messages get loaded from the backend, otherwise just the 
+	 * new messages get added to the view.
 	 */
-	public void updateViewer() {
-		filter.setCondition(selectedAdapter, selectedReader);
-		ArrayList<LLRPMessageItem> list = ResourceCenter.getInstance().getMessageMetadataList();
-		getViewer().add(list.toArray());
-		ResourceCenter.getInstance().clearMessageMetadataList();
+	public synchronized void updateViewer(boolean reload) {
+		synchronized (this) {
+			filter.setCondition(selectedAdapter, selectedReader);
+			if (reload) {
+	
+				// first load all the messages from the database backend.
+				Repository repo = ResourceCenter.getInstance().getRepository();
+				ArrayList<LLRPMessageItem> msgs = repo.get(
+						selectedAdapter, 
+						selectedReader, 
+						ResourceCenter.GET_MAX_MESSAGES,
+						false);
+				
+				getViewer().getTable().removeAll();
+				
+				getViewer().add(msgs.toArray());
+				ResourceCenter.getInstance().clearMessageMetadataList();
+				
+			} else {
+				ArrayList<LLRPMessageItem> list = 
+					ResourceCenter.getInstance().getMessageMetadataList();
+				
+				if (list.size() > 0) {
+					getViewer().add(list.toArray());
+					ResourceCenter.getInstance().clearMessageMetadataList();
+				}
+			}
+			
+			// inform all the other threads about the free lock.
+			notifyAll();
+		}
 	}
 
 }

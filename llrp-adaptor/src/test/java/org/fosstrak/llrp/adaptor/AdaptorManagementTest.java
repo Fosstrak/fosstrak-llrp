@@ -164,11 +164,6 @@ public class AdaptorManagementTest extends TestCase {
 				return null;
 			}
 
-			public ArrayList<LLRPMessageItem> getTopN(int arg0) {
-				// TODO Auto-generated method stub
-				return null;
-			}
-
 			public void open() {
 				// TODO Auto-generated method stub
 				
@@ -177,6 +172,12 @@ public class AdaptorManagementTest extends TestCase {
 			public void put(LLRPMessageItem arg0) {
 				// TODO Auto-generated method stub
 				
+			}
+
+			public ArrayList<LLRPMessageItem> get(String adaptorName,
+					String readerName, int num, boolean content) {
+				// TODO Auto-generated method stub
+				return null;
 			}
 
 			

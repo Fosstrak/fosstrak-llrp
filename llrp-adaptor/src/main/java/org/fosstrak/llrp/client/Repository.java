@@ -34,6 +34,9 @@ import java.util.ArrayList;
 
 public interface Repository {
 
+	/** flag to set the retrieval of messages to all messages in the repo. */
+	public static final int RETRIEVE_ALL = -1;
+	
 	/**
 	 * How the resource layer (File System, Database, and etc.) initiates
 	 * its resources. This function will be called when the client startup.
@@ -62,14 +65,18 @@ public interface Repository {
 	public void put(LLRPMessageItem aMessage);
 	
 	/**
-	 * Get the Top N LLRP Message Wrapper items (desc by issue time). Please notice 
-	 * that the return objects only for the MessageList view, there is NO message 
-	 * content in those objects because of performance concern.
-	 * 
-	 * @param aRowNum The number N for Top N query.
-	 * @return
+	 * returns all the messages from the specified adaptor and the reader 
+	 * limited by num. if you set num to RETRIEVE_ALL all messages get returned.
+	 * if you set readerName to null, all the messages of all the readers with 
+	 * adaptor adaptorName will be returned.
+	 * @param adaptorName the name of the adaptor.
+	 * @param readerName the name of the reader.
+	 * @param num how many messages to retrieve.
+	 * @param content if true retrieve the message content, false no content.
+	 * @return a list of messages.
 	 */
-	public ArrayList<LLRPMessageItem> getTopN(int aRowNum);
+	public ArrayList<LLRPMessageItem> get(
+			String adaptorName, String readerName, int num, boolean content);
 	
 	/**
 	 * Clear all the items in repository.

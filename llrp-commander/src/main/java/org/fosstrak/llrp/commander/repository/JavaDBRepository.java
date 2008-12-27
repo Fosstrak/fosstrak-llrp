@@ -30,6 +30,8 @@ import java.sql.Timestamp;
 import java.util.*;
 
 import org.apache.log4j.Logger;
+import org.fosstrak.llrp.adaptor.AdaptorManagement;
+import org.fosstrak.llrp.adaptor.Constants;
 import org.fosstrak.llrp.client.LLRPMessageItem;
 import org.fosstrak.llrp.client.Repository;
 import org.fosstrak.llrp.commander.ResourceCenter;
@@ -51,30 +53,87 @@ public class JavaDBRepository implements Repository {
 	private static Logger log = Logger.getLogger(JavaDBRepository.class);
 	
 	private Connection conn = null;
-	private PreparedStatement psSelect, psSelectAll, psRemoveAll, psInsert;
+	private PreparedStatement psSelect, psRemoveAll, psInsert;
 	
 	// Database connection string
-	private final String DB_DRIVER = "org.apache.derby.jdbc.EmbeddedDriver";
-	private final String DB_PROTOCOL = "jdbc:derby:";
-	private final String DB_CREATE = ";create=true";
-	private final String DB_NAME = "llrpMsgDB";
+	private static final String DB_DRIVER = "org.apache.derby.jdbc.EmbeddedDriver";
+	private static final String DB_PROTOCOL = "jdbc:derby:";
+	private static final String DB_CREATE = ";create=true";
+	private static final String DB_NAME = "llrpMsgDB";
     
+	// selectors within the database fields.
+	private static final int SELECTOR_ID = 1;
+	private static final int SELECTOR_MESSAGE_TYPE = 2;
+	private static final int SELECTOR_READER = 3;
+	private static final int SELECTOR_ADAPTOR = 4;
+	private static final int SELECTOR_TIMESTAMP = 5;
+	private static final int SELECTOR_STATUS = 6;
+	private static final int SELECTOR_COMMENT = 7;
+	private static final int SELECTOR_MARK = 8;	
+	private static final int SELECTOR_CONTENT = 9;
+	
 	// SQL statements
-	private final String SQL_CREATE_TABLE = "CREATE TABLE LLRP_MSG"
+	private static final String SQL_CREATE_TABLE = "CREATE TABLE LLRP_MSG "
     	+ "(MSG_ID CHAR(32),"
     	+ "MSG_TYPE CHAR(32),"
     	+ "READER CHAR(64),"
+    	+ "ADAPTER CHAR(64),"
     	+ "MSG_TIME TIME,"
-    	+ "CONTENT CLOB,"
+    	+ "STATUS CHAR(64),"
     	+ "COMMENT VARCHAR(64),"
-    	+ "MARK CHAR(3))";
- 	private final String SQL_DROP_TABLE = "DROP TABLE LLRP_MSG";
-	private final String SQL_SELECT_MSG = "select * from LLRP_MSG where MSG_ID=?";
-	private final String SQL_SELECTALL_MSG = "select * from LLRP_MSG ORDER BY MSG_TIME";
-	private final String SQL_REMOVEALL_MSG = "delete from LLRP_MSG";
-	private final String SQL_INSERT_MSG = "insert into LLRP_MSG values (?, ?, ?, ?, ?, ?, ?)";
-	private final String SQL_UPDATE_CONTENT = "update LLRP_MSG set CONTENT = ?, MARK = 'M'";
-	private final String SQL_UPDATE_COMMENT = "update LLRP_MSG set COMMENT = ?";
+    	+ "MARK CHAR(3),"
+		+ "CONTENT CLOB)";
+	
+ 	private static final String SQL_DROP_TABLE = "DROP TABLE LLRP_MSG";
+ 	
+ 	/** select a specific message. */
+	private static final String SQL_SELECT_MSG = 
+		"select * from LLRP_MSG where MSG_ID=?";
+	
+	/** remove all the messages. */
+	private static final String SQL_REMOVEALL_MSG = "delete from LLRP_MSG";
+	
+	/** insert a new item into the database. */
+	private static final String SQL_INSERT_MSG = 
+		"insert into LLRP_MSG values (?, ?, ?, ?, ?, ?, ?, ?, ?)";
+	
+	/** select all the messages with the content. */
+	private static final String SQL_SELECT_ALL_CONTENT = 
+		"select * from LLRP_MSG " +
+		"order by MSG_TIME DESC";
+
+	/** select all the messages no content. */
+	private static final String SQL_SELECT_ALL = 
+		"select MSG_ID,MSG_TYPE,READER,ADAPTER,MSG_TIME,STATUS,COMMENT,MARK " +
+		"from LLRP_MSG " +
+		"order by MSG_TIME DESC";
+	
+	// ------ adaptor given ------
+	/** retrieve by adaptor with content. */
+	private static final String SQL_SELECT_BY_ADAPTOR_CONTENT = 
+		"select * from LLRP_MSG where ADAPTER=? " +
+		"order by MSG_TIME DESC";
+	
+	/** retrieve by adaptor name no content. */
+	private static final String SQL_SELECT_BY_ADAPTOR = 
+		"select MSG_ID,MSG_TYPE,READER,ADAPTER,MSG_TIME,STATUS,COMMENT,MARK " +
+		"from LLRP_MSG where ADAPTER=? " +
+		"order by MSG_TIME DESC";
+	
+	// ------ reader and adaptor given ------
+	/** 
+	 * retrieve by adaptor and reader name with content. */
+	private final static String SQL_SELECT_BY_ADAPTOR_AND_READER_CONTENT = 
+		"select * from LLRP_MSG where ADAPTER=? and READER=? " +
+		"order by MSG_TIME DESC";
+	
+	/** retrieve by adaptor and reader name no content. */
+	private static final String SQL_SELECT_BY_ADAPTOR_AND_READER = 
+		"select MSG_ID,MSG_TYPE,READER,ADAPTER,MSG_TIME,STATUS,COMMENT,MARK " +
+		"from LLRP_MSG where ADAPTER=? and READER=? " +
+		"order by MSG_TIME DESC";
+
+	
 	
 	private boolean isHealth;
     /**
@@ -127,13 +186,15 @@ public class JavaDBRepository implements Repository {
 		}
 		
 		try {
+			// TODO: shall we really drop the table at each startup?
 			
 			Statement sDropTable = conn.createStatement();
 			sDropTable.execute(SQL_DROP_TABLE);
 			
 			log.info("Existing Table Removed.");
+			
 		} catch (Exception e) {
-			log.info("Table doesn't exist. Remove failed.");
+			log.info("Table doesn't exist. Remove failed." + e.getMessage());
 		}
 		
 		try {
@@ -148,7 +209,7 @@ public class JavaDBRepository implements Repository {
 			
 			log.info("New Table Created.");
 		} catch (Exception e) {
-			log.info("Table exists.");
+			log.info("Table exists. " + e.getMessage());
 		}
 	}
 	
@@ -168,41 +229,80 @@ public class JavaDBRepository implements Repository {
         }
 	}
 	
-	public ArrayList<LLRPMessageItem> getTopN(int aRowNum) {
+	/**
+	 * returns all the messages from the specified adaptor and the reader 
+	 * limited by num. if you set num to RETRIEVE_ALL all messages get returned.
+	 * if you set readerName to null, all the messages of all the readers with 
+	 * adaptor adaptorName will be returned.
+	 * @param adaptorName the name of the adaptor.
+	 * @param readerName the name of the reader.
+	 * @param num how many messages to retrieve.
+	 * @param content if true retrieve the message content, false no content.
+	 * @return a list of messages.
+	 */
+	public ArrayList<LLRPMessageItem> get(
+			String adaptorName, String readerName, int num, boolean content) {
 		
-		ArrayList<LLRPMessageItem> msgs = new ArrayList<LLRPMessageItem>();
+		ArrayList<LLRPMessageItem> msgs = new ArrayList<LLRPMessageItem> ();
 		
 		try {
-			psSelectAll = conn.prepareStatement(SQL_SELECTALL_MSG);
-			ResultSet results = psSelectAll.executeQuery();
-			
-			int row = 0;
-			while ((row < aRowNum) && results.next()) {
-				LLRPMessageItem msg = new LLRPMessageItem();
+			PreparedStatement st = null;
+			ResultSet results = null;
+			String sql = null;
+			if (adaptorName == null) {	
+				sql = SQL_SELECT_ALL;
+				if (content) {
+					sql = SQL_SELECT_ALL_CONTENT;
+				}
+				st = conn.prepareStatement(sql);
+			} else if (readerName != null) {
+				sql = SQL_SELECT_BY_ADAPTOR_AND_READER;
+				if (content) {
+					sql = SQL_SELECT_BY_ADAPTOR_AND_READER_CONTENT;
+				}
+				st = conn.prepareStatement(sql);
+				st.setString(1, adaptorName.trim());
+				st.setString(2, readerName.trim());
+			} else {
+				sql = SQL_SELECT_BY_ADAPTOR;
+				if (content) {
+					sql = SQL_SELECT_BY_ADAPTOR_CONTENT;
+				}
 				
-				msg.setId(results.getString(1));
-				msg.setMessageType(results.getString(2));
-				msg.setReader(results.getString(3));
-				msg.setTime(new Date(results.getTimestamp(4).getTime()));
-				
-				// For message list, we don't load the message content, to saving the memory
-				
-				msg.setComment(results.getString(6));
-				msg.setMark(results.getString(7).charAt(0));
-				
-				log.info("Get Message (ID=" + results.getString(1) + ") from JavaDB.");
-								
-				msgs.add(msg);
-				row ++;
+				st = conn.prepareStatement(sql);
+				st.setString(1, adaptorName.trim());
+			}
+			// bound the number of items to retrieve
+			if (num != Repository.RETRIEVE_ALL) {
+				st.setMaxRows(num);
+			}
+			results = st.executeQuery();
+			while (results.next()) {
+				LLRPMessageItem item = new LLRPMessageItem();
+				item.setAdapter(results.getString(SELECTOR_ADAPTOR));
+				item.setComment(results.getString(SELECTOR_COMMENT));
+				item.setId(results.getString(SELECTOR_ID));
+				item.setMark(results.getInt(SELECTOR_MARK));
+				item.setMessageType(results.getString(SELECTOR_MESSAGE_TYPE));
+				item.setReader(results.getString(SELECTOR_READER));
+				item.setStatusCode(results.getString(SELECTOR_STATUS));
+				item.setTime(
+						new Date(results.getTimestamp(
+								SELECTOR_TIMESTAMP).getTime()));
+				if (content) {
+					item.setContent(results.getString(SELECTOR_CONTENT));
+				}
+				msgs.add(item);
 			}
 			
-			results.close();
-			psSelectAll.close();
-			
-		} catch (SQLException sqle) {
-            sqle.printStackTrace();
+		} catch (Exception e) {
+			log.error(
+					String.format(
+							"could not retrieve from database: %s\n", 
+							e.getMessage())
+					);
 		}
-		
+			
 		return msgs;
 	}
 	
@@ -216,13 +316,18 @@ public class JavaDBRepository implements Repository {
 			ResultSet results = psSelect.executeQuery();
 			
 			if (results.next()) {
-				msg.setId(results.getString(1));
-				msg.setMessageType(results.getString(2));
-				msg.setReader(results.getString(3));
-				msg.setTime(new Date(results.getTimestamp(4).getTime()));
-				msg.setContent(results.getString(5));
-				msg.setComment(results.getString(6));
-				msg.setMark(results.getString(7).charAt(0));
+				msg.setId(results.getString(SELECTOR_ID));
+				msg.setMessageType(results.getString(SELECTOR_MESSAGE_TYPE));
+				msg.setReader(results.getString(SELECTOR_READER));
+				msg.setAdapter(results.getString(SELECTOR_ADAPTOR));
+				msg.setTime(new Date(
+						results.getTimestamp(SELECTOR_TIMESTAMP).getTime()));
+				msg.setContent(results.getString(SELECTOR_CONTENT));
+				msg.setComment(results.getString(SELECTOR_COMMENT));
+				msg.setMark(results.getInt(SELECTOR_MARK));
+				msg.setStatusCode(results.getString(SELECTOR_STATUS));
+				
+				log.error(msg.prettyPrint());
 				
 				log.info("Get Message (ID=" + results.getString(1) + ") from JavaDB.");
 			}
@@ -241,13 +346,21 @@ public class JavaDBRepository implements Repository {
 		try {
 			psInsert = conn.prepareStatement(SQL_INSERT_MSG);
 
-			psInsert.setString(1, aMessage.getId());
-			psInsert.setString(2, aMessage.getMessageType());
-			psInsert.setString(3, aMessage.getUniqueName());
-			psInsert.setTimestamp(4, new Timestamp(aMessage.getTime().getTime()));
-			psInsert.setString(5, aMessage.getContent());
-			psInsert.setString(6, aMessage.getComment());
-			psInsert.setString(7, "" + aMessage.getMark());
+			psInsert.setString(SELECTOR_ID, aMessage.getId());
+			psInsert.setString(SELECTOR_MESSAGE_TYPE, aMessage.getMessageType());
+			psInsert.setString(SELECTOR_READER, aMessage.getReader());
+			String adaptor = aMessage.getAdapter();
+			if (adaptor == null) {
+				adaptor = AdaptorManagement.DEFAULT_ADAPTOR_NAME;
+			}
+			psInsert.setString(SELECTOR_ADAPTOR, adaptor);
+			psInsert.setTimestamp(
+					SELECTOR_TIMESTAMP, 
+					new Timestamp(aMessage.getTime().getTime()));
+			psInsert.setString(SELECTOR_CONTENT, aMessage.getContent());
+			psInsert.setString(SELECTOR_COMMENT, aMessage.getComment());
+			psInsert.setString(SELECTOR_MARK, "" + aMessage.getMark());
+			psInsert.setString(SELECTOR_STATUS, aMessage.getStatusCode());
 			
 			psInsert.executeUpdate();
 			psInsert.close();
