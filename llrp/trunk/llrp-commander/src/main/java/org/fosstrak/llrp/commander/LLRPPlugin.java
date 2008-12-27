@@ -24,6 +24,7 @@ import java.io.IOException;
 import java.net.URISyntaxException;
 import java.net.URL;
 
+import org.eclipse.core.resources.IResource;
 import org.eclipse.core.runtime.FileLocator;
 import org.eclipse.jface.preference.IPreferenceStore;
 import org.eclipse.jface.resource.ImageDescriptor;
@@ -32,7 +33,6 @@ import org.eclipse.ui.plugin.AbstractUIPlugin;
 import org.fosstrak.llrp.commander.check.CheckEclipseProject;
 import org.fosstrak.llrp.commander.check.CheckRepository;
 import org.fosstrak.llrp.commander.check.HealthCheck;
-import org.fosstrak.llrp.commander.dialogs.HealthCheckDialog;
 import org.fosstrak.llrp.commander.preferences.PreferenceConstants;
 import org.osgi.framework.BundleContext;
 
@@ -78,7 +78,6 @@ public class LLRPPlugin extends AbstractUIPlugin {
 		
 		IPreferenceStore store = LLRPPlugin.getDefault().getPreferenceStore();
 		String storedProjectName = store.getString(PreferenceConstants.P_PROJECT);
-//		String readerDefFilename = store.getString(PreferenceConstants.P_READERS_DEF_XML);
 		
 		if ((storedProjectName != null) || (!storedProjectName.equals(""))) {
 			ResourceCenter.getInstance().setEclipseProjectName(storedProjectName);
@@ -95,16 +94,21 @@ public class LLRPPlugin extends AbstractUIPlugin {
 		if (!dlg.getHealthCheck().validate()) {
 			dlg.open();
 		*/
+		
+		// first refresh the workspace...
+		ResourceCenter.getInstance().
+			getEclipseProject().refreshLocal(IResource.DEPTH_INFINITE, null);
+		
 		HealthCheck healthCheck = new HealthCheck();
 		healthCheck.registerCheckItem(new CheckEclipseProject());
 		healthCheck.registerCheckItem(new CheckRepository());
 		if (!healthCheck.validate()) {
 			for (String report : healthCheck.getReport()) {
-				System.out.println(report);
+				log.debug(report);
 			}
 			healthCheck.fix();
 			for (String report : healthCheck.getReport()) {
-				System.out.println(report);
+				log.debug(report);
 			}
 		}
 	}

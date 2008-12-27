@@ -64,8 +64,6 @@ public class CheckEclipseProject extends CheckItem {
 					.getFolder(ResourceCenter.REPO_SUBFOLDER);
 			IFolder draftFolder = project
 					.getFolder(ResourceCenter.DRAFT_SUBFOLDER);
-//			IFolder sampleFolder = project
-//					.getFolder(ResourceCenter.SAMPLE_SUBFOLDER);
 
 			if (!msgFolder.exists()) {
 				addReportItem("Subfolder '" + ResourceCenter.REPO_SUBFOLDER
@@ -76,11 +74,6 @@ public class CheckEclipseProject extends CheckItem {
 				addReportItem("Subfolder '" + ResourceCenter.DRAFT_SUBFOLDER
 						+ "' doesn't exist.", CATEGORY_ERROR);
 			}
-			
-//			if (!sampleFolder.exists()) {
-//				addReportItem("Subfolder '" + ResourceCenter.SAMPLE_SUBFOLDER
-//						+ "' doesn't exist.", CATEGORY_ERROR);
-//			}
 			
 			if (!msgFolder.exists() || !draftFolder.exists()) {
 				return false;
