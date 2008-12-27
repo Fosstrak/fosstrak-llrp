@@ -29,6 +29,7 @@ import java.util.Date;
  * Repository use.
  *
  * @author Haoning Zhang
+ * @author sawielan
  * @version 1.0
  */
 public class LLRPMessageItem {
@@ -252,4 +253,22 @@ public class LLRPMessageItem {
 		adapterId = aAdapterId;
 	}
 	
+	/**
+	 * creates a pretty print of the llrp message item.
+	 * @return a string holding the pretty print.
+	 */
+	public String prettyPrint() {
+		StringBuffer buffer = new StringBuffer("\n");
+		buffer.append("--------------------------------------"); buffer.append("\n");
+		buffer.append("ID: "); buffer.append(getId()); buffer.append("\n");
+		buffer.append("Adapter: "); buffer.append(getAdapter()); buffer.append("\n");
+		buffer.append("Reader: "); buffer.append(getReader()); buffer.append("\n");
+		buffer.append("time: "); buffer.append(getTime()); buffer.append("\n");
+		buffer.append("mark: "); buffer.append(getMark()); buffer.append("\n");
+		buffer.append("messagetype: "); buffer.append(getMessageType()); buffer.append("\n");
+		buffer.append("statuscode: "); buffer.append(getStatusCode()); buffer.append("\n");
+		buffer.append("--------------------------------------"); buffer.append("\n");
+		
+		return buffer.toString();
+	}
 }

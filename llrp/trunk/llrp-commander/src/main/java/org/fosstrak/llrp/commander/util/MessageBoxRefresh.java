@@ -66,7 +66,7 @@ public class MessageBoxRefresh implements Runnable {
 						messageboxView.getDisplay().asyncExec(
 							new Runnable() {
 								public void run() {
-									messageboxView.updateViewer();		
+									messageboxView.updateViewer(false);		
 								}
 							}
 						);

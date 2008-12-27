@@ -223,14 +223,6 @@ public class ResourceCenter {
 	}
 	
 	/**
-	 * Get maximal number of messages
-	 * @return LLRP Message Items
-	 */
-	public Collection<LLRPMessageItem> getMessages() {
-		return repo.getTopN(GET_MAX_MESSAGES);
-	}
-	
-	/**
 	 * Get LLRP XML content by Message ID
 	 * @param aMsgId Message ID
 	 * @return LLRP XML Content
