@@ -129,7 +129,9 @@ public class ResourceCenter {
 	
 	/** the worker thread that refreshes the message box periodically. */
 	private MessageBoxRefresh messageBoxRefresh = null;
-
+	
+	/** flags whether the adaptor management has been initialized or not. */
+	private boolean initialized = false;
 	
     /**
      * Private Constructor, internally called.
@@ -148,20 +150,17 @@ public class ResourceCenter {
 		
 		readerConfigMap = new HashMap<String, String>();
 		readerROSpecMap = new HashMap<String, String>();
-		
-		
-		repo = new JavaDBRepository();
-		repo.open();
-		
-		startAdaptorMgmt();
 	}
 	
-	private boolean initialized = false;
-	public void startAdaptorMgmt() {
+	/**
+	 * helper to initialize the adaptor management at the right moment.
+	 */
+	public void initializeAdaptorMgmt() {
 		if (initialized) {
 			log.info("adaptor management already initialized");
 			return;
 		}
+		
 		IProject project = getEclipseProject();
 		// refresh the workspace...
 		try {
@@ -221,8 +220,7 @@ public class ResourceCenter {
 		}
 		
 		initialized = true;
-	}
-	
+	}	
 	
 	/**
 	 * Get the Message model
@@ -311,6 +309,11 @@ public class ResourceCenter {
 	 * @return Repository interface
 	 */
 	public Repository getRepository() {
+		if (repo == null) {
+			log.debug("create new repository");
+			repo = new JavaDBRepository();
+			repo.open();
+		}
 		return repo;
 	}
 	
@@ -348,7 +351,7 @@ public class ResourceCenter {
 				myWebProject.open(null);
 			}
 		} catch (CoreException ce) {
-			ce.printStackTrace();
+			log.debug("could not open project " + ce.getMessage());
 		}
 		
 		return myWebProject;

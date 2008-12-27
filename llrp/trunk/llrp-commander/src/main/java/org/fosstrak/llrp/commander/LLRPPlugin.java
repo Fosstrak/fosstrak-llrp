@@ -25,6 +25,7 @@ import java.net.URISyntaxException;
 import java.net.URL;
 
 import org.eclipse.core.resources.IResource;
+import org.eclipse.core.resources.ResourcesPlugin;
 import org.eclipse.core.runtime.FileLocator;
 import org.eclipse.jface.preference.IPreferenceStore;
 import org.eclipse.jface.resource.ImageDescriptor;
@@ -94,23 +95,24 @@ public class LLRPPlugin extends AbstractUIPlugin {
 		if (!dlg.getHealthCheck().validate()) {
 			dlg.open();
 		*/
-		
-		// first refresh the workspace...
-		ResourceCenter.getInstance().
-			getEclipseProject().refreshLocal(IResource.DEPTH_INFINITE, null);
-		
+				
 		HealthCheck healthCheck = new HealthCheck();
 		healthCheck.registerCheckItem(new CheckEclipseProject());
 		healthCheck.registerCheckItem(new CheckRepository());
+		ResourcesPlugin.getWorkspace().getRoot().refreshLocal(IResource.DEPTH_INFINITE, null);
 		if (!healthCheck.validate()) {
 			for (String report : healthCheck.getReport()) {
 				log.debug(report);
 			}
 			healthCheck.fix();
+			ResourcesPlugin.getWorkspace().getRoot().refreshLocal(IResource.DEPTH_INFINITE, null);
 			for (String report : healthCheck.getReport()) {
 				log.debug(report);
 			}
 		}
+		
+		// now all the path should be ok and it is safe to start the management.
+		ResourceCenter.getInstance().initializeAdaptorMgmt();
 	}
 
 	/*
