@@ -30,6 +30,7 @@ import org.apache.log4j.Logger;
 import org.eclipse.core.resources.IFile;
 import org.eclipse.core.resources.IFolder;
 import org.eclipse.core.resources.IProject;
+import org.eclipse.core.resources.IResource;
 import org.eclipse.core.resources.IWorkspaceRoot;
 import org.eclipse.core.resources.ResourcesPlugin;
 import org.eclipse.core.runtime.*;
@@ -49,8 +50,8 @@ public class CheckEclipseProject extends CheckItem {
 		
 		if (null == project) {
 			addReportItem("Eclipse Project '" + projectName + "' doesn't exist.", this.CATEGORY_ERROR);
-			addReportItem("If you are using this tool for the first time, please click the 'Fix it!' button to " +
-					"initialize the project folder.", this.CATEGORY_INFO);
+//			addReportItem("If you are using this tool for the first time, please click the 'Fix it!' button to " +
+//					"initialize the project folder.", this.CATEGORY_INFO);
 			return false;
 		}
 		
@@ -80,7 +81,7 @@ public class CheckEclipseProject extends CheckItem {
 			}
 
 		} catch (Exception e) {
-			e.printStackTrace();
+			return false;
 		}
 	
 		return true;
@@ -94,19 +95,28 @@ public class CheckEclipseProject extends CheckItem {
 		
 		IProgressMonitor progressMonitor = new NullProgressMonitor();
 
-		IWorkspaceRoot myWorkspaceRoot = ResourcesPlugin.getWorkspace().getRoot();
-		IProject project = myWorkspaceRoot.getProject(projectName);
-	
 		try {
+			IWorkspaceRoot myWorkspaceRoot = ResourcesPlugin.getWorkspace().getRoot();
+			IProject project = myWorkspaceRoot.getProject(projectName);
 			if (!project.exists()) {
-				project.create(progressMonitor);
-				project.open(progressMonitor);
+				project.create(null);
+				project.open(null);
 				
+				log.debug("created project " + projectName);
 				addReportItem("Project '" + projectName	+ "' created.", CATEGORY_FIX);
 			}
 			
 			if (project.exists() && !project.isOpen()) {
-				project.open(null);
+				try {
+					project.open(null);
+				} catch (Exception e) {
+					// recreate the project ...
+					// first remove it from eclipse cache stuff...
+					project.delete(true, null);
+					project.create(null);
+					project.open(null);
+				}
+				log.debug("opened project " + projectName);
 			}
 			
 			//Try to add subfolder for repository messages
@@ -153,6 +163,7 @@ public class CheckEclipseProject extends CheckItem {
 					e.printStackTrace();
 				} 
 				
+				log.debug("fixed project");
 			}
 			
 //			IFolder sampleFolder = project.getFolder(ResourceCenter.SAMPLE_SUBFOLDER);
