@@ -178,7 +178,11 @@ public class MessageboxView extends TableViewPart implements ISelectionListener 
 		public boolean select(Viewer aViewer, Object aParentElement, Object aElement) {
 			if (aElement instanceof LLRPMessageItem) {
 				LLRPMessageItem item = (LLRPMessageItem) aElement;
-				if (item.getMessageType().equals("RO_ACCESS_REPORT")) {
+				String msg = item.getMessageType();
+				if (null == msg) {
+					return true;
+				}
+				if ("RO_ACCESS_REPORT".equals(msg.trim())) {
 					return false;
 				}
 			}
@@ -298,11 +302,11 @@ public class MessageboxView extends TableViewPart implements ISelectionListener 
 			public void run() {
 				if (rOAccessReportFilterAction.isChecked()){
 					getViewer().addFilter(rOAccessReportFilter);
-					updateViewer(false);
+					updateViewer(true);
 				}
 				else{
 					getViewer().removeFilter(rOAccessReportFilter);
-					updateViewer(false);
+					updateViewer(true);
 				}
 			}
 		};
