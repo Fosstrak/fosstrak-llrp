@@ -30,7 +30,6 @@ import org.apache.log4j.Logger;
 import org.eclipse.core.resources.IFile;
 import org.eclipse.core.resources.IFolder;
 import org.eclipse.core.resources.IProject;
-import org.eclipse.core.resources.IResource;
 import org.eclipse.core.resources.IWorkspaceRoot;
 import org.eclipse.core.resources.ResourcesPlugin;
 import org.eclipse.core.runtime.*;
@@ -39,6 +38,7 @@ import org.fosstrak.llrp.commander.ResourceCenter;
 
 public class CheckEclipseProject extends CheckItem {
 
+	/** log4j logger. */
 	private static Logger log = Logger.getLogger(CheckEclipseProject.class);
 	
 	public boolean validate() {
@@ -49,7 +49,7 @@ public class CheckEclipseProject extends CheckItem {
 		IProject project = ResourceCenter.getInstance().getEclipseProject();
 		
 		if (null == project) {
-			addReportItem("Eclipse Project '" + projectName + "' doesn't exist.", this.CATEGORY_ERROR);
+			addReportItem("Eclipse Project '" + projectName + "' doesn't exist.", CATEGORY_ERROR);
 //			addReportItem("If you are using this tool for the first time, please click the 'Fix it!' button to " +
 //					"initialize the project folder.", this.CATEGORY_INFO);
 			return false;

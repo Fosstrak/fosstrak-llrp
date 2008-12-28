@@ -100,6 +100,8 @@ public class ResourceCenter {
 	/** the name of the configuration file for the reader configuration. */
 	public final static String RDR_CFG_FILE = "rdrCfg.properties";
 	
+	public final static String DB_SUBFOLDER = "db"; 
+	
 	private static ResourceCenter instance;
 	
 	private JavaDBRepository repo;
@@ -205,7 +207,7 @@ public class ResourceCenter {
 			}
 		}
 		
-		AdaptorManagement.getInstance().setRepository(repo);
+		AdaptorManagement.getInstance().setRepository(getRepository());
 		IWorkspaceRoot myWorkspaceRoot = ResourcesPlugin.getWorkspace().getRoot();
 		String readConfig = myWorkspaceRoot.getLocation().toString() + 
 				cfg.getFullPath().toString();
@@ -310,8 +312,25 @@ public class ResourceCenter {
 	 */
 	public Repository getRepository() {
 		if (repo == null) {
-			log.debug("create new repository");
-			repo = new JavaDBRepository();
+			log.debug("open/create new repository");
+			IProject project = getEclipseProject();
+			// refresh the workspace...
+			try {
+				project.refreshLocal(IResource.DEPTH_INFINITE, null);
+			} catch (CoreException e1) {
+				e1.printStackTrace();
+			}
+			
+			IWorkspaceRoot myWorkspaceRoot = 
+				ResourcesPlugin.getWorkspace().getRoot();
+			IFolder dbFolder = project.getFolder(
+					ResourceCenter.DB_SUBFOLDER);
+			
+			String dbLocation = myWorkspaceRoot.getLocation().toString() + 
+					dbFolder.getFullPath().toString() + "/";
+			
+			log.info("using db location: " + dbLocation);
+			repo = new JavaDBRepository(dbLocation);
 			repo.open();
 		}
 		return repo;
