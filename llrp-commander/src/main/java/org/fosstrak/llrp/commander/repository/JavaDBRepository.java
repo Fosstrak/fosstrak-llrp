@@ -136,6 +136,21 @@ public class JavaDBRepository implements Repository {
 	
 	
 	private boolean isHealth;
+	
+	/** the location of the repository. */
+	private final String repoLocation;
+	
+	/**
+	 * construct a new java db repository.
+	 * @param repoLocation the location where to create/load the repository.
+	 */
+	public JavaDBRepository(String repoLocation) {
+		if (repoLocation == null) {
+			repoLocation = DB_NAME;
+		}
+		this.repoLocation = repoLocation + DB_NAME;
+	}
+	
     /**
      * Loads the appropriate JDBC driver for this environment/framework. For
      * example, if we are in an embedded environment, we load Derby's
@@ -175,7 +190,7 @@ public class JavaDBRepository implements Repository {
 		
 		log.info("Derby EmbeddedDriver Loaded.");
 			
-		String connectURL = DB_PROTOCOL + DB_NAME + DB_CREATE;
+		String connectURL = DB_PROTOCOL + repoLocation + DB_CREATE;
 		
 		try {
 			conn = DriverManager.getConnection(connectURL);
