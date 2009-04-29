@@ -22,6 +22,12 @@ public class MessageBoxRefresh implements Runnable {
 	/** flag whether we need a refresh in the message box. */
 	private boolean dirty = false;
 	
+	/** flags whether to execute the refresher or not... */
+	private boolean doRun = true;
+	
+	/** flag that is true when the refresher has stopped. */
+	private boolean stopped = false;
+	
 	/** the message box to refresh. */
 	private MessageboxView messageboxView = null;
 	
@@ -50,11 +56,26 @@ public class MessageBoxRefresh implements Runnable {
 	}
 	
 	/**
+	 * stops the refresher from executing. 
+	 */
+	public void stop() {
+		this.doRun = false;
+	}
+	
+	/**
+	 * if the refresher has stopped true is returned.
+	 * @return true if stopped, false otherwise.
+	 */
+	public boolean hasStopped() {
+		return stopped;
+	}
+	
+	/**
 	 * execute the refresher thread.
 	 */
 	public void run() {
 		try {
-			while (true) {
+			while (doRun) {
 				if (dirty = true) {
 					dirty = false;
 					
@@ -63,10 +84,12 @@ public class MessageBoxRefresh implements Runnable {
 					// to run the call through a asyncExec/syncExec API 
 					// on the corresponding display
 					if (messageboxView != null) {
-						messageboxView.getDisplay().asyncExec(
+						// execute synchronous
+						messageboxView.getDisplay().syncExec(
 							new Runnable() {
 								public void run() {
-									messageboxView.updateViewer(false);		
+									messageboxView.updateViewer(false);	
+									log.debug("update message box.");
 								}
 							}
 						);
@@ -83,6 +106,8 @@ public class MessageBoxRefresh implements Runnable {
 		} catch (Exception e) {
 			log.error("some unknown error occured:\n" + e.getMessage());
 		}
+		
+		stopped = true;
 	}
 
 }
