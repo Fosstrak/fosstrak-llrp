@@ -129,11 +129,7 @@ public class LLRPPlugin extends AbstractUIPlugin {
 		//log.info("Store reader configuration into " + defFilename + "...");
 		
 		//AdaptorManagement.storeToFile(defFilename);
-		
-		log.info("Closing Database...");
-		ResourceCenter.getInstance().getRepository().close();
-		log.info("Undefine all readers...");
-		ResourceCenter.getInstance().disconnectAllReaders();
+		ResourceCenter.getInstance().close();
 	}
 
 	/**

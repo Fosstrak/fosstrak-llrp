@@ -641,4 +641,16 @@ public class ResourceCenter {
 			e.printStackTrace();
 		}
 	}
+	
+	/**
+	 * tear down the resource center.
+	 */
+	public void close() {
+		log.info("Closing Database...");
+		ResourceCenter.getInstance().getRepository().close();
+		log.info("Undefine all readers...");
+		ResourceCenter.getInstance().disconnectAllReaders();
+		log.info("stopping message box refresher...");
+		messageBoxRefresh.stop();
+	}
 }
