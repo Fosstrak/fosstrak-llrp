@@ -20,7 +20,11 @@
 
 package org.fosstrak.llrp.commander.dialogs;
 
+import org.eclipse.swt.widgets.Button;
+import org.eclipse.swt.widgets.Event;
+import org.eclipse.swt.widgets.Listener;
 import org.eclipse.swt.widgets.Shell;
+import org.eclipse.swt.widgets.Text;
 
 /**
  * dialog to add a new adaptor to the reader explorer.
@@ -57,6 +61,32 @@ public class AddFCDialog extends ConnectDialog {
 	 */
 	public String getIP() {
 		return values[VALUE_IP];
+	}
+
+	@Override
+	public Listener getListener(final Text txt, int offset, final Button ok) {
+		Listener listener = null;
+		switch (offset) {
+		case VALUE_NAME:
+			listener = new Listener() {
+				public void handleEvent(Event event) {
+					try {
+						if ((txt.getText() == null) || (txt.getText().length() < 3)) {
+							ok.setEnabled(false);
+						} else {
+							ok.setEnabled(true);
+						}
+					} catch (Exception e) {
+						ok.setEnabled(false);
+					}
+				}
+			};
+			break;
+		case VALUE_IP:
+			// we don't care about the IP format (hope that user does it right).
+			break;
+		}
+		return listener;
 	}
 }
 

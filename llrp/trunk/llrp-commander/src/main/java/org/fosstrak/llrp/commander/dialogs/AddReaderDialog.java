@@ -20,7 +20,11 @@
 
 package org.fosstrak.llrp.commander.dialogs;
 
-import org.eclipse.swt.widgets.Shell;;
+import org.eclipse.swt.widgets.Button;
+import org.eclipse.swt.widgets.Event;
+import org.eclipse.swt.widgets.Listener;
+import org.eclipse.swt.widgets.Shell;
+import org.eclipse.swt.widgets.Text;
 
 /**
  * dialog to add a new reader to the reader explorer.
@@ -67,5 +71,45 @@ public class AddReaderDialog extends ConnectDialog {
 	 */
 	public int getPort() {
 		return Integer.parseInt(values[VALUE_READER_PORT]);
+	}
+	
+	@Override
+	public Listener getListener(final Text txt, int offset, final Button ok) {
+		Listener listener = null;
+		switch (offset) {
+		case VALUE_READER_NAME:
+			listener = new Listener() {
+				public void handleEvent(Event event) {
+					try {
+						if ((txt.getText() == null) || (txt.getText().length() < 3)) {
+							ok.setEnabled(false);
+						} else {
+							ok.setEnabled(true);
+						}
+					} catch (Exception e) {
+						ok.setEnabled(false);
+					}
+				}
+			};
+			break;
+		case VALUE_READER_IP:
+			// we don't care about the IP format (hope that user does it right).
+			break;		
+		case VALUE_READER_PORT:
+			listener = new Listener() {
+				public void handleEvent(Event event) {
+					try {
+						// try to parse the port.
+						final int port = Integer.parseInt(txt.getText());
+						ok.setEnabled(true);
+					} catch (Exception e) {
+						ok.setEnabled(false);
+					}
+				}
+			};
+			break;
+		}
+
+		return listener;
 	}
 }
