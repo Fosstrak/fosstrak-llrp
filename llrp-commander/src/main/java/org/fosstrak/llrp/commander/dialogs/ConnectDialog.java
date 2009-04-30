@@ -20,7 +20,6 @@
 
 package org.fosstrak.llrp.commander.dialogs;
 
-import org.apache.log4j.Logger;
 import org.eclipse.jface.window.Window;
 import org.eclipse.swt.SWT;
 import org.eclipse.swt.events.SelectionAdapter;
@@ -30,106 +29,54 @@ import org.eclipse.swt.layout.GridLayout;
 import org.eclipse.swt.widgets.Button;
 import org.eclipse.swt.widgets.Composite;
 import org.eclipse.swt.widgets.Control;
-import org.eclipse.swt.widgets.Event;
 import org.eclipse.swt.widgets.Label;
-import org.eclipse.swt.widgets.Listener;
 import org.eclipse.swt.widgets.Shell;
 import org.eclipse.swt.widgets.Text;
 
+/**
+ * superclass for all the connect dialogs. all subclasses have to instantiate 
+ * the two members FIELDS and DEFAULTS as arrays providing the labels and the 
+ * default values for the fields available. <br/>
+ * <br/>
+ * <code>FIELDS = new String[]{ "test", "me" };</code><br/>
+ * <code>DEFAULTS = new String [] { "myTestDefault", "memuuDefault" };</code><br/>
+ * will create two fields with labels "test" and "me" with the respective 
+ * default values.
+ * 
+ * @author sawielan
+ *
+ */
 public class ConnectDialog extends org.eclipse.jface.dialogs.Dialog {
 	
+	/** the label of the fields. */
+	public String [] FIELDS;
+	
+	/** the default values for the fields. */
+	public String [] DEFAULTS;
+	
+	/** the values collected from the fields. */
+	public String [] values;
+	
+	/** the caption. */
+	private final String caption;
 	
 	/**
-	 * Default Logical Name
+	 * create a new connect dialog.
+	 * @param shell the parent shell.
+	 * @param caption the caption for the dialog.
 	 */
-	public final static String DEFAULT_NAME = "Untitled";
-	
-	/**
-	 * Default IP
-	 */
-	public final static String DEFAULT_IP = "127.0.0.1";
-	
-	/**
-	 * Default Port.
-	 */
-	public final static int DEFAULT_PORT = 5084;
-	
-	/**
-	 * Log4j instance.
-	 */
-	private static Logger log = Logger.getLogger(ConnectDialog.class);
-	
-	private String name;
-	private String ip;
-	private int port;
-	
-	private String caption;
-	/**
-	 * Constructor.
-	 * 
-	 * @param aShell Shell instance.
-	 */
-	public ConnectDialog(Shell aShell, String aCaption) {
-		super(aShell);
-		caption = aCaption;
-		setName(DEFAULT_NAME);
-		setIP(DEFAULT_IP);
-		setPort(DEFAULT_PORT);
-	}
-	
-	/**
-	 * Get the logical name of connection resource
-	 * @return Logical Name of connection resource
-	 */
-	public String getName() {
-		return name;
-	}
-
-	/**
-	 * Set the logical name of connection resource
-	 * @param aName Logical Name of connection resource
-	 */
-	public void setName(String aName) {
-		name = aName;
-	}
-
-	/**
-	 * Get the IP Address of connection resource
-	 * @return IP Address of connection resource
-	 */
-	public String getIP() {
-		return ip;
-	}
-
-	/**
-	 * Set the IP Address of connection resource
-	 * @param aIP IP Address of connection resource
-	 */
-	public void setIP(String aIP) {
-		ip = aIP;
-	}
-
-	/**
-	 * Get the IP Port of connection resource
-	 * @return IP Port of connection resource
-	 */
-	public int getPort() {
-		return port;
-	}
-
-	/**
-	 * Set the IP Port of connection resource
-	 * @param aPort IP Port of connection resource
-	 */
-	public void setPort(int aPort) {
-		port = aPort;
+	public ConnectDialog(Shell shell, String caption) {
+		super(shell);
+		this.caption = caption;
 	}
 	
 	/**
 	 * Create GUI elements in the dialog.
 	 */
 	protected Control createContents(Composite parent) {
-	
+		values = new String[DEFAULTS.length];
+		final Text []txts = new Text[DEFAULTS.length];
+		
 		GridLayout layout = new GridLayout();
 		layout.numColumns = 3;
 		
@@ -143,34 +90,17 @@ public class ConnectDialog extends org.eclipse.jface.dialogs.Dialog {
 		
 		parent.getShell().setLayout(layout);
 		parent.getShell().setText(caption);
-		parent.setSize(300, 150);
+		parent.setSize(300, 50 + DEFAULTS.length * 30);	
 		
-		
-		
-		Label lblName = new Label(parent, SWT.NONE);
-		lblName.setText("Logical Name:");
-		lblName.setLayoutData(gridLabel);
-		
-		final Text txtName = new Text(parent, SWT.BORDER);
-		txtName.setText(getName());
-		txtName.setLayoutData(gridText);
-		
-		
-		Label lblIP = new Label(parent, SWT.NONE);
-		lblIP.setText("IP Address:");
-		lblIP.setLayoutData(gridLabel);
-		
-		final Text txtIP = new Text(parent, SWT.BORDER);
-		txtIP.setText(getIP());
-		txtIP.setLayoutData(gridText);
-		
-		Label lblPort = new Label(parent, SWT.NONE);
-		lblPort.setText("Port:");
-		lblPort.setLayoutData(gridLabel);
-		
-		final Text txtPort = new Text(parent, SWT.BORDER);
-		txtPort.setLayoutData(gridText);
-		txtPort.setText("" + getPort());
+		for (int i=0; i<FIELDS.length; i++) {
+			Label label = new Label(parent, SWT.NONE);
+			label.setText(FIELDS[i]);
+			label.setLayoutData(gridLabel);
+			
+			txts[i] = new Text(parent, SWT.BORDER);
+			txts[i].setText(DEFAULTS[i]);
+			txts[i].setLayoutData(gridText);
+		}
 		
 		final Button btnOK = new Button(parent, SWT.PUSH);
 		btnOK.setText("OK");
@@ -178,15 +108,18 @@ public class ConnectDialog extends org.eclipse.jface.dialogs.Dialog {
 		
 		btnOK.addSelectionListener(new SelectionAdapter() {
 		      public void widgetSelected(SelectionEvent e) {
-		        setName(txtName.getText());
-		        setIP(txtIP.getText());
-		        
-		        setReturnCode(Window.OK);
-		        close();
+		    	  for (int i=0; i<DEFAULTS.length; i++) {
+		    		  values[i] = txts[i].getText();
+		    	  }
+				
+		    	  setReturnCode(Window.OK);
+		    	  close();
 		      }
 		    });
 		
-		
+		/*
+		 // TODO: reintroduce this behavior for the tests
+		   
 		txtName.addListener(SWT.Modify, new Listener() {
 			public void handleEvent(Event event) {
 				try {
@@ -215,7 +148,7 @@ public class ConnectDialog extends org.eclipse.jface.dialogs.Dialog {
 		});
 		
 
-		
+		*/
 		final Button btnCancel = new Button(parent, SWT.PUSH);
 		btnCancel.setText("Cancel");
 		btnCancel.setLayoutData(gridLabel);
