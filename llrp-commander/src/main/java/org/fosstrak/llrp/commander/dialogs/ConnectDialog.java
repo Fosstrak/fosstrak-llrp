@@ -30,6 +30,7 @@ import org.eclipse.swt.widgets.Button;
 import org.eclipse.swt.widgets.Composite;
 import org.eclipse.swt.widgets.Control;
 import org.eclipse.swt.widgets.Label;
+import org.eclipse.swt.widgets.Listener;
 import org.eclipse.swt.widgets.Shell;
 import org.eclipse.swt.widgets.Text;
 
@@ -46,7 +47,7 @@ import org.eclipse.swt.widgets.Text;
  * @author sawielan
  *
  */
-public class ConnectDialog extends org.eclipse.jface.dialogs.Dialog {
+public abstract class ConnectDialog extends org.eclipse.jface.dialogs.Dialog {
 	
 	/** the label of the fields. */
 	public String [] FIELDS;
@@ -117,38 +118,15 @@ public class ConnectDialog extends org.eclipse.jface.dialogs.Dialog {
 		      }
 		    });
 		
-		/*
-		 // TODO: reintroduce this behavior for the tests
-		   
-		txtName.addListener(SWT.Modify, new Listener() {
-			public void handleEvent(Event event) {
-				try {
-					if ((txtName.getText() == null) || (txtName.getText().length() < 3)) {
-						btnOK.setEnabled(false);
-					} else {
-						btnOK.setEnabled(true);
-						setName(txtName.getText());
-					}
-				} catch (Exception e) {
-					btnOK.setEnabled(false);
-				}
+		// add the selection listeners.
+		for (int i=0; i<DEFAULTS.length; i++) {
+			Listener listener = getListener(txts[i], i, btnOK);
+			if (null != listener) {
+				// add a listener
+				txts[i].addListener(SWT.Modify, listener);
 			}
-		});
+		}
 		
-		txtPort.addListener(SWT.Modify, new Listener() {
-			public void handleEvent(Event event) {
-				try {
-					int port = (new Integer(txtPort.getText())).intValue();
-					btnOK.setEnabled(true);
-					setPort(port);
-				} catch (Exception e) {
-					btnOK.setEnabled(false);
-				}
-			}
-		});
-		
-
-		*/
 		final Button btnCancel = new Button(parent, SWT.PUSH);
 		btnCancel.setText("Cancel");
 		btnCancel.setLayoutData(gridLabel);
@@ -161,4 +139,15 @@ public class ConnectDialog extends org.eclipse.jface.dialogs.Dialog {
 		
 		return parent;
 	}
+	
+	/**
+	 * this method allows the subclasses to put constraints via listeners 
+	 * on the content of the value fields. you can use the offset to determine 
+	 * the field.
+	 * @param txt the field holding the changed text.
+	 * @param offset the offset of the field. 
+	 * @param ok the OK button.
+	 * @return null if no constraint, otherwise the listener.
+	 */
+	public abstract Listener getListener(final Text txt, int offset, final Button ok);
 }
