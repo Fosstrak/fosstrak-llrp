@@ -22,13 +22,41 @@ package org.fosstrak.llrp.commander.dialogs;
 
 import org.eclipse.swt.widgets.Shell;
 
-
+/**
+ * dialog to add a new adaptor to the reader explorer.
+ * @author sawielan
+ *
+ */
 public class AddFCDialog extends ConnectDialog {
 	
+	/** the index for the adaptor name in the values array. */
+	private static final int VALUE_NAME = 0;
+	
+	/** the index for the adaptor ip in the values array. */
+	private static final int VALUE_IP = 1;
 
+	/**
+	 * create a new add adaptor dialog.
+	 * @param aShell the parent shell.
+	 */
 	public AddFCDialog(Shell aShell) {
 		super(aShell, "Add Adapter");
+		FIELDS = new String[] { "Adapter Name", "IP" };
+		DEFAULTS = new String [] { "AdapterName", "127.0.0.1" };
+	}
+
+	/**
+	 * @return Logical Name of connection resource
+	 */
+	public String getName() {
+		return values[VALUE_NAME];
 	}
 	
+	/**
+	 * @return IP Address of connection resource
+	 */
+	public String getIP() {
+		return values[VALUE_IP];
+	}
 }
 
