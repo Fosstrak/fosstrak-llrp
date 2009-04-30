@@ -67,7 +67,7 @@ public class ResourceCenter {
 	/**
 	 * Maximal message retrieval number
 	 */
-	public final static int GET_MAX_MESSAGES = 5000;
+	public final static int GET_MAX_MESSAGES = 25;
 	
 	/**
 	 * Default Eclipse Project for storing editable messages
@@ -652,5 +652,12 @@ public class ResourceCenter {
 		ResourceCenter.getInstance().disconnectAllReaders();
 		log.info("stopping message box refresher...");
 		messageBoxRefresh.stop();
+	}
+
+	/**
+	 * @return the messageBoxRefresh
+	 */
+	public MessageBoxRefresh getMessageBoxRefresh() {
+		return messageBoxRefresh;
 	}
 }
