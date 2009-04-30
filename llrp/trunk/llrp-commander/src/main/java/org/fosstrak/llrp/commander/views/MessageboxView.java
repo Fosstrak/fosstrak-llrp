@@ -20,18 +20,38 @@
 
 package org.fosstrak.llrp.commander.views;
 
-import java.util.*;
+import java.util.ArrayList;
+
+import org.apache.log4j.Logger;
+import org.eclipse.jface.action.Action;
+import org.eclipse.jface.action.IMenuManager;
+import org.eclipse.jface.action.IToolBarManager;
+import org.eclipse.jface.action.Separator;
+import org.eclipse.jface.dialogs.Dialog;
+import org.eclipse.jface.dialogs.IInputValidator;
+import org.eclipse.jface.resource.ImageDescriptor;
+import org.eclipse.jface.viewers.ColumnLayoutData;
+import org.eclipse.jface.viewers.ColumnWeightData;
+import org.eclipse.jface.viewers.DoubleClickEvent;
+import org.eclipse.jface.viewers.IDoubleClickListener;
+import org.eclipse.jface.viewers.ISelection;
+import org.eclipse.jface.viewers.IStructuredSelection;
+import org.eclipse.jface.viewers.TableViewer;
+import org.eclipse.jface.viewers.Viewer;
+import org.eclipse.jface.viewers.ViewerComparator;
+import org.eclipse.jface.viewers.ViewerFilter;
+import org.eclipse.jface.window.Window;
 import org.eclipse.swt.widgets.Composite;
 import org.eclipse.swt.widgets.Display;
-import org.eclipse.jface.resource.ImageDescriptor;
-import org.eclipse.jface.viewers.*;
-import org.eclipse.jface.action.*;
-import org.eclipse.ui.*;
+import org.eclipse.ui.ISelectionListener;
+import org.eclipse.ui.ISharedImages;
+import org.eclipse.ui.IWorkbenchPart;
+import org.eclipse.ui.PlatformUI;
 import org.fosstrak.llrp.client.LLRPMessageItem;
 import org.fosstrak.llrp.client.Repository;
-import org.fosstrak.llrp.commander.*;
-import org.fosstrak.llrp.commander.repository.JavaDBRepository;
-import org.apache.log4j.Logger;
+import org.fosstrak.llrp.commander.ResourceCenter;
+import org.fosstrak.llrp.commander.dialogs.MessageboxViewOptionsDialog;
+import org.fosstrak.llrp.commander.util.MessageBoxRefresh;
 
 /**
  * This sample class demonstrates how to plug-in a new workbench view. The view
@@ -93,6 +113,9 @@ public class MessageboxView extends TableViewPart implements ISelectionListener 
 	 * Column ID for Message Comments.
 	 */
 	public static final int COL_MSG_COMMENT = 6;
+	
+	/** the number of messages to display in the message box. */
+	private int displayNumMessages = ResourceCenter.GET_MAX_MESSAGES;
 
 	private String columnHeaders[] = { "", "ID", "Reader", "Message Type", "Status Code",
 			"Time", "Comment" };
@@ -105,17 +128,29 @@ public class MessageboxView extends TableViewPart implements ISelectionListener 
 	
 	private Action rOAccessReportFilterAction;
 
+	/** action to enable/disable auto refresh */
+	private Action autoRefreshAction;
+	
+	/** action to set the refresh options. */
+	private Action optionsAction;
+	
 	private MessageFilter filter;
 	
 	private ROAccessReportFilter rOAccessReportFilter;
 	
 	private String selectedAdapter, selectedReader;
 	
+	/** the name of the auto refresh icon. */
+	public static final String ICON_AUTO_REFRESH = "autorefresh.gif";
+	
 	/** 
 	 * access to the display is needed by the asyncExec/syncExec API 
 	 * to allow multi-threaded access to the SWT widget
 	 */
 	protected Display display = null;
+	
+	/** access to this pointer for inner classes. */
+	private MessageboxView mbv = this;
 	
 	/**
 	 * filter according the selected adapter. 
@@ -269,12 +304,15 @@ public class MessageboxView extends TableViewPart implements ISelectionListener 
 		super.fillContextMenu(manager);
 		manager.add(rOAccessReportFilterAction);
 		manager.add(deleteAction);
+		manager.add(autoRefreshAction);
+		manager.add(optionsAction);
 		manager.add(new Separator("Additions"));
 	}
 
 	protected void fillLocalToolBar(IToolBarManager manager) {
 		super.fillLocalToolBar(manager);
 		manager.add(rOAccessReportFilterAction);
+		manager.add(autoRefreshAction);
 		manager.add(deleteAction);
 	}
 
@@ -330,6 +368,51 @@ public class MessageboxView extends TableViewPart implements ISelectionListener 
 				}
 			}
 		});
+		
+		autoRefreshAction = new Action() {
+			public void run() {
+				boolean refresh = false;
+				if (autoRefreshAction.isChecked()) {
+					refresh = true;
+				}
+				ResourceCenter.getInstance().getMessageBoxRefresh().setRefresh(refresh);
+			}
+		};
+		final String autoRefreshText = String.format("Auto-Refresh (%d ms)", 
+				MessageBoxRefresh.DEFAULT_REFRESH_INTERVAL_MS);
+		autoRefreshAction.setText(autoRefreshText);
+		autoRefreshAction.setToolTipText(autoRefreshText);
+		autoRefreshAction.setChecked(MessageBoxRefresh.DEFAULT_REFRESH_BEHAVIOR);
+		autoRefreshAction.setImageDescriptor(
+				ResourceCenter.getInstance().getImageDescriptor(ICON_AUTO_REFRESH));
+		
+		optionsAction = new Action() {
+			public void run() {
+				MessageboxViewOptionsDialog dlg = new MessageboxViewOptionsDialog(display.getActiveShell(), mbv);
+				if (Window.OK == dlg.open()) {
+					try {
+						final long rt = dlg.getRefreshTime();
+						
+						ResourceCenter.getInstance().getMessageBoxRefresh().setRefreshTime(rt);
+						final String autoRefreshText = String.format("Auto-Refresh (%d ms)", 
+								rt);
+						autoRefreshAction.setText(autoRefreshText);
+						autoRefreshAction.setToolTipText(autoRefreshText);
+						
+						final int nMsg = dlg.getNumberOfMessages();
+						displayNumMessages = nMsg;
+						if (nMsg <= 0) {
+							displayNumMessages = Repository.RETRIEVE_ALL;
+						}
+					} catch (Exception e) {
+						log.error("could not change the refresh time.");
+					}
+				}
+			}
+		};
+		final String optionsText = "Options";
+		optionsAction.setText(optionsText);
+		optionsAction.setToolTipText(optionsText);
 	}
 	
 	/**
@@ -384,7 +467,7 @@ public class MessageboxView extends TableViewPart implements ISelectionListener 
 				ArrayList<LLRPMessageItem> msgs = repo.get(
 						selectedAdapter, 
 						selectedReader, 
-						ResourceCenter.GET_MAX_MESSAGES,
+						displayNumMessages,
 						false);
 				
 				getViewer().getTable().removeAll();
@@ -406,5 +489,17 @@ public class MessageboxView extends TableViewPart implements ISelectionListener 
 			notifyAll();
 		}
 	}
+	/**
+	 * @param displayNumMessages the displayNumMessages to set
+	 */
+	public void setDisplayNumMessages(int displayNumMessages) {
+		this.displayNumMessages = displayNumMessages;
+	}
 
+	/**
+	 * @return the displayNumMessages
+	 */
+	public int getDisplayNumMessages() {
+		return displayNumMessages;
+	}
 }

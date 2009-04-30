@@ -13,8 +13,11 @@ import org.fosstrak.llrp.commander.views.MessageboxView;
  */
 public class MessageBoxRefresh implements Runnable {
 
-	/** the interval to refresh the messagebox view. */
-	public static final long REFRESH_INTERVAL_MS = 1000;
+	/** the default interval to refresh the messagebox view. */
+	public static final long DEFAULT_REFRESH_INTERVAL_MS = 5000;
+	
+	/** the interval to refresh the messagebox view. */ 
+	public long refreshTime = DEFAULT_REFRESH_INTERVAL_MS;
 	
 	/** the log4j logger. */
 	private static Logger log = Logger.getLogger(MessageBoxRefresh.class);
@@ -31,6 +34,12 @@ public class MessageBoxRefresh implements Runnable {
 	/** the message box to refresh. */
 	private MessageboxView messageboxView = null;
 	
+	/** whether to refresh or not by default. */
+	public static final boolean DEFAULT_REFRESH_BEHAVIOR = true;
+	
+	/** whether to refresh or not. */
+	private boolean doRefresh = DEFAULT_REFRESH_BEHAVIOR;
+	
 	/**
 	 * constructor for the message box refresher thread. 
 	 * @param messageboxView the message box to be refreshed.
@@ -45,6 +54,14 @@ public class MessageBoxRefresh implements Runnable {
 	 */
 	public void setDirty() {
 		dirty = true;
+	}
+	
+	/**
+	 * turn on/off the refresh behavior.
+	 * @param refresh if set to true refresh the messagebox, otherwise not.
+	 */
+	public void setRefresh(boolean refresh) {
+		doRefresh = refresh;
 	}
 	
 	/**
@@ -71,12 +88,30 @@ public class MessageBoxRefresh implements Runnable {
 	}
 	
 	/**
+	 * set the refresh time to use. if never set, the default refresh
+	 * time is used.
+	 * @param refreshTime the new refresh time.
+	 */
+	public void setRefreshTime(long refreshTime) {
+		if (refreshTime > 0) {
+			this.refreshTime = refreshTime;
+		}
+	}
+	
+	/**
+	 * @return the refresh time.
+	 */
+	public long getRefreshTime() {
+		return refreshTime;
+	}
+	
+	/**
 	 * execute the refresher thread.
 	 */
 	public void run() {
 		try {
 			while (doRun) {
-				if (dirty = true) {
+				if ((true == dirty) && (true == doRefresh)) {
 					dirty = false;
 					
 					// SWT threads do not allow other threads to access 
@@ -88,7 +123,7 @@ public class MessageBoxRefresh implements Runnable {
 						messageboxView.getDisplay().syncExec(
 							new Runnable() {
 								public void run() {
-									messageboxView.updateViewer(false);	
+									messageboxView.updateViewer(true);	
 									log.debug("update message box.");
 								}
 							}
@@ -99,7 +134,7 @@ public class MessageBoxRefresh implements Runnable {
 				}
 
 				// wait for the next refresh...
-				Thread.sleep(REFRESH_INTERVAL_MS);
+				Thread.sleep(refreshTime);
 			}
 		} catch (InterruptedException e) {
 			log.info("received interrupt, stop refreshing messagebox.");
@@ -109,5 +144,4 @@ public class MessageBoxRefresh implements Runnable {
 		
 		stopped = true;
 	}
-
 }
