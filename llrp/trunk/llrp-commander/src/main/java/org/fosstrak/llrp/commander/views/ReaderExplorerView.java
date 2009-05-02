@@ -285,6 +285,8 @@ public class ReaderExplorerView extends ViewPart {
 				try {
 					// by default do not show the remove adaptor item
 					actionRemoveAdaptor.setEnabled(false);
+					actionAddAdapter.setEnabled(false);
+					actionAddReader.setEnabled(false);
 					
 					// check whether the requested adaptor is registered in the mgmt
 					if (AdaptorManagement.getInstance().containsAdaptor(adaptorName)) {
@@ -298,7 +300,11 @@ public class ReaderExplorerView extends ViewPart {
 							AdaptorManagement.DEFAULT_ADAPTOR_NAME)) {
 							
 							actionRemoveAdaptor.setEnabled(true);
+						} else {
+							actionAddReader.setEnabled(true);
 						}
+					} else {
+						actionAddAdapter.setEnabled(true);
 					}
 				} catch (Exception e) {
 					log.error("caught exception when adding undefine adaptor menu");
@@ -307,6 +313,8 @@ public class ReaderExplorerView extends ViewPart {
 				
 				
 				manager.add(actionRemoveAdaptor);
+				manager.add(actionAddAdapter);
+				manager.add(actionAddReader);
 			}
 		}
 		//drillDownAdapter.addNavigationActions(manager);
@@ -369,15 +377,20 @@ public class ReaderExplorerView extends ViewPart {
 					return;
 				}
 				
-				
+				String message = null;
 				try {
 					// Define the Adapter in Adapter Management module.
 					Adaptor localAdapter = AdaptorManagement.getInstance().getDefaultAdaptor();
 					localAdapter.define(dlg.getName(), dlg.getIP(), dlg.getPort(), true, true);
 				} catch (LLRPRuntimeException llrpe) {
-					llrpe.printStackTrace();
+					log.info(llrpe.getMessage());
+					message = llrpe.getMessage();
 				} catch (RemoteException re) {
-					re.printStackTrace();
+					log.info(re.getMessage());
+					message = re.getMessage();
+				}
+				if (null != message) {
+					MessageDialog.openWarning(viewer.getControl().getShell(), "Could not create Reader", message);
 				}
 				
 				log.debug("Refreshing the Reader Tree...");
