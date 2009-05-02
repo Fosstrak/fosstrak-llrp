@@ -333,15 +333,22 @@ public class ReaderExplorerView extends ViewPart {
 					return;
 				}
 				
+				String message = null;
 				try {
 					// Define the Adapter in Adapter Management module.
 					AdaptorManagement.getInstance().define(dlg.getName(), dlg.getIP());
 				} catch (LLRPRuntimeException llrpe) {
-					llrpe.printStackTrace();
+					log.info(llrpe.getMessage());
+					message = llrpe.getMessage();
 				} catch (NotBoundException nbe) {
-					nbe.printStackTrace();
+					log.info(nbe.getMessage());
+					message = nbe.getMessage();
 				} catch (RemoteException re) {
-					re.printStackTrace();
+					log.info(re.getMessage());
+					message = re.getMessage();
+				}
+				if (null != message) {
+					MessageDialog.openWarning(viewer.getControl().getShell(), "Could not create Adapter", message);
 				}
 				
 				refresh();
