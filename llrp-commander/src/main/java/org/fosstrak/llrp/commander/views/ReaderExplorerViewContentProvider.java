@@ -187,11 +187,16 @@ public class ReaderExplorerViewContentProvider implements
 				Adaptor adaptor = AdaptorManagement.getInstance().getAdaptor(adaptorName);
 				
 				List<String> readerList = adaptor.getReaderNames();
-				Iterator<String> j = readerList.iterator();
-				while (j.hasNext()) {
-					String readerName = j.next();
-					
-					addReader(rootAdapters, adaptorName, readerName, adaptor.getReader(readerName).isConnected());
+				if (readerList.size() == 0) {
+					// add empty adaptor
+					getAdapterNode(rootAdapters, adaptorName);
+				} else {
+					Iterator<String> j = readerList.iterator();
+					while (j.hasNext()) {
+						String readerName = j.next();
+						
+						addReader(rootAdapters, adaptorName, readerName, adaptor.getReader(readerName).isConnected());
+					}
 				}
 			}
 		} catch (LLRPRuntimeException llrpe) {
