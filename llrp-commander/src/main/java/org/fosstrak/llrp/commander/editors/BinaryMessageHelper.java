@@ -56,15 +56,15 @@ public class BinaryMessageHelper {
 	 * @throws Exception if message is not valid.
 	 */
 	public BinaryMessageHelper(String aXMLContent) throws Exception {
-		log.info("Start tranforming.");
+		log.debug("Start tranforming.");
 		Document doc = new org.jdom.input.SAXBuilder()
 				.build(new StringReader(aXMLContent));
-		XMLOutputter outputter = new XMLOutputter(Format.getPrettyFormat());
-		log.debug("Input XML Message: " + outputter.outputString(doc));
+		//XMLOutputter outputter = new XMLOutputter(Format.getPrettyFormat());
+		//log.debug("Input XML Message: " + outputter.outputString(doc));
 		LLRPMessage message = LLRPMessageFactory.createLLRPMessage(doc);
 
 		bitList = new LLRPBitList(message.toBinaryString());
-		log.info("Finish tranforming.");
+		log.debug("Finish tranforming.");
 	}
 	
 	/**

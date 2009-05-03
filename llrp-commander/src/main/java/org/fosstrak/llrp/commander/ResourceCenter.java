@@ -135,6 +135,9 @@ public class ResourceCenter {
 	/** flags whether the adaptor management has been initialized or not. */
 	private boolean initialized = false;
 	
+	/** use an image cache in order not to recreate images over and over again.*/
+	private Map<String, Image> imageCache = new HashMap<String, Image> ();
+	
     /**
      * Private Constructor, internally called.
      */
@@ -506,15 +509,22 @@ public class ResourceCenter {
 	public void setReaderDefinitionFilename(String aReaderDefinitionFilename) {
 		readerDefinitionFilename = aReaderDefinitionFilename;
 	}
-	
+		
 	/**
 	 * Get <code>Image</code> from icon folder
 	 * @param aFilename Image filename
 	 * @return Image instance
 	 */
 	public Image getImage(String aFilename) {
-		log.debug("Generate Image:" + "icons/" + aFilename);
-		return LLRPPlugin.getImageDescriptor("icons/" + aFilename).createImage();
+		synchronized (imageCache) {
+			if (imageCache.containsKey(aFilename)) {
+				return imageCache.get(aFilename);
+			}
+			log.debug("Generate Image:" + "icons/" + aFilename);
+			Image img = LLRPPlugin.getImageDescriptor("icons/" + aFilename).createImage();
+			imageCache.put(aFilename, img);
+			return img;
+		}
 	}
 	
 	/**

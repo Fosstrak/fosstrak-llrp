@@ -51,6 +51,9 @@ public class MessageboxViewOptionsDialog extends Dialog {
 	/** the number of messages to be displayed. */
 	private int numberOfMessages;
 	
+	/** the messagebox view. */
+	private MessageboxView mbv;
+	
 	/**
 	 * create a new options dialog. 
 	 * @param aShell Shell instance.
@@ -60,6 +63,7 @@ public class MessageboxViewOptionsDialog extends Dialog {
 		super(aShell);
 		numberOfMessages = mbv.getDisplayNumMessages();
 		refreshTime = ResourceCenter.getInstance().getMessageBoxRefresh().getRefreshTime();
+		this.mbv = mbv;
 	}
 		
 	/**
@@ -80,7 +84,7 @@ public class MessageboxViewOptionsDialog extends Dialog {
 		
 		parent.getShell().setLayout(layout);
 		parent.getShell().setText("Messagebox View Options");
-		parent.setSize(300, 150);
+		parent.setSize(350, 120);
 		
 		Label lblRefreshTime = new Label(parent, SWT.NONE);
 		lblRefreshTime.setText("Refresh Time (ms):");
@@ -89,15 +93,26 @@ public class MessageboxViewOptionsDialog extends Dialog {
 		final Text txtRefreshTime = new Text(parent, SWT.BORDER);
 		txtRefreshTime.setText(String.format("%d", getRefreshTime()));
 		txtRefreshTime.setLayoutData(gridText);
-		
+	
 		
 		Label lblNMsg = new Label(parent, SWT.NONE);
-		lblNMsg.setText("Number of Messages:");
+		lblNMsg.setText(String.format("Number of Messages (of %d):",
+				ResourceCenter.getInstance().getRepository().count(
+						mbv.getSelectedAdapter(), 
+						mbv.getSelectedReader())));
 		lblNMsg.setLayoutData(gridLabel);
 		
 		final Text txtNMsg = new Text(parent, SWT.BORDER);
 		txtNMsg.setText(String.format("%d", getNumberOfMessages()));
 		txtNMsg.setLayoutData(gridText);
+		
+		GridData gridAll = new GridData(GridData.FILL_BOTH);
+		gridAll.verticalSpan = 1;
+		gridAll.horizontalSpan = 3;
+		
+		final Label lblHint = new Label(parent, SWT.NONE);
+		lblHint.setText("Hint: set -1 to display all the Messages.");
+		lblHint.setLayoutData(gridAll);
 		
 		final Button btnOK = new Button(parent, SWT.PUSH);
 		btnOK.setText("OK");

@@ -20,24 +20,28 @@
 
 package org.fosstrak.llrp.commander;
 
+import java.io.BufferedReader;
+import java.io.File;
+import java.io.FileInputStream;
 import java.io.IOException;
+import java.io.InputStreamReader;
 import java.net.URISyntaxException;
 import java.net.URL;
 
+import org.apache.log4j.Logger;
+import org.apache.log4j.PropertyConfigurator;
 import org.eclipse.core.resources.IResource;
 import org.eclipse.core.resources.ResourcesPlugin;
 import org.eclipse.core.runtime.FileLocator;
 import org.eclipse.jface.preference.IPreferenceStore;
 import org.eclipse.jface.resource.ImageDescriptor;
-import org.eclipse.ui.PlatformUI;
 import org.eclipse.ui.plugin.AbstractUIPlugin;
 import org.fosstrak.llrp.commander.check.CheckEclipseProject;
 import org.fosstrak.llrp.commander.check.CheckRepository;
 import org.fosstrak.llrp.commander.check.HealthCheck;
 import org.fosstrak.llrp.commander.preferences.PreferenceConstants;
+import org.fosstrak.llrp.commander.util.Utility;
 import org.osgi.framework.BundleContext;
-
-import org.apache.log4j.*;
 
 /**
  * The activator class controls the plug-in life cycle
@@ -65,8 +69,10 @@ public class LLRPPlugin extends AbstractUIPlugin {
 	 * The constructor
 	 */
 	public LLRPPlugin() {
-		//BasicConfigurator.configure();
-		//Logger.getRootLogger().setLevel(Level.DEBUG);
+		
+		String prop = Utility.findWithFullPath("/log4j.properties");
+    	// initialize the log4j facilities.
+    	PropertyConfigurator.configure(prop);
 	}
 
 	/*
