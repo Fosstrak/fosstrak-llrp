@@ -199,7 +199,14 @@ public class JavaDBRepository implements Repository {
 			isHealth = false;
 			e.printStackTrace();
 		}
-		
+//		dropTable();
+//		createTable();
+	}
+	
+	/** 
+	 * drops the table. 
+	 */
+	private void dropTable() {
 		try {
 			// TODO: shall we really drop the table at each startup?
 			
@@ -211,14 +218,19 @@ public class JavaDBRepository implements Repository {
 		} catch (Exception e) {
 			log.info("Table doesn't exist. Remove failed." + e.getMessage());
 		}
-		
+	}
+	
+	/**
+	 * generates the necessary tables.
+	 */
+	private void createTable() {
 		try {
 			
 			Statement sCreateTable = conn.createStatement();
 			
-			/* In first time, the message table will be created. If the table
-			 * exists. The Exception will be triggered.
-			 */
+			// In first time, the message table will be created. If the table
+			// exists. The Exception will be triggered.
+			//
 			sCreateTable.execute(SQL_CREATE_TABLE);
 			sCreateTable.close();
 			
@@ -342,9 +354,7 @@ public class JavaDBRepository implements Repository {
 				msg.setMark(results.getInt(SELECTOR_MARK));
 				msg.setStatusCode(results.getString(SELECTOR_STATUS));
 				
-				log.error(msg.prettyPrint());
-				
-				log.info("Get Message (ID=" + results.getString(1) + ") from JavaDB.");
+				log.debug("Get Message (ID=" + results.getString(1) + ") from JavaDB.");
 			}
 			
 			psSelect.close();
@@ -392,7 +402,7 @@ public class JavaDBRepository implements Repository {
 				ResourceCenter.getInstance().addReaderROSpec(aMessage.getAdapter(), aMessage.getReader(), aMessage.getId());
 			}
 			
-			log.info("Put Message (ID=" + aMessage.getId() + ") into JavaDB.");
+			log.debug("Put Message (ID=" + aMessage.getId() + ") into JavaDB.");
 		} catch (SQLException sqle) {
             sqle.printStackTrace();
 		}
@@ -410,6 +420,36 @@ public class JavaDBRepository implements Repository {
 	
 	public boolean isHealth() {
 		return isHealth;
+	}
+
+	public int count(String adaptor, String reader) {
+				
+		int rowcount = 0;
+		try {
+			Statement stmt = conn.createStatement();
+			String query = "SELECT COUNT(*) FROM LLRP_MSG";
+			if (null == adaptor) {
+				// all ok
+			} else if (null == reader) {
+				// restrict to adaptor
+				query = String.format("%s WHERE ADAPTER='%s'", query, adaptor);
+			} else {
+				query = String.format("%s WHERE ADAPTER='%s' AND READER='%s'", 
+						query, adaptor, reader);
+			}
+			ResultSet resultSet = stmt.executeQuery(query);
+	    
+	        // Get the number of rows from the result set
+	        resultSet.next();
+	        rowcount = resultSet.getInt(1);
+	        stmt.close();
+	        resultSet.close();
+		} catch (SQLException e) {
+			log.error("Could not retrieve the number of messages: " + 
+					e.getMessage());
+		}
+		
+		return rowcount;
 	}
 }
 

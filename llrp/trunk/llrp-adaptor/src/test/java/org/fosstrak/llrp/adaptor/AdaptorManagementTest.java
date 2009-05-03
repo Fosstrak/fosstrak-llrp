@@ -180,6 +180,11 @@ public class AdaptorManagementTest extends TestCase {
 				return null;
 			}
 
+			public int count(String adaptor, String reader) {
+				// TODO Auto-generated method stub
+				return 0;
+			}
+
 			
 		}
 		TestNotify testNotify = new TestNotify();

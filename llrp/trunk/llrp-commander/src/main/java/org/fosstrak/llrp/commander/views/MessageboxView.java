@@ -139,7 +139,7 @@ public class MessageboxView extends TableViewPart implements ISelectionListener 
 	private ROAccessReportFilter rOAccessReportFilter;
 	
 	private String selectedAdapter, selectedReader;
-	
+
 	/** the name of the auto refresh icon. */
 	public static final String ICON_AUTO_REFRESH = "autorefresh.gif";
 	
@@ -458,6 +458,10 @@ public class MessageboxView extends TableViewPart implements ISelectionListener 
 	 * new messages get added to the view.
 	 */
 	public synchronized void updateViewer(boolean reload) {
+
+		// we want to know how long this takes...
+		long st = System.currentTimeMillis();
+		
 		synchronized (this) {
 			filter.setCondition(selectedAdapter, selectedReader);
 			if (reload) {
@@ -476,6 +480,7 @@ public class MessageboxView extends TableViewPart implements ISelectionListener 
 				ResourceCenter.getInstance().clearMessageMetadataList();
 				
 			} else {
+				
 				ArrayList<LLRPMessageItem> list = 
 					ResourceCenter.getInstance().getMessageMetadataList();
 				
@@ -488,7 +493,12 @@ public class MessageboxView extends TableViewPart implements ISelectionListener 
 			// inform all the other threads about the free lock.
 			notifyAll();
 		}
+		
+		long et = System.currentTimeMillis();
+		log.debug(String.format("Messagebox redraw time: %d", 
+				et - st));
 	}
+	
 	/**
 	 * @param displayNumMessages the displayNumMessages to set
 	 */
@@ -501,5 +511,19 @@ public class MessageboxView extends TableViewPart implements ISelectionListener 
 	 */
 	public int getDisplayNumMessages() {
 		return displayNumMessages;
+	}
+	
+	/**
+	 * @return the selectedAdapter
+	 */
+	public final String getSelectedAdapter() {
+		return selectedAdapter;
+	}
+
+	/**
+	 * @return the selectedReader
+	 */
+	public final String getSelectedReader() {
+		return selectedReader;
 	}
 }

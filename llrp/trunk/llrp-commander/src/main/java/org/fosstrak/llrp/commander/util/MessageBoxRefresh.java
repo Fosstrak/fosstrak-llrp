@@ -1,6 +1,11 @@
 package org.fosstrak.llrp.commander.util;
 
+import java.util.ArrayList;
+
 import org.apache.log4j.Logger;
+import org.fosstrak.llrp.client.LLRPMessageItem;
+import org.fosstrak.llrp.client.Repository;
+import org.fosstrak.llrp.commander.ResourceCenter;
 import org.fosstrak.llrp.commander.views.MessageboxView;
 
 /**
@@ -35,7 +40,7 @@ public class MessageBoxRefresh implements Runnable {
 	private MessageboxView messageboxView = null;
 	
 	/** whether to refresh or not by default. */
-	public static final boolean DEFAULT_REFRESH_BEHAVIOR = true;
+	public static final boolean DEFAULT_REFRESH_BEHAVIOR = false;
 	
 	/** whether to refresh or not. */
 	private boolean doRefresh = DEFAULT_REFRESH_BEHAVIOR;
@@ -123,11 +128,12 @@ public class MessageBoxRefresh implements Runnable {
 						messageboxView.getDisplay().syncExec(
 							new Runnable() {
 								public void run() {
-									messageboxView.updateViewer(true);	
+									messageboxView.updateViewer(false);
 									log.debug("update message box.");
 								}
 							}
 						);
+
 					} else {
 						log.debug("no message box set...");
 					}
@@ -140,6 +146,8 @@ public class MessageBoxRefresh implements Runnable {
 			log.info("received interrupt, stop refreshing messagebox.");
 		} catch (Exception e) {
 			log.error("some unknown error occured:\n" + e.getMessage());
+			e.printStackTrace();
+			System.exit(-1);
 		}
 		
 		stopped = true;

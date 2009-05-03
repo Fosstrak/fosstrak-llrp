@@ -79,6 +79,16 @@ public interface Repository {
 			String adaptorName, String readerName, int num, boolean content);
 	
 	/**
+	 * returns the number of messages in the repository to a given filter.
+	 * @param adaptor the name of the adaptor to filter. if null all the 
+	 * messages in the repository get return.
+	 * @param reader the name of the reader to filter. if null all the 
+	 * messages of the given adaptor will be returned.
+	 * @return the number of messages in the repository.
+	 */
+	public int count(String adaptor, String reader);
+	
+	/**
 	 * Clear all the items in repository.
 	 */
 	public void clearAll();
