@@ -161,4 +161,11 @@ public interface Reader extends Remote  {
 	 * @throws RemoteException whenever there is an RMI error.
 	 */
 	public boolean isReportKeepAlive() throws RemoteException;
+	
+	/**
+	 * the reader meta-data contains information about the reader, the settings, etc.
+	 * @return a meta-data structure.
+	 * @throws RemoteException whenever there is an RMI error.
+	 */
+	public ReaderMetaData getMetaData() throws RemoteException;
 }
