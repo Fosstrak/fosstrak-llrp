@@ -45,4 +45,7 @@ public class PreferenceConstants {
 	public static final String P_DEFAULT_EDITOR_XML = "xml_editor";
 	public static final String P_DEFAULT_EDITOR_BINARY = "binary_viewer";
 	
+	/** name of the preference field for the configuration of the db-wipe. */
+	public static final String P_WIPE_DB_ON_STARTUP = "wipeDBOnStartup";
+	
 }

@@ -20,9 +20,12 @@
 
 package org.fosstrak.llrp.commander.preferences;
 
-import org.eclipse.jface.preference.*;
-import org.eclipse.ui.IWorkbenchPreferencePage;
+import org.eclipse.jface.preference.BooleanFieldEditor;
+import org.eclipse.jface.preference.FieldEditorPreferencePage;
+import org.eclipse.jface.preference.RadioGroupFieldEditor;
+import org.eclipse.jface.preference.StringFieldEditor;
 import org.eclipse.ui.IWorkbench;
+import org.eclipse.ui.IWorkbenchPreferencePage;
 import org.fosstrak.llrp.commander.LLRPPlugin;
 
 /**
@@ -87,6 +90,10 @@ public class LLRPCommanderPreferencePage
 				getFieldEditorParent(),
 	          true)
 		);
+		
+		addField(
+				new BooleanFieldEditor(PreferenceConstants.P_WIPE_DB_ON_STARTUP, "Wipe DB on startup", getFieldEditorParent())
+				);
 	}
 
 	/* (non-Javadoc)
