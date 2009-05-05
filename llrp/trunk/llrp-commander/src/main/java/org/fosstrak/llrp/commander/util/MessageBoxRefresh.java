@@ -19,7 +19,7 @@ import org.fosstrak.llrp.commander.views.MessageboxView;
 public class MessageBoxRefresh implements Runnable {
 
 	/** the default interval to refresh the messagebox view. */
-	public static final long DEFAULT_REFRESH_INTERVAL_MS = 5000;
+	public static final long DEFAULT_REFRESH_INTERVAL_MS = 1500;
 	
 	/** the interval to refresh the messagebox view. */ 
 	public long refreshTime = DEFAULT_REFRESH_INTERVAL_MS;
@@ -40,7 +40,7 @@ public class MessageBoxRefresh implements Runnable {
 	private MessageboxView messageboxView = null;
 	
 	/** whether to refresh or not by default. */
-	public static final boolean DEFAULT_REFRESH_BEHAVIOR = false;
+	public static final boolean DEFAULT_REFRESH_BEHAVIOR = true;
 	
 	/** whether to refresh or not. */
 	private boolean doRefresh = DEFAULT_REFRESH_BEHAVIOR;

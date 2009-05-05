@@ -125,6 +125,7 @@ public class ReaderExplorerView extends ViewPart {
 	private Action actionDisableAccessspec;
 	private Action actionDeleteAccessspec;
 	
+	private Action actionReaderSettings;
 	/**
 	 * Default Constructor.
 	 */
@@ -235,6 +236,8 @@ public class ReaderExplorerView extends ViewPart {
 					actionEnableAccessspec.setEnabled(true);
 					actionDisableAccessspec.setEnabled(true);
 					actionDeleteAccessspec.setEnabled(true);
+					
+					actionReaderSettings.setEnabled(true);
 				} else {
 					actionConnect.setEnabled(true);
 					actionDisconnect.setEnabled(false);
@@ -254,6 +257,8 @@ public class ReaderExplorerView extends ViewPart {
 					actionEnableAccessspec.setEnabled(false);
 					actionDisableAccessspec.setEnabled(false);
 					actionDeleteAccessspec.setEnabled(false);
+					
+					actionReaderSettings.setEnabled(false);
 				}
 
 				manager.add(actionConnect);
@@ -278,7 +283,9 @@ public class ReaderExplorerView extends ViewPart {
 				sendMessageMenuManager.add(actionDeleteAccessspec);
 				
 				manager.add(sendMessageMenuManager);
-				
+
+				sendMessageMenuManager.add(new Separator());
+				manager.add(actionReaderSettings);
 			} else if (isFocusOnReaderTreeObject){
 				// get the name of the currently selected adaptor item
 				String adaptorName = currentSelectedReader.getName();
@@ -502,6 +509,19 @@ public class ReaderExplorerView extends ViewPart {
 		actionDisconnect.setToolTipText("Disconnect from local adapter");
 		actionDisconnect.setImageDescriptor(PlatformUI.getWorkbench().getSharedImages().
 			getImageDescriptor(ISharedImages.IMG_TOOL_BACK));
+		
+		actionReaderSettings = new Action() {
+			public void run() {
+				if ((null != currentSelectedReader) && (currentSelectedReader.isReader())) {
+					
+					String adapter = currentSelectedReader.getParent().getName();
+					String reader = currentSelectedReader.getName();
+					new ReaderSettingsDialog(viewer.getControl().getShell(), adapter, reader).open();
+				}
+			}
+		};
+		actionReaderSettings.setText("Settings");
+		actionReaderSettings.setToolTipText("Settings for the reader");
 		
 		actionGetReaderCapabilities = createSendMessageAction("GET_READER_CAPABILITIES");
 		actionGetReaderConfig = createSendMessageAction("GET_READER_CONFIG");

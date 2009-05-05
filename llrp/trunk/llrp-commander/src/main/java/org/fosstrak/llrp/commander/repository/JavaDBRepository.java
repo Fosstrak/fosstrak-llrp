@@ -205,12 +205,17 @@ public class JavaDBRepository implements Repository {
 			e.printStackTrace();
 		}
 		
+		// wipe table if erroneous or if user requests it by preferences.
 		if (!existsTable() || ResourceCenter.getInstance().wipeRepositoryOnStartup()) {
 			dropTable();
 			createTable();
 		}
 	}
 	
+	/**
+	 * checks whether the required tables exist or not.
+	 * @return true if everything is ok, false otherwise.
+	 */
 	private boolean existsTable() {
 		// we try to make a SQL query. if it fails, we assume the table to be dead...
 		try {
