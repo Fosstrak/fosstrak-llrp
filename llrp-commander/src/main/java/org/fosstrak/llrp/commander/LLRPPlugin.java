@@ -128,6 +128,7 @@ public class LLRPPlugin extends AbstractUIPlugin {
 	public void stop(BundleContext context) throws Exception {
 		log.info("Stopping the Plug-In, and disposing resources...");
 		
+		ResourceCenter.getInstance().getMessageBoxRefresh().stop();
 		plugin = null;
 		super.stop(context);
 		
