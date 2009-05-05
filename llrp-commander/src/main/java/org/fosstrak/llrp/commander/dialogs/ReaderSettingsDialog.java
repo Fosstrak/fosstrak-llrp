@@ -32,9 +32,8 @@ import org.eclipse.swt.widgets.Composite;
 import org.eclipse.swt.widgets.Control;
 import org.eclipse.swt.widgets.Label;
 import org.eclipse.swt.widgets.Shell;
-import org.eclipse.swt.widgets.Text;
 import org.fosstrak.llrp.adaptor.AdaptorManagement;
-import org.fosstrak.llrp.adaptor.ReaderImpl;
+import org.fosstrak.llrp.adaptor.ReaderMetaData;
 
 /**
  * models a dialog to set the options for the message box view.
@@ -75,39 +74,13 @@ public class ReaderSettingsDialog extends Dialog {
 		
 		parent.getShell().setLayout(layout);
 		parent.getShell().setText("Messagebox View Options");
-		parent.setSize(350, 140);
+		int nMetaData = 14;
+		parent.setSize(400, 70 + nMetaData * 20);
 		
 		GridData gridAll = new GridData(GridData.FILL_BOTH);
 		gridAll.verticalSpan = 1;
 		gridAll.horizontalSpan = 3;
-	
-		final Label lblKAPeriod = new Label(parent, SWT.NONE);
-		lblKAPeriod.setText("Keep-Alive Period (Not active yet!)");
-		lblKAPeriod.setLayoutData(gridLabel);
-		
-		// FIXME : IMPLEMENT ME
-		final Text txtKAPeriod = new Text(parent, SWT.BORDER);
-		try {
-			txtKAPeriod.setText(String.format("%d", 
-					AdaptorManagement.getInstance().getAdaptor(adaptor).
-					getReader(reader).getKeepAlivePeriod()));
-		} catch (Exception e2) {
-			e2.printStackTrace();
-			txtKAPeriod.setText(String.format("%d",
-					ReaderImpl.DEFAULT_KEEPALIVE_PERIOD));
-		}
-		txtKAPeriod.setLayoutData(gridText); 
-
-		// FIXME : IMPLEMENT ME
-		final Label lblKAMiss = new Label(parent, SWT.NONE);
-		lblKAMiss.setText("Keep-Alive Miss allowed (Not active yet!)");
-		lblKAMiss.setLayoutData(gridLabel);
-		
-		final Text txtKAMiss = new Text(parent, SWT.BORDER);
-		txtKAMiss.setText(String.format("%d",
-					ReaderImpl.DEFAULT_MISS_KEEPALIVE));
-		txtKAMiss.setLayoutData(gridText); 
-		
+			
 		final Button logKAMsg = new Button(parent, SWT.CHECK);
 		logKAMsg.setText("Log Keep-Alive Messages");
 		logKAMsg.setLayoutData(gridAll);
@@ -119,6 +92,113 @@ public class ReaderSettingsDialog extends Dialog {
 			e.printStackTrace();
 			logKAMsg.setSelection(false);
 		} 
+		
+
+		try {
+			ReaderMetaData metaData = AdaptorManagement.getInstance().
+				getAdaptor(adaptor).getReader(reader).getMetaData();
+			
+			Label lbl = new Label(parent, SWT.NONE);
+			lbl.setLayoutData(gridLabel);
+			lbl.setText("Reader Name:");
+			Label txt = new Label(parent, SWT.NONE);
+			txt.setLayoutData(gridText);
+			txt.setText(metaData.getReaderName());
+			
+			lbl = new Label(parent, SWT.NONE);
+			lbl.setLayoutData(gridLabel);
+			lbl.setText("Reader Address:");
+			txt = new Label(parent, SWT.NONE);
+			txt.setLayoutData(gridText);
+			txt.setText(metaData.getReaderAddress());
+			
+			lbl = new Label(parent, SWT.NONE);
+			lbl.setLayoutData(gridLabel);
+			lbl.setText("Port:");
+			txt = new Label(parent, SWT.NONE);
+			txt.setLayoutData(gridText);
+			txt.setText(String.format("%d", metaData.getPort()));
+			
+			lbl = new Label(parent, SWT.NONE);
+			lbl.setLayoutData(gridLabel);
+			lbl.setText("Is Alive:");
+			txt = new Label(parent, SWT.NONE);
+			txt.setLayoutData(gridText);
+			txt.setText(String.format("%b", metaData.isAlive()));
+			
+			lbl = new Label(parent, SWT.NONE);
+			lbl.setLayoutData(gridLabel);
+			lbl.setText("Connected to Reader:");
+			txt = new Label(parent, SWT.NONE);
+			txt.setLayoutData(gridText);
+			txt.setText(String.format("%b", metaData.isConnected()));
+			
+			lbl = new Label(parent, SWT.NONE);
+			lbl.setLayoutData(gridLabel);
+			lbl.setText("Connect immediately:");
+			txt = new Label(parent, SWT.NONE);
+			txt.setLayoutData(gridText);
+			txt.setText(String.format("%b", metaData.isConnectImmediately()));
+			
+			lbl = new Label(parent, SWT.NONE);
+			lbl.setLayoutData(gridLabel);
+			lbl.setText("Client initiated:");
+			txt = new Label(parent, SWT.NONE);
+			txt.setLayoutData(gridText);
+			txt.setText(String.format("%b", metaData.isClientInitiated()));
+			
+			lbl = new Label(parent, SWT.NONE);
+			lbl.setLayoutData(gridLabel);
+			lbl.setText("Report Keepalive:");
+			txt = new Label(parent, SWT.NONE);
+			txt.setLayoutData(gridText);
+			txt.setText(String.format("%b", metaData.isReportKeepAlive()));
+			
+			lbl = new Label(parent, SWT.NONE);
+			lbl.setLayoutData(gridLabel);
+			lbl.setText("Packages sent:");
+			txt = new Label(parent, SWT.NONE);
+			txt.setLayoutData(gridText);
+			txt.setText(String.format("%d", metaData.getPackagesSent()));
+			
+			lbl = new Label(parent, SWT.NONE);
+			lbl.setLayoutData(gridLabel);
+			lbl.setText("Packages received:");
+			txt = new Label(parent, SWT.NONE);
+			txt.setLayoutData(gridText);
+			txt.setText(String.format("%d", metaData.getPackagesReceived()));
+			
+			lbl = new Label(parent, SWT.NONE);
+			lbl.setLayoutData(gridLabel);
+			lbl.setText("Packages Current Session sent:");
+			txt = new Label(parent, SWT.NONE);
+			txt.setLayoutData(gridText);
+			txt.setText(String.format("%d", metaData.getPackagesCurrentSessionSent()));
+			
+			lbl = new Label(parent, SWT.NONE);
+			lbl.setLayoutData(gridLabel);
+			lbl.setText("Packages Current Session received:");
+			txt = new Label(parent, SWT.NONE);
+			txt.setLayoutData(gridText);
+			txt.setText(String.format("%d", metaData.getPackagesCurrentSessionReceived()));
+			
+			lbl = new Label(parent, SWT.NONE);
+			lbl.setLayoutData(gridLabel);
+			lbl.setText("Allowed Keepalive misses:");
+			txt = new Label(parent, SWT.NONE);
+			txt.setLayoutData(gridText);
+			txt.setText(String.format("%d", metaData.getAllowNKeepAliveMisses()));
+			
+			lbl = new Label(parent, SWT.NONE);
+			lbl.setLayoutData(gridLabel);
+			lbl.setText("Keepalive Period:");
+			txt = new Label(parent, SWT.NONE);
+			txt.setLayoutData(gridText);
+			txt.setText(String.format("%d", metaData.getKeepAlivePeriod()));
+		} catch (Exception ex) {
+			ex.printStackTrace();
+		}
+		
 
 		final Button btnOK = new Button(parent, SWT.PUSH);
 		btnOK.setText("OK");
