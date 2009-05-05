@@ -36,6 +36,7 @@ import org.eclipse.core.resources.IProject;
 import org.eclipse.core.resources.IResource;
 import org.eclipse.core.resources.IWorkspaceRoot;
 import org.eclipse.core.resources.ResourcesPlugin;
+import org.eclipse.jface.preference.IPreferenceStore;
 import org.eclipse.jface.resource.ImageDescriptor;
 import org.eclipse.ui.IFileEditorInput;
 import org.eclipse.ui.IWorkbench;
@@ -43,6 +44,7 @@ import org.eclipse.ui.IWorkbenchPage;
 import org.eclipse.ui.PlatformUI;
 import org.eclipse.ui.ide.IDE;
 import org.eclipse.swt.graphics.Image;
+import org.fosstrak.llrp.commander.preferences.PreferenceConstants;
 import org.fosstrak.llrp.commander.repository.*;
 import org.fosstrak.llrp.commander.util.LLRP;
 import org.fosstrak.llrp.commander.util.MessageBoxRefresh;
@@ -337,6 +339,14 @@ public class ResourceCenter {
 			repo.open();
 		}
 		return repo;
+	}
+	
+	/**
+	 * @return wipe the repository on startup.
+	 */
+	public boolean wipeRepositoryOnStartup() {
+		IPreferenceStore store = LLRPPlugin.getDefault().getPreferenceStore();
+		return store.getBoolean(PreferenceConstants.P_WIPE_DB_ON_STARTUP);
 	}
 	
 	/**

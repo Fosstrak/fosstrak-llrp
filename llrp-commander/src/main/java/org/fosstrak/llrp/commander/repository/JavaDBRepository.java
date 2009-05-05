@@ -21,6 +21,7 @@
 package org.fosstrak.llrp.commander.repository;
 
 import java.sql.Connection;
+import java.sql.DatabaseMetaData;
 import java.sql.PreparedStatement;
 import java.sql.Statement;
 import java.sql.DriverManager;
@@ -30,6 +31,7 @@ import java.sql.Timestamp;
 import java.util.*;
 
 import org.apache.log4j.Logger;
+import org.eclipse.core.internal.runtime.MetaDataKeeper;
 import org.fosstrak.llrp.adaptor.AdaptorManagement;
 import org.fosstrak.llrp.adaptor.Constants;
 import org.fosstrak.llrp.client.LLRPMessageItem;
@@ -71,6 +73,9 @@ public class JavaDBRepository implements Repository {
 	private static final int SELECTOR_COMMENT = 7;
 	private static final int SELECTOR_MARK = 8;	
 	private static final int SELECTOR_CONTENT = 9;
+	
+	/** the number of table columns. */
+	private static final int NUM_TABLE_COLUMNS = 8;
 	
 	// SQL statements
 	private static final String SQL_CREATE_TABLE = "CREATE TABLE LLRP_MSG "
@@ -199,8 +204,31 @@ public class JavaDBRepository implements Repository {
 			isHealth = false;
 			e.printStackTrace();
 		}
-//		dropTable();
-//		createTable();
+		
+		if (!existsTable() || ResourceCenter.getInstance().wipeRepositoryOnStartup()) {
+			dropTable();
+			createTable();
+		}
+	}
+	
+	private boolean existsTable() {
+		// we try to make a SQL query. if it fails, we assume the table to be dead...
+		try {
+			DatabaseMetaData dbMeta = conn.getMetaData();
+			ResultSet resultSet = dbMeta.getColumns(null, null, "LLRP_MSG", null);
+			int n = 0;
+			while (resultSet.next()) {
+				n++;
+			}
+			if (n<NUM_TABLE_COLUMNS) {
+				throw new SQLException("missing fields");
+			}
+			 
+		} catch (SQLException e) {
+			log.error("table erroneous or missing. therefore recreate it.");
+			return false;
+		}
+		return true;
 	}
 	
 	/** 
@@ -208,7 +236,6 @@ public class JavaDBRepository implements Repository {
 	 */
 	private void dropTable() {
 		try {
-			// TODO: shall we really drop the table at each startup?
 			
 			Statement sDropTable = conn.createStatement();
 			sDropTable.execute(SQL_DROP_TABLE);
