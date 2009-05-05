@@ -197,6 +197,8 @@ public class ReaderImpl extends UnicastRemoteObject implements LLRPEndpoint, Rea
 	 */
 	public void disconnect() throws RemoteException {
 		log.debug("disconnecting the reader.");
+		setReportKeepAlive(false);
+		
 		if (connector != null) {
 			try {
 				if (connector instanceof LLRPConnector) {
@@ -460,5 +462,13 @@ public class ReaderImpl extends UnicastRemoteObject implements LLRPEndpoint, Rea
 			}
 		}
 		
+	}
+
+	public void setReportKeepAlive(boolean report) throws RemoteException {
+		reportKeepalive = report;
+	}
+
+	public boolean isReportKeepAlive() throws RemoteException {
+		return reportKeepalive;
 	}
 }

@@ -147,4 +147,18 @@ public interface Reader extends Remote  {
 	 * @throws RemoteException whenever there is an rmi error. 
 	 */
 	public int getKeepAlivePeriod() throws RemoteException;
+	
+	/**
+	 * if set to true, the reader will report all the keep-alive messages exchanged between the 
+	 * reader and the driver stub.
+	 * @param report if true report the status messages. if false not.
+	 * @throws RemoteException whenever there is an RMI error.
+	 */
+	public void setReportKeepAlive(boolean report) throws RemoteException;
+	
+	/**
+	 * @return whether the reader stub delivers the keep-alive messages to the repo or not.
+	 * @throws RemoteException whenever there is an RMI error.
+	 */
+	public boolean isReportKeepAlive() throws RemoteException;
 }
