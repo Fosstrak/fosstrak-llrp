@@ -321,6 +321,11 @@ public class ReaderImpl extends UnicastRemoteObject implements LLRPEndpoint, Rea
 	public boolean isClientInitiated() throws RemoteException {
 		return metaData.isClientInitiated();
 	}
+	
+	public void setClientInitiated(boolean clientInitiated)
+			throws RemoteException {
+		metaData._setClientInitiated(clientInitiated);
+	}
 
 	/* (non-Javadoc)
 	 * @see org.fosstrak.llrp.adaptor.ReaderIface#registerForAsynchronous(org.fosstrak.llrp.adaptor.AsynchronousNotifiable)
@@ -458,4 +463,5 @@ public class ReaderImpl extends UnicastRemoteObject implements LLRPEndpoint, Rea
 	public final ReaderMetaData getMetaData() throws RemoteException {
 		return new ReaderMetaData(metaData);
 	}
+
 }
