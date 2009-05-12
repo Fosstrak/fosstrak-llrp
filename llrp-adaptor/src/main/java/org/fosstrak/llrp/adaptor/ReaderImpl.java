@@ -22,12 +22,11 @@ package org.fosstrak.llrp.adaptor;
 
 import java.rmi.RemoteException;
 import java.rmi.server.UnicastRemoteObject;
-import java.util.LinkedList;
-import java.util.List;
 
 import org.apache.log4j.Logger;
-import org.fosstrak.llrp.client.LLRPExceptionHandlerTypeMap;
 import org.fosstrak.llrp.adaptor.exception.LLRPRuntimeException;
+import org.fosstrak.llrp.adaptor.util.AsynchronousNotifiableList;
+import org.fosstrak.llrp.client.LLRPExceptionHandlerTypeMap;
 import org.llrp.ltk.exceptions.InvalidLLRPMessageException;
 import org.llrp.ltk.generated.LLRPMessageFactory;
 import org.llrp.ltk.generated.enumerations.KeepaliveTriggerType;
@@ -67,7 +66,7 @@ public class ReaderImpl extends UnicastRemoteObject implements LLRPEndpoint, Rea
 	private Adaptor adaptor = null;
 
 	/** a list with all the receivers of asynchronous messages. */
-	private List<AsynchronousNotifiable> toNotify = new LinkedList<AsynchronousNotifiable> ();
+	private AsynchronousNotifiableList toNotify = new AsynchronousNotifiableList();
 	
 	/** the default keepalive interval for the reader. */
 	public static final int DEFAULT_KEEPALIVE_PERIOD = 10000; 
@@ -234,8 +233,8 @@ public class ReaderImpl extends UnicastRemoteObject implements LLRPEndpoint, Rea
 			connector.send(llrpMessage);
 			metaData._packageSent();
 		} catch (NullPointerException npe) {
-			// a nullpointer exception occurs when the reader is no more connected.
-			// we therefor report the exception to the gui.
+			// a null-pointer exception occurs when the reader is no more connected.
+			// we therefore report the exception to the GUI.
 			disconnect();
 			reportException(new LLRPRuntimeException(String.format("reader %s is not connected", metaData.getReaderName()),
 					LLRPExceptionHandlerTypeMap.EXCEPTION_READER_LOST));
@@ -292,12 +291,10 @@ public class ReaderImpl extends UnicastRemoteObject implements LLRPEndpoint, Rea
 		}
 		
 		// also notify all the registered notifyables.
-		for (AsynchronousNotifiable receiver : toNotify) {
-			try {
-				receiver.notify(binaryEncoded, metaData.getReaderName());
-			} catch (RemoteException e) {
-				reportException(new LLRPRuntimeException(e.getMessage()));
-			}
+		try {
+			toNotify.notify(binaryEncoded, metaData.getReaderName());
+		} catch (RemoteException e) {
+			reportException(new LLRPRuntimeException(e.getMessage()));
 		}
 	}
 
