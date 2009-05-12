@@ -169,7 +169,8 @@ public class LLRPEditor extends FormEditor {
 		keyColumn.setWidth(150);
 		valueColumn = new TreeColumn(tree, SWT.LEFT);
 		valueColumn.setText("Value");
-		valueColumn.setWidth(300);
+		valueColumn.setWidth(420);
+		valueColumn.setResizable(false);
 
 		int index = addPage(treeViewer.getControl());
 		setPageText(index, BINARY_PAGE_TITLE);

@@ -22,6 +22,13 @@ package org.fosstrak.llrp.commander.editors;
 
 import org.eclipse.jface.viewers.*;
 
+/**
+ * Provides the content of an LLRP message for a tree viewer. This content 
+ * provider returns the content encoded as an array of BinarySingleValue.
+ * @author Haoning Zhang
+ * @author sawielan
+ *
+ */
 public class LLRPBinaryContentProvider implements ITreeContentProvider {
 
 	private BinaryMessage message;
@@ -34,16 +41,30 @@ public class LLRPBinaryContentProvider implements ITreeContentProvider {
 		return getChildren(aElement);
 	}
 	
+	/**
+	 * @return an array encoding the content of the LLRP message for the 
+	 * binary editor. The important values are encoded as {@link BinarySingleValue}.
+	 */
 	public Object[] getChildren(Object aElement) {
 		if (aElement instanceof BinaryMessage) {
 			BinaryMessage msg = (BinaryMessage) aElement;
-			BinarySingleValue[] values = new BinarySingleValue[6];
+			
+			// to achieve a nicer presentation in the binary view, we 
+			// use the split parameters instead of one huge binary string.
+			
+			BinarySingleValue[] arr = msg.getSplitParameters();
+			int len = 5 + arr.length;
+			BinarySingleValue[] values = new BinarySingleValue[len];
 			values[0] = msg.getReserved();
 			values[1] = msg.getVersion();
 			values[2] = msg.getMsgType();
 			values[3] = msg.getMsgID();
 			values[4] = msg.getMsgLength();
-			values[5] = msg.getParameters();
+			//values[5] = msg.getParameters();
+			
+			for (int i=5; i<len; i++) {
+				values[i] = arr[i-5];
+			}
 			
 			return values;
 		}
