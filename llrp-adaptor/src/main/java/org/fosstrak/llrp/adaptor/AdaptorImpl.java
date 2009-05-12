@@ -78,6 +78,7 @@ public class AdaptorImpl extends UnicastRemoteObject implements Adaptor {
 		}
 		
 		ReaderImpl reader = new ReaderImpl(this, readerName, readerAddress);
+		reader.setClientInitiated(clientInitiatedConnection);
 		
 		// run the connection setup only when requested.
 		if (connectImmediately) {
@@ -98,7 +99,8 @@ public class AdaptorImpl extends UnicastRemoteObject implements Adaptor {
 			throw new LLRPDuplicateNameException(readerName, "Reader '" + readerName + "' already exists.");
 		}
 		
-		ReaderImpl reader = new ReaderImpl(this, readerName, readerAddress, port);		
+		ReaderImpl reader = new ReaderImpl(this, readerName, readerAddress, port);	
+		reader.setClientInitiated(clientInitiatedConnection);
 		
 		// run the connection setup only when requested.
 		if (connectImmediately) {

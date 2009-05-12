@@ -99,10 +99,17 @@ public interface Reader extends Remote  {
 	 */
 	public boolean isClientInitiated() throws RemoteException;
 
+	/**
+	 * sets the connect behavior to the specified value.
+	 * @param clientInitiated if true then the client issues the connect.
+	 * @throws RemoteException whever there is an RMI error.
+	 */
+	public void setClientInitiated(boolean clientInitiated) throws RemoteException;
+	
 	/** 
 	 * tells whether this reader connects immediately after creation.
 	 * @return whether this reader connects immediately after creation.
-	 * @throws RemoteException whenever there is an rmi error.
+	 * @throws RemoteException whenever there is an RMI error.
 	 */
 	public boolean isConnectImmediate() throws RemoteException;
 	
@@ -110,14 +117,14 @@ public interface Reader extends Remote  {
 	 * 
 	 * tells whether this reader connects immediately after creation.
 	 * @param value whether this reader connects immediately after creation.
-	 * @throws RemoteException whenever there is an rmi error.	 
+	 * @throws RemoteException whenever there is an RMI error.	 
 	 */
 	public void setConnectImmediate(boolean value) throws RemoteException;
 	
 	/**
 	 * register for asynchronous messages from the physical reader.
 	 * @param receiver the receiver that shall be notified with the message.
-	 * @throws RemoteException whenever there is an rmi error.
+	 * @throws RemoteException whenever there is an RMI error.
 	 */
 	public abstract void registerForAsynchronous(AsynchronousNotifiable receiver) throws RemoteException;
 
@@ -125,7 +132,7 @@ public interface Reader extends Remote  {
 	 * deregister from the asynchronous messages. the receiver will no more 
 	 * receive asynchronous llrp messages.
 	 * @param receiver the receiver to deregister.
-	 * @throws RemoteException whenever there is an rmi error.
+	 * @throws RemoteException whenever there is an RMI error.
 	 */
 	public void deregisterFromAsynchronous(
 			AsynchronousNotifiable receiver) throws RemoteException;
@@ -137,14 +144,14 @@ public interface Reader extends Remote  {
 	 * @param times how many missed keepalive messages are ok.
 	 * @param report whether to report the keepalive messages to the repo or not.
 	 * @param throwException whether to throw an exception upon disconnection.
-	 * @throws RemoteException whenever there is an rmi error. 
+	 * @throws RemoteException whenever there is an RMI error. 
 	 */
 	public void setKeepAlivePeriod(int keepAlivePeriod, int times, boolean report, boolean throwException) throws RemoteException;
 	
 	/**
 	 * returns the keepalive period set for this reader.
 	 * @return the keepalive period set for this reader.
-	 * @throws RemoteException whenever there is an rmi error. 
+	 * @throws RemoteException whenever there is an RMI error. 
 	 */
 	public int getKeepAlivePeriod() throws RemoteException;
 	
