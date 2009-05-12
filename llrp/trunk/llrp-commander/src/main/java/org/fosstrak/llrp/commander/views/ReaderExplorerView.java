@@ -237,7 +237,6 @@ public class ReaderExplorerView extends ViewPart {
 					actionDisableAccessspec.setEnabled(true);
 					actionDeleteAccessspec.setEnabled(true);
 					
-					actionReaderSettings.setEnabled(true);
 				} else {
 					actionConnect.setEnabled(true);
 					actionDisconnect.setEnabled(false);
@@ -257,9 +256,11 @@ public class ReaderExplorerView extends ViewPart {
 					actionEnableAccessspec.setEnabled(false);
 					actionDisableAccessspec.setEnabled(false);
 					actionDeleteAccessspec.setEnabled(false);
-					
-					actionReaderSettings.setEnabled(false);
+				
 				}
+				
+
+				actionReaderSettings.setEnabled(true);
 
 				manager.add(actionConnect);
 				manager.add(actionDisconnect);

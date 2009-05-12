@@ -24,12 +24,14 @@ package org.fosstrak.llrp.commander.editors;
  * This is a wrapper class for LLRP Binary Message.
  * 
  * @author Haoning Zhang
+ * @author sawielan
  * @version 1.0
  */
 public class BinaryMessage {
 
 	private BinarySingleValue reserved, version, msgType, msgLength, msgID;
 	private BinarySingleValue parameters;
+	private BinarySingleValue[] paramArr; 
 	
 	private final static String INVALID_VALUE = "Invalid";
 	private final static String CAPTION_RSV = "RSV";
@@ -49,6 +51,7 @@ public class BinaryMessage {
 		msgLength = initValue(CAPTION_LENGTH, INVALID_VALUE);
 		msgID = initValue(CAPTION_MSG_ID, INVALID_VALUE);
 		parameters = initValue(CAPTION_PARAM, INVALID_VALUE);
+		paramArr = initArrValue(CAPTION_PARAM, null);
 	}
 	
 	/**
@@ -67,6 +70,10 @@ public class BinaryMessage {
 		msgLength = initValue(CAPTION_LENGTH, helper.getLength());
 		msgID = initValue(CAPTION_MSG_ID, helper.getMessageID());
 		parameters = initValue(CAPTION_PARAM, helper.getParameters());
+		paramArr = initArrValue(CAPTION_PARAM, helper.getArrParameters(
+				BinaryMessageHelper.DEFAULT_LINE_LENGTH,
+				BinaryMessageHelper.DEFAULT_CHUNK_LENGTH,
+				BinaryMessageHelper.DEFAULT_CHUNK_DELIMITER));
 	}
 	
 	/**
@@ -82,6 +89,29 @@ public class BinaryMessage {
 		aEntry.setValue(aValue);
 		
 		return aEntry;
+	}
+	
+	/**
+	 * parse the parameters chunk into an array of equal length.
+	 * @param name the name of the parameter array.
+	 * @param value the value for the resulting binary single value.
+	 * @return a binary value holding the parameters.
+	 */
+	private BinarySingleValue[] initArrValue(String name, String[] value) {
+		if (null == value) {
+			BinarySingleValue v = new BinarySingleValue(this);
+			v.setKey(name);
+			v.setValue(INVALID_VALUE);
+			return new BinarySingleValue[] { v };
+		}
+		
+		BinarySingleValue[] arr = new BinarySingleValue[value.length];
+		for (int i=0; i<value.length; i++) {
+			arr[i] = new BinarySingleValue(this);
+			arr[i].setValue(value[i]);
+		}
+		arr[0].setKey(name);
+		return arr;
 	}
 	
 	/**
@@ -136,5 +166,14 @@ public class BinaryMessage {
 	 */
 	public BinarySingleValue getParameters() {
 		return parameters;
+	}
+	
+	/**
+	 * get the parameters value as an array split. This is a quick fix to 
+	 * circumvent the eclipse table view in-capability to display line feeds.
+	 * @return an array holding the parameters as an array.
+	 */
+	public BinarySingleValue[] getSplitParameters() {
+		return paramArr;
 	}
 }

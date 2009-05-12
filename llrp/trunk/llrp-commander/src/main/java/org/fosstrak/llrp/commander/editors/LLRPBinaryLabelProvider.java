@@ -23,6 +23,11 @@ package org.fosstrak.llrp.commander.editors;
 import org.eclipse.jface.viewers.*;
 import org.eclipse.swt.graphics.*;
 
+/**
+ * Provides the labels to the content of an LLRP message for a tree viewer. 
+ * @author Haoning Zhang
+ *
+ */
 public class LLRPBinaryLabelProvider extends LabelProvider implements ITableLabelProvider {
 
 	public Image getColumnImage(Object aElement, int aColumnIndex) {

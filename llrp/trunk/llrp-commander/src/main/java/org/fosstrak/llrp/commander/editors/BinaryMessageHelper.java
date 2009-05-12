@@ -20,14 +20,11 @@
 
 package org.fosstrak.llrp.commander.editors;
 
-import java.io.*;
+import java.io.StringReader;
+import java.util.ArrayList;
 
 import org.apache.log4j.Logger;
-
 import org.jdom.Document;
-import org.jdom.output.Format;
-import org.jdom.output.XMLOutputter;
-
 import org.llrp.ltk.generated.LLRPMessageFactory;
 import org.llrp.ltk.types.LLRPBitList;
 import org.llrp.ltk.types.LLRPMessage;
@@ -38,6 +35,7 @@ import org.llrp.ltk.types.LLRPMessage;
  * to binary bit list by calling LTK Java APIs.
  * 
  * @author Haoning Zhang
+ * @author sawielan
  * @version 1.0
  */
 public class BinaryMessageHelper {
@@ -48,6 +46,15 @@ public class BinaryMessageHelper {
 	private static Logger log = Logger.getLogger(BinaryMessageHelper.class);
 	
 	private LLRPBitList bitList;
+	
+	/** denotes the number of characters used to split the parameters into several lines. */
+	public static final int DEFAULT_LINE_LENGTH = 64;
+	
+	/** denotes the length of a chunk within a line. */
+	public static final int DEFAULT_CHUNK_LENGTH = 8;
+	
+	/** the default separator between two chunks. */
+	public static final String DEFAULT_CHUNK_DELIMITER = " ";
 	
 	/**
 	 * Constructor, initialize the valid Message in binary format
@@ -130,5 +137,54 @@ public class BinaryMessageHelper {
 		int length = bitList.length() - 64;
 		
 		return (length > 0) ? bitList.subList(64, length).toString() : "";
+	}
+	
+	/**
+	 * create a new string that contains the delimiter ins every n characters.
+	 * @param orig the original string.
+	 * @param ins the delimiter to insert.
+	 * @param n the number of characters to use between two delimiters.
+	 * @return the resulting string.
+	 */
+	public String insert(String orig, String ins, int n) {
+		StringBuffer copy = new StringBuffer();
+		
+		final int length = orig.length();
+		for (int i=0; i<length; i+=n) {
+			int up = (i+n<length-1) ? i+n : length-1;
+			copy.append(orig.subSequence(i, up));
+			if (up < length-1) {
+				copy.append(ins);
+			}
+		}
+		
+		return copy.toString();
+	}
+	
+	/**
+	 * splits the parameters into an array of several strings with sub-chunks.
+	 * @param lineLength the length of the resulting line.
+	 * @param chunkLength the length of one chunk within the line.
+	 * @param delimiter the delimiter between the chunks.
+	 * @return an array encoding the parameters into a chunk of several lines.
+	 */
+	public String[] getArrParameters(final int lineLength, final int chunkLength, final String delimiter) {
+		
+		int length = bitList.length() - 64;
+		if (0 >= length) {
+			return new String[] { "" };
+		}
+		
+		ArrayList<String> arr = new ArrayList<String>();
+		int i=0;
+		for (;i<length-lineLength; i+=lineLength) {
+			arr.add(insert(bitList.subList(i+64, lineLength).toString(), delimiter, chunkLength));
+		}
+		if (i<length) {
+			arr.add(insert(bitList.subList(i+64, length-i).toString(), delimiter, chunkLength));
+		}
+		String[] a = new String[arr.size()];
+		arr.toArray(a);
+		return a;
 	}
 }

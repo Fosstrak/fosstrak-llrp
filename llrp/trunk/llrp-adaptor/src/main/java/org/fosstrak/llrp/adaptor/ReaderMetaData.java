@@ -1,5 +1,6 @@
 package org.fosstrak.llrp.adaptor;
 
+import java.io.Serializable;
 import java.rmi.Remote;
 
 /**
@@ -9,8 +10,11 @@ import java.rmi.Remote;
  * @author sawielan
  *
  */
-public class ReaderMetaData implements Remote  {
+public class ReaderMetaData implements Remote, Serializable  {
 	
+	// serial version id.
+	private static final long serialVersionUID = 6184673996217995724L;
+
 	// whether the reader is alive.
 	private boolean alive;
 
