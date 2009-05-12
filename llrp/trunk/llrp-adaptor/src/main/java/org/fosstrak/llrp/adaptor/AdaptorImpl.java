@@ -29,6 +29,7 @@ import java.util.Map;
 
 import org.fosstrak.llrp.adaptor.exception.LLRPDuplicateNameException;
 import org.fosstrak.llrp.adaptor.exception.LLRPRuntimeException;
+import org.fosstrak.llrp.adaptor.util.AsynchronousNotifiableList;
 
 /**
  * This adaptor implements the Adaptor interface.  
@@ -44,9 +45,9 @@ public class AdaptorImpl extends UnicastRemoteObject implements Adaptor {
 
 	/** a map holding all the readers contained in this adaptor. */
 	protected Map<String, ReaderImpl> readers = new HashMap<String, ReaderImpl> ();
-
+	
 	/** a list with all the receivers of asynchronous messages. */
-	private List<AsynchronousNotifiable> toNotify = new LinkedList<AsynchronousNotifiable> ();
+	private AsynchronousNotifiableList toNotify = new AsynchronousNotifiableList();
 	
 	/** the name of this adaptor. */
 	protected String adaptorName = null;
@@ -187,9 +188,7 @@ public class AdaptorImpl extends UnicastRemoteObject implements Adaptor {
 	public void messageReceivedCallback(byte[] message, String readerName)
 			throws RemoteException {
 		
-		for (AsynchronousNotifiable receiver : toNotify) {
-			receiver.notify(message, readerName);
-		}
+		toNotify.notify(message, readerName);
 	}
 
 	
@@ -203,9 +202,7 @@ public class AdaptorImpl extends UnicastRemoteObject implements Adaptor {
 	public void errorCallback(LLRPRuntimeException e, String readerName)
 		throws RemoteException {
 		
-		for (AsynchronousNotifiable receiver : toNotify) {
-			receiver.notifyError(e, readerName);
-		}		
+		toNotify.notifyError(e, readerName);	
 	}
 
 	
