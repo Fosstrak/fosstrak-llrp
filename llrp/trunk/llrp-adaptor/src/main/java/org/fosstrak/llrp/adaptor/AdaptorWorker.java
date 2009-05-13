@@ -54,6 +54,15 @@ public class AdaptorWorker implements Runnable {
 	/** the ip address of this adaptor. if its the local adaptor it returns null. */
 	private String adaptorIpAddress = null;
 	
+	/** 
+	 * the number of connection failures. The initial value is chosen in 
+	 * such a way that upon startup erroneous adaptors get cleaned out. 
+	 * */
+	private int connFailures = 2;
+	
+	/** the number of allowed connection failures between adaptor and client. */
+	public static final int MAX_CONN_FAILURES = 3;
+	
 	/**
 	 * creates a new LLRPAdaptorWorker. 
 	 * @param callback the callback for asynchronous message retrieval. 
@@ -199,5 +208,26 @@ public class AdaptorWorker implements Runnable {
 	 */
 	public void setAdaptorIpAddress(String adaptorIpAddress) {
 		this.adaptorIpAddress = adaptorIpAddress;
+	}
+	
+	/**
+	 * increases the connection failure counter by one.
+	 */
+	public void reportConnFailure() {
+		connFailures++;
+	}
+	
+	/**
+	 * resets the connection failure counter to zero.
+	 */
+	public void cleanConnFailure() {
+		connFailures = 0;
+	}
+	
+	/**
+	 * @return true if connection to adaptor is alright, false otherwise.
+	 */
+	public boolean ok() {
+		return (connFailures < MAX_CONN_FAILURES);
 	}
 }

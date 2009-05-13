@@ -589,10 +589,14 @@ public class AdaptorManagement {
 		for (AdaptorWorker worker : workers.values()) {
 			try {
 				adaptorNames.add(worker.getAdaptor().getAdaptorName());
+				worker.cleanConnFailure();
 			} catch (RemoteException e) {
-				e.printStackTrace();
+				worker.reportConnFailure();
+				log.error("could not connect to remote adaptor: " + e.getMessage());
 			}
+			
 		}
+		checkWorkers();
 
 		return adaptorNames;
 	}
@@ -840,8 +844,8 @@ public class AdaptorManagement {
 								adaptorCreated = true;
 								log.debug(String.format("adaptor '%s' successfully created", adaptorName));
 							} catch (Exception e) {
-								log.error(String.format("could not create adaptor '%s'", adaptorName));
-								e.printStackTrace();
+								log.error(String.format("could not create adaptor '%s': %s", adaptorName,
+										e.getMessage()));
 							}
 							
 							// only create the readers when the adaptor has been created successfully
@@ -1051,5 +1055,29 @@ public class AdaptorManagement {
 	 */
 	public void setStoreConfig(String storeConfig) {
 		this.storeConfig = storeConfig;
+	}
+	
+	private synchronized void checkWorkers() {
+		LinkedList<AdaptorWorker> error = new LinkedList<AdaptorWorker> ();
+		synchronized (workers) {
+			synchronized (localWorkers) {
+				synchronized (remoteWorkers) {
+					for (AdaptorWorker worker : workers.values()) {
+						if (!worker.ok()) {
+							error.add(worker);
+						}
+					}
+					
+					// remove the erroneous
+					for (AdaptorWorker worker : error) {
+						// remove from all the workers.
+						workers.remove(worker);
+						remoteWorkers.remove(worker);
+						localWorkers.remove(worker);
+					}
+				}
+			}
+		}
+		commit();
 	}
 }
