@@ -932,9 +932,7 @@ public class AdaptorManagement {
 			 					try {
 									for (String readerName : adaptor.getReaderNames()) {
 										Reader reader = adaptor.getReader(readerName);
-										//boolean connectImmed = reader.isConnectImmediate();
-										// FIXME
-										boolean connectImmed = false;	// there seams to be a problem with mina otherwise...???
+										boolean connectImmed = false;	// somehow this causes bugs with MINA, if we start the reader at startup.
 										boolean clientInit = reader.isClientInitiated();
 										String ip = reader.getReaderAddress();
 										int port = reader.getPort();
