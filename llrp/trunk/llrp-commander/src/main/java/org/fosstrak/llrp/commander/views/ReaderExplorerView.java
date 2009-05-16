@@ -44,6 +44,7 @@ import org.llrp.ltk.types.UnsignedInteger;
 
 import org.fosstrak.llrp.adaptor.Adaptor;
 import org.fosstrak.llrp.adaptor.AdaptorManagement;
+import org.fosstrak.llrp.adaptor.Reader;
 import org.fosstrak.llrp.adaptor.exception.LLRPRuntimeException;
 import org.fosstrak.llrp.commander.*;
 import org.fosstrak.llrp.commander.dialogs.*;
@@ -749,7 +750,28 @@ public class ReaderExplorerView extends ViewPart {
 	private void hookDoubleClickAction() {
 		viewer.addDoubleClickListener(new IDoubleClickListener() {
 			public void doubleClick(DoubleClickEvent event) {
-				
+				try {
+					String adapterName = currentSelectedReader.getParent().getName();
+					String readerName = currentSelectedReader.getName();
+					if (AdaptorManagement.getInstance().containsAdaptor(adapterName) && 
+							AdaptorManagement.getInstance().getAdaptor(adapterName).containsReader(readerName)) {
+						
+						Reader reader = AdaptorManagement.getInstance().getAdaptor(adapterName).getReader(readerName);
+						
+						if (reader.isConnected()) {
+							log.debug("reader connected - disconnecting.");
+							reader.disconnect();
+						} else {
+							log.debug("reader not connected - disconnecting.");
+							reader.connect(reader.isClientInitiated());
+						}
+					
+						refresh();
+					}
+				} catch (Exception e) {
+					log.debug("could not communicate with reader.");
+					e.printStackTrace();
+				}
 			}
 		});
 	}
