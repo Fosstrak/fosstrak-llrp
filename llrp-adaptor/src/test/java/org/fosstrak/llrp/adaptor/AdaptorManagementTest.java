@@ -150,38 +150,34 @@ public class AdaptorManagementTest extends TestCase {
 		class TestNotify implements Repository {
 
 			public void clearAll() {
-				// TODO Auto-generated method stub
-				
+				// do nothing
 			}
 
 			public void close() {
-				// TODO Auto-generated method stub
-				
+				// do nothing				
 			}
 
 			public LLRPMessageItem get(String arg0) {
-				// TODO Auto-generated method stub
+				// do nothing
 				return null;
 			}
 
 			public void open() {
-				// TODO Auto-generated method stub
-				
+				// do nothing				
 			}
 
 			public void put(LLRPMessageItem arg0) {
-				// TODO Auto-generated method stub
-				
+				// do nothing				
 			}
 
 			public ArrayList<LLRPMessageItem> get(String adaptorName,
 					String readerName, int num, boolean content) {
-				// TODO Auto-generated method stub
+				// do nothing
 				return null;
 			}
 
 			public int count(String adaptor, String reader) {
-				// TODO Auto-generated method stub
+				// do nothing
 				return 0;
 			}
 
