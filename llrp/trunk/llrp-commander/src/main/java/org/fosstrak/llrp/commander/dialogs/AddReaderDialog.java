@@ -20,11 +20,15 @@
 
 package org.fosstrak.llrp.commander.dialogs;
 
+import java.rmi.RemoteException;
+
 import org.eclipse.swt.widgets.Button;
 import org.eclipse.swt.widgets.Event;
 import org.eclipse.swt.widgets.Listener;
 import org.eclipse.swt.widgets.Shell;
 import org.eclipse.swt.widgets.Text;
+import org.fosstrak.llrp.adaptor.AdaptorManagement;
+import org.fosstrak.llrp.adaptor.exception.LLRPRuntimeException;
 
 /**
  * dialog to add a new reader to the reader explorer.
@@ -42,6 +46,9 @@ public class AddReaderDialog extends ConnectDialog {
 	/** the index for the reader port in the values array. */
 	private static final int VALUE_READER_PORT = 2;
 	
+	/** increasing number added automatically to the reader name. */
+	private static long num = 0;
+	
 	/**
 	 * create a new add reader dialog.
 	 * @param aShell the parent shell.
@@ -49,7 +56,21 @@ public class AddReaderDialog extends ConnectDialog {
 	public AddReaderDialog(Shell aShell) {
 		super(aShell, "Add Local Reader");
 		FIELDS = new String[] { "Reader Name", "IP", "Port" };
-		DEFAULTS = new String [] { "ReaderName", "127.0.0.1", "5084" };
+		
+		// make sure, we propose a unique reader name
+		String readerName = String.format("ReaderName%d", num++);
+		try {
+			while (AdaptorManagement.getInstance().getAdaptor(
+					AdaptorManagement.DEFAULT_ADAPTOR_NAME).containsReader(
+							readerName)) {
+				
+				readerName = String.format("ReaderName%d", num++);
+			}
+		} catch (Exception e) {
+			readerName = String.format("ReaderName%d", 
+					System.currentTimeMillis());
+		}
+		DEFAULTS = new String [] { 	readerName, "127.0.0.1", "5084" };
 	}
 	
 	/**
@@ -81,8 +102,16 @@ public class AddReaderDialog extends ConnectDialog {
 			listener = new Listener() {
 				public void handleEvent(Event event) {
 					try {
-						if ((txt.getText() == null) || (txt.getText().length() < 3)) {
+						// do not allow:
+						// - empty name
+						// - name shorter than 3
+						// - name that is already contained
+						if ((txt.getText() == null) || (txt.getText().length() < 3) || 
+								(AdaptorManagement.getInstance().
+										getAdaptor(AdaptorManagement.DEFAULT_ADAPTOR_NAME).
+											containsReader(txt.getText()))) {
 							ok.setEnabled(false);
+							
 						} else {
 							ok.setEnabled(true);
 						}
