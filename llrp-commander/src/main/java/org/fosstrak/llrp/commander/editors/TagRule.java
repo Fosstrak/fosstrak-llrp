@@ -24,6 +24,11 @@ import org.eclipse.jface.text.rules.ICharacterScanner;
 import org.eclipse.jface.text.rules.IToken;
 import org.eclipse.jface.text.rules.MultiLineRule;
 
+/**
+* ...
+* @author zhanghao
+*
+*/
 public class TagRule extends MultiLineRule {
 
 	public TagRule(IToken token) {

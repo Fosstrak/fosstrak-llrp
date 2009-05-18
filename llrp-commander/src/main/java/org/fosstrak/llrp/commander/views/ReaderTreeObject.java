@@ -22,6 +22,12 @@ package org.fosstrak.llrp.commander.views;
 
 import java.util.ArrayList;
 
+
+/**
+* Models an object in the reader tree (eg. adapter or reader).
+* @author zhanghao
+*
+*/
 public class ReaderTreeObject extends MessageBoxTreeObject {
 	
 	private ArrayList<MessageBoxTreeObject> children;

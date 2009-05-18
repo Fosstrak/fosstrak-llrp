@@ -20,15 +20,12 @@
 
 package org.fosstrak.llrp.commander.dialogs;
 
-import java.rmi.RemoteException;
-
 import org.eclipse.swt.widgets.Button;
 import org.eclipse.swt.widgets.Event;
 import org.eclipse.swt.widgets.Listener;
 import org.eclipse.swt.widgets.Shell;
 import org.eclipse.swt.widgets.Text;
 import org.fosstrak.llrp.adaptor.AdaptorManagement;
-import org.fosstrak.llrp.adaptor.exception.LLRPRuntimeException;
 
 /**
  * dialog to add a new reader to the reader explorer.

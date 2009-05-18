@@ -30,6 +30,14 @@ import org.fosstrak.llrp.commander.ResourceCenter;
 import org.fosstrak.llrp.commander.repository.JavaDBRepository;
 import org.apache.log4j.Logger;
 
+
+/**
+* label provider for the message box view. Depending on the column the 
+* provider returns the message id, the adaptor/reader name etc.
+* @author zhanghao
+* @author sawielan
+*
+*/
 public class MessageboxViewLabelProvider extends LabelProvider implements
 		ITableLabelProvider {
 	

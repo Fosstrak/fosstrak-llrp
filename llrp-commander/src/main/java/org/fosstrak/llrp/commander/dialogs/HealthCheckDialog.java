@@ -36,6 +36,12 @@ import org.eclipse.swt.widgets.List;
 import org.eclipse.swt.widgets.Shell;
 import org.fosstrak.llrp.commander.check.*;
 
+/**
+* Dialog displaying the results of the sanity-checks. 
+* @author zhanghao
+* @author sawielan
+*
+*/
 public class HealthCheckDialog extends org.eclipse.jface.dialogs.Dialog {
 	
 	/**

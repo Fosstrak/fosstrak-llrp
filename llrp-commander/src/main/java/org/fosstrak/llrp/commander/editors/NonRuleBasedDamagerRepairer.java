@@ -33,6 +33,11 @@ import org.eclipse.jface.text.presentation.IPresentationRepairer;
 import org.eclipse.core.runtime.Assert;
 import org.eclipse.swt.custom.StyleRange;
 
+/**
+* ...
+* @author zhanghao
+*
+*/
 public class NonRuleBasedDamagerRepairer
 	implements IPresentationDamager, IPresentationRepairer {
 

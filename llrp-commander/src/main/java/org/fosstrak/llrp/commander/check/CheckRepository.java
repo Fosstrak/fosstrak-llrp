@@ -28,6 +28,13 @@ import org.eclipse.core.runtime.CoreException;
 import org.fosstrak.llrp.commander.ResourceCenter;
 import org.fosstrak.llrp.commander.repository.JavaDBRepository;
 
+/**
+* Helper that checks the derby database folder. If the folder is missing or 
+* is corrupt, the helper reports the issue.
+* @author zhanghao
+* @author sawielan
+*
+*/
 public class CheckRepository extends CheckItem {
 	
 	/** log4j logger. */

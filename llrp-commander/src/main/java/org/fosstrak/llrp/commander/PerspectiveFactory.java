@@ -24,9 +24,19 @@ import org.eclipse.ui.IPageLayout;
 import org.eclipse.ui.IFolderLayout;
 import org.eclipse.ui.IPerspectiveFactory;
 
+/**
+ * Factory that creates the LLRP Commander perspective 
+ * for the eclipse view space.
+ * @author zhanghao
+ * @author sawielan
+ *
+ */
 public class PerspectiveFactory implements IPerspectiveFactory {
 
+	/** the unique id of the message box view. */
 	private static final String MESSAGEBOX_VIEW_ID = "org.fosstrak.llrp.commander.views.MessageboxView";
+	
+	/** the unique id of the reader view. */
 	private static final String READER_EXP_VIEW_ID = "org.fosstrak.llrp.commander.views.ReaderExplorerView";
 	
 	public void createInitialLayout(IPageLayout aLayout) {

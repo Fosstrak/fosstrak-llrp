@@ -24,6 +24,12 @@ import org.eclipse.jface.viewers.*;
 import org.fosstrak.llrp.commander.*;
 import org.apache.log4j.Logger;
 
+
+/**
+* ...
+* @author zhanghao
+*
+*/
 public class MessageModel implements IStructuredContentProvider {
 	
 	/**

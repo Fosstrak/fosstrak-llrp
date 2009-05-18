@@ -20,6 +20,11 @@
 
 package org.fosstrak.llrp.commander.editors;
 
+/**
+* ...
+* @author zhanghao
+*
+*/
 public abstract class MessageElement {
 
 	private MessageElement parent;

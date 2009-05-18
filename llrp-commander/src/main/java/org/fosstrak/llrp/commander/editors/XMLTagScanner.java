@@ -23,6 +23,12 @@ package org.fosstrak.llrp.commander.editors;
 import org.eclipse.jface.text.*;
 import org.eclipse.jface.text.rules.*;
 
+/**
+* Rule-based XML scanner. The scanner adds rules to detect double-quotes, 
+* single-quotes and white-spaces.
+* @author zhanghao
+*
+*/
 public class XMLTagScanner extends RuleBasedScanner {
 
 	public XMLTagScanner(ColorManager manager) {
