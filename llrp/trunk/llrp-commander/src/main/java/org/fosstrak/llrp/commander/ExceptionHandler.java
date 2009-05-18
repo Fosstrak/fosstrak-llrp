@@ -20,21 +20,22 @@
 
 package org.fosstrak.llrp.commander;
 
-import org.fosstrak.llrp.client.LLRPExceptionHandler;
-import org.fosstrak.llrp.client.LLRPExceptionHandlerTypeMap;
-import org.fosstrak.llrp.commander.views.ReaderExplorerView;
-import org.fosstrak.llrp.adaptor.exception.LLRPRuntimeException;
 import org.eclipse.jface.dialogs.MessageDialog;
 import org.eclipse.swt.widgets.Shell;
-import org.eclipse.ui.IWorkbench;
-import org.eclipse.ui.IWorkbenchPage;
-import org.eclipse.ui.PlatformUI;
-import org.eclipse.ui.ide.IDE;
+import org.fosstrak.llrp.adaptor.exception.LLRPRuntimeException;
+import org.fosstrak.llrp.client.LLRPExceptionHandler;
+import org.fosstrak.llrp.client.LLRPExceptionHandlerTypeMap;
 
+/**
+* Exception Handler that processes Exceptions triggered in the AdaptorManagement. 
+* The Exceptions get reported via a dialog box to the user. 
+* @author zhanghao
+* @author sawielan
+*
+*/
 public class ExceptionHandler implements LLRPExceptionHandler {
 	
-	
-	
+	// default caption for the dialog.	
 	private final static String DIALOG_CAPTION = "LLRP Client Warning";
 	
 	private Shell shell;
@@ -51,7 +52,7 @@ public class ExceptionHandler implements LLRPExceptionHandler {
 		final String aReader = readerName;
 		final LLRPRuntimeException ex = e;
 		
-		// we need a special thread access to post a method to a swt widget concurrently.
+		// we need a special thread access to post a method to a SWT widget concurrently.
 		shell.getDisplay().asyncExec(new Runnable () {
 
 			public void run() {

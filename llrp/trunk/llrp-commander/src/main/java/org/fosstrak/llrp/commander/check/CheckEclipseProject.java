@@ -36,6 +36,14 @@ import org.eclipse.core.runtime.*;
 import org.fosstrak.llrp.commander.LLRPPlugin;
 import org.fosstrak.llrp.commander.ResourceCenter;
 
+/**
+* Performs a sanity check on the eclipse folder required by the LLRP Commander. 
+* In case that the folder is corrupt, the method <code>fixIt</code> tries to 
+* auto-repair the corrupt parts of the folder. 
+* @author zhanghao
+* @author sawielan
+*
+*/
 public class CheckEclipseProject extends CheckItem {
 
 	/** log4j logger. */

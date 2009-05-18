@@ -26,6 +26,15 @@ import org.eclipse.ui.ISharedImages;
 import org.eclipse.ui.PlatformUI;
 import org.fosstrak.llrp.commander.ResourceCenter;
 
+
+/**
+* label provider for the reader explorer view. Essentially returns the 
+* adaptor name (in case of an adaptor) or the reader name (together with the 
+* status of the reader).
+* @author zhanghao
+* @author sawielan
+*
+*/
 public class ReaderExplorerViewLabelProvider extends LabelProvider {
 	
 	/**

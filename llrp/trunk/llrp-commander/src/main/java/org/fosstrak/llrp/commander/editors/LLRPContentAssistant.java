@@ -26,6 +26,11 @@ import org.apache.log4j.Logger;
 import org.eclipse.jface.text.*;
 import org.eclipse.jface.text.contentassist.*;
 
+/**
+* ...
+* @author zhanghao
+*
+*/
 public class LLRPContentAssistant implements IContentAssistProcessor {
 	
 	/**

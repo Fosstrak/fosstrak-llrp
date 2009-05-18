@@ -28,6 +28,12 @@ import org.eclipse.swt.widgets.*;
 import org.eclipse.ui.*;
 import org.eclipse.ui.part.ViewPart;
 
+
+/**
+* Prepares the ViewPart for the table viewer.
+* @author zhanghao
+*
+*/
 public class TableViewPart extends ViewPart {
 
 	/**

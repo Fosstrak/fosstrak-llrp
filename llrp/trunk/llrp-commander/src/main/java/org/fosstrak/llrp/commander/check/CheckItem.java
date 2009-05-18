@@ -22,6 +22,13 @@ package org.fosstrak.llrp.commander.check;
 
 import java.util.ArrayList;
 
+/**
+* Common interface that helps to run "check-processes" (processes that shall 
+* ensure the integrity of the LLRP commander and its folders/files). 
+* @author zhanghao
+* @author sawielan
+*
+*/
 public abstract class CheckItem {
 	
 	public final static int CATEGORY_ERROR = 1;
@@ -35,6 +42,11 @@ public abstract class CheckItem {
 		report = new ArrayList<String>();
 	}
 	
+	/**
+	 * add a specific error report.
+	 * @param aItem the error report string.
+	 * @param aCategory a category that describes the error.
+	 */
 	public void addReportItem(String aItem, int aCategory) {
 		
 		String prefix = "";
@@ -52,20 +64,36 @@ public abstract class CheckItem {
 		report.add(prefix + aItem);
 	}
 	
+	/**
+	 * adds a list of error reports to the current error list.
+	 * @param aItemList new errors to add.
+	 */
 	public void addReportItem(ArrayList<String> aItemList) {
 		report.addAll(aItemList);
 	}
 	
+	/**
+	 * clear out all the reports collected from previous health checks.
+	 */
 	public void clearAllReport() {
 		report.clear();
 	}
 	
+	/**
+	 * @return a list of error messages (if the check went wrong) that describe the errors.
+	 */
 	public ArrayList<String> getReport() {
 		return report;
 	}
 	
+	/**
+	 * @return true if the check went ok, false otherwise.
+	 */
 	public abstract boolean validate();
 	
+	/**
+	 * invoke the repair functionality on the repair item.
+	 */
 	public abstract void fix();
 	
 	

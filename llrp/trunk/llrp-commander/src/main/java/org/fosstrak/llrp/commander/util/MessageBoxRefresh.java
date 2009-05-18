@@ -1,11 +1,6 @@
 package org.fosstrak.llrp.commander.util;
 
-import java.util.ArrayList;
-
 import org.apache.log4j.Logger;
-import org.fosstrak.llrp.client.LLRPMessageItem;
-import org.fosstrak.llrp.client.Repository;
-import org.fosstrak.llrp.commander.ResourceCenter;
 import org.fosstrak.llrp.commander.views.MessageboxView;
 
 /**

@@ -22,6 +22,12 @@ package org.fosstrak.llrp.commander.views;
 
 import org.eclipse.core.runtime.IAdaptable;
 
+
+/**
+* Entry for the message box view. 
+* @author zhanghao
+*
+*/
 public class MessageBoxTreeObject implements IAdaptable {
 	
 	public final static String INBOX_NAME = "Inbox";

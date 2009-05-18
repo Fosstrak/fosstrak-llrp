@@ -34,6 +34,11 @@ import org.eclipse.jface.text.source.ISourceViewer;
 import org.eclipse.jface.text.source.SourceViewerConfiguration;
 import org.eclipse.jface.text.contentassist.ContentAssistant;
 
+/**
+* ...
+* @author zhanghao
+*
+*/
 public class XMLConfiguration extends SourceViewerConfiguration {
 	
 	/**

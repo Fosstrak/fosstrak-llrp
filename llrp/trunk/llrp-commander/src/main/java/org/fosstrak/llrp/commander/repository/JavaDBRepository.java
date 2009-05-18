@@ -22,18 +22,17 @@ package org.fosstrak.llrp.commander.repository;
 
 import java.sql.Connection;
 import java.sql.DatabaseMetaData;
-import java.sql.PreparedStatement;
-import java.sql.Statement;
 import java.sql.DriverManager;
-import java.sql.SQLException;
+import java.sql.PreparedStatement;
 import java.sql.ResultSet;
+import java.sql.SQLException;
+import java.sql.Statement;
 import java.sql.Timestamp;
-import java.util.*;
+import java.util.ArrayList;
+import java.util.Date;
 
 import org.apache.log4j.Logger;
-import org.eclipse.core.internal.runtime.MetaDataKeeper;
 import org.fosstrak.llrp.adaptor.AdaptorManagement;
-import org.fosstrak.llrp.adaptor.Constants;
 import org.fosstrak.llrp.client.LLRPMessageItem;
 import org.fosstrak.llrp.client.Repository;
 import org.fosstrak.llrp.commander.ResourceCenter;
@@ -44,6 +43,7 @@ import org.fosstrak.llrp.commander.ResourceCenter;
  * start the database.
  *
  * @author Haoning Zhang
+ * @author sawielan
  * @version 1.0
  */
 

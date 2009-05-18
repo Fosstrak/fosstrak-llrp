@@ -27,7 +27,11 @@ import org.apache.log4j.Logger;
 import org.fosstrak.llrp.commander.util.*;
 import org.llrp.ltkGenerator.generated.ParameterDefinition;
 
-
+/**
+* ...
+* @author zhanghao
+*
+*/
 public class ConfigurationModel {
 	
 	/**
