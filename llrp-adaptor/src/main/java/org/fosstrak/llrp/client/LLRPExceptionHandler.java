@@ -22,6 +22,22 @@ package org.fosstrak.llrp.client;
 
 import org.fosstrak.llrp.adaptor.exception.LLRPRuntimeException;
 
-public interface LLRPExceptionHandler {	
+/**
+ * All exception handlers registered at the AdaptorManagement 
+ * need to implement this interface in order to be delivered 
+ * with exceptions triggered on the reader level.
+ * @author sawielan
+ *
+ */
+public interface LLRPExceptionHandler {
+	
+	/**
+	 * This method will be called asynchronously whenever 
+	 * an Exception is triggered.
+	 * @param aExceptionType a type-map describing the exception.
+	 * @param e the exception itself.
+	 * @param aAdapter the adapter that triggered the exception.
+	 * @param aReader the reader that triggered the exception.
+	 */
 	public void postExceptionToGUI(LLRPExceptionHandlerTypeMap aExceptionType, LLRPRuntimeException e, String aAdapter, String aReader);
 }
