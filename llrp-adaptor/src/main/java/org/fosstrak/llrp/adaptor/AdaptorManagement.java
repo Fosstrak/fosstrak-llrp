@@ -26,6 +26,7 @@ import java.rmi.RemoteException;
 import java.rmi.registry.LocateRegistry;
 import java.rmi.registry.Registry;
 import java.util.ArrayList;
+import java.util.HashMap;
 import java.util.LinkedList;
 import java.util.List;
 import java.util.Map;
@@ -35,13 +36,12 @@ import org.apache.log4j.Logger;
 import org.fosstrak.llrp.adaptor.config.AdaptorConfiguration;
 import org.fosstrak.llrp.adaptor.config.ConfigurationLoader;
 import org.fosstrak.llrp.adaptor.config.ReaderConfiguration;
-import org.fosstrak.llrp.adaptor.queue.QueueEntry;
 import org.fosstrak.llrp.adaptor.exception.LLRPDuplicateNameException;
+import org.fosstrak.llrp.adaptor.exception.LLRPRuntimeException;
+import org.fosstrak.llrp.adaptor.queue.QueueEntry;
 import org.fosstrak.llrp.client.LLRPExceptionHandler;
 import org.fosstrak.llrp.client.LLRPExceptionHandlerTypeMap;
-import org.fosstrak.llrp.adaptor.exception.LLRPRuntimeException;
-import org.fosstrak.llrp.client.Repository;
-import org.fosstrak.llrp.client.LLRPMessageItem;
+import org.fosstrak.llrp.client.MessageHandler;
 import org.llrp.ltk.types.LLRPMessage;
 
 /**
@@ -53,13 +53,13 @@ import org.llrp.ltk.types.LLRPMessage;
  * <li>you must specify the repository where the messages shall be logged to (see example)</li>
  * <li>you must register an exception handler (see example)</li>
  * <li>you must shutdown the AdaptorManagement through the provided 
- * shutdown method. Otherwise the reader connections dont get shutdown properly (see example)</li>
+ * shutdown method. Otherwise the reader connections don't get shutdown properly (see example)</li>
  * </ul>
  * <br/>
  * Below there is some sample-code, how you can use the AdaptorManagement:
  * <p>
- * <code>// create a message repository</code><br/>
- * <code>Repository repository = new MessageRepository();</code><br/>
+ * <code>// create a message handler</code><br/>
+ * <code>MessageHandler msgHandler = new MessageHandler();</code><br/>
  * <br/>
  * <code>// create an exception handler</code><br/>
  * <code>ExceptionHandler handler = new ExceptionHandler();</code><br/>
@@ -69,7 +69,7 @@ import org.llrp.ltk.types.LLRPMessage;
  * <code>String writeConfig = readConfig;</code><br/>
  * <code>boolean commitChanges = true;</code><br/>
  * <code>AdaptorManagement.getInstance().initialize(</code><br/>
- * <code>&nbsp;&nbsp;&nbsp;&nbsp;readConfig, storeConfig, commitChanges, handler, repo);</code><br/>
+ * <code>&nbsp;&nbsp;&nbsp;&nbsp;readConfig, storeConfig, commitChanges, handler, msgHandler);</code><br/>
  * <br/>
  * <code>// now the management should be initialized and ready to be used</code><br/>
  * <br/>
@@ -100,9 +100,6 @@ public class AdaptorManagement {
 	
 	/** the logger. */
 	private static Logger log = Logger.getLogger(AdaptorManagement.class);
-	
-	/** the repository where to store the messages to. */
-	private Repository repository = null;
 
 	/** the exception handler. */
 	private LLRPExceptionHandler exceptionHandler = null;
@@ -157,6 +154,12 @@ public class AdaptorManagement {
 	/** all the worker threads running an adaptor held by the management (remote adaptors). */
 	private Map<String, AdaptorWorker> remoteWorkers = new ConcurrentHashMap<String, AdaptorWorker> ();
 	
+	/** a list of handlers that like to receive all the LLRP messages. */
+	private LinkedList<MessageHandler> fullHandlers = new LinkedList<MessageHandler> ();
+	
+	/** these handlers would like to receive only certain LLRP Messages. */
+	private Map<Class, LinkedList<MessageHandler> > partialHandlers = new HashMap<Class, LinkedList<MessageHandler> > ();
+	
 	
 	
 	// ------------------------------- initialization -------------------------------
@@ -167,8 +170,8 @@ public class AdaptorManagement {
 	 * @param storeConfig where the configuration shall be written to (if changes happen).
 	 * @param commitChanges if storeConfig is set and commitChanges is true then all 
 	 * the changes to the AdaptorManagement are committed to storeConfig.
-	 * @param exceptionHandler the exception handler from the gui.
-	 * @param repository the repository where to store messages to.
+	 * @param exceptionHandler the exception handler from the GUI.
+	 * @param handler a handler to dispatch the LLRP messages (can be set to null).
 	 * @throws LLRPRuntimeException whenever the AdaptorManagement could not be loaded.
 	 * @return returns 
 	 * <ul>
@@ -182,12 +185,12 @@ public class AdaptorManagement {
 			String storeConfig,
 			boolean commitChanges,
 			LLRPExceptionHandler exceptionHandler,
-			Repository repository) 
+			MessageHandler handler) 
 		throws LLRPRuntimeException {
 		
 		return initialize(readConfig, 
 				storeConfig, 
-				commitChanges, exceptionHandler, repository, false);
+				commitChanges, exceptionHandler, handler, false);
 	}
 	
 	/**
@@ -198,9 +201,9 @@ public class AdaptorManagement {
 	 * @param storeConfig where the configuration shall be written to (if changes happen).
 	 * @param commitChanges if storeConfig is set and commitChanges is true then all 
 	 * the changes to the AdaptorManagement are committed to storeConfig.
-	 * @param exceptionHandler the exception handler from the gui.
-	 * @param repository the repository where to store messages to.
-	 * @param export if the first local adaptor is to be exported by rmi or not.
+	 * @param exceptionHandler the exception handler from the GUI.
+	 * @param handlerhandler a handler to dispatch the LLRP messages (can be set to null).
+	 * @param export if the first local adaptor is to be exported by RMI or not.
 	 * @throws LLRPRuntimeException whenever the AdaptorManagement could not be loaded.
 	 * @return returns 
 	 * <ul>
@@ -214,7 +217,7 @@ public class AdaptorManagement {
 			String storeConfig,
 			boolean commitChanges,
 			LLRPExceptionHandler exceptionHandler,
-			Repository repository,
+			MessageHandler handler,
 			boolean export) 
 		throws LLRPRuntimeException {
 		if (initialized) {
@@ -230,7 +233,10 @@ public class AdaptorManagement {
 		this.storeConfig = storeConfig;
 		this.commitChanges = commitChanges;
 		this.exceptionHandler = exceptionHandler;
-		this.repository = repository;
+		
+		if (null != handler) {
+			registerFullHandler(handler);
+		}
 		
 		load();
 		initialized = true;
@@ -254,6 +260,16 @@ public class AdaptorManagement {
 			throw new LLRPRuntimeException("AdaptorManagement is not initialized");
 		}
 		clearWorkers();
+		
+		// drop all the handlers
+		synchronized (fullHandlers) {
+			fullHandlers.clear();
+		}
+		
+		synchronized (partialHandlers) {
+			partialHandlers.clear();
+		}
+		
 		
 		load();
 		log.debug("finished reset");
@@ -697,16 +713,116 @@ public class AdaptorManagement {
 	}
 	
 	/**
-	 * posts a llrp message item to the repository.
-	 * @param message the message item to be posted.
+	 * register a handler that will receive all the incoming messages.
+	 * @param handler the handler.
 	 */
-	public void postLLRPMessageToRepo(LLRPMessageItem message) {
-		if (repository == null) {
-			log.error("Repository not set!!! cannot post the llrp message");
-			return;
+	public void registerFullHandler(MessageHandler handler) {
+		synchronized (fullHandlers) {
+			fullHandlers.add(handler);
+		}
+	}
+	
+	/**
+	 * remove a handler from the full handler list.
+	 * @param handler the handler to be removed.
+	 */
+	public void deregisterFullHandler(MessageHandler handler) {
+		synchronized (fullHandlers) {
+			fullHandlers.remove(handler);
+		}
+	}
+	
+	/**
+	 * tests whether a given handler is already registered or not.
+	 * @param handler the handler to check for.
+	 * @return true if the handler is present, false otherwise.
+	 */
+	public boolean hasFullHandler(MessageHandler handler) {
+		synchronized (fullHandlers) {
+			return fullHandlers.contains(handler);
+		}
+	}
+	
+	/**
+	 * register a handler that will receive only a restricted set of messages.
+	 * @param handler the handler.
+	 * @param clzz the type of messages that the handler likes to receive (example KEEPALIVE.class).
+	 */
+	public void registerPartialHandler(MessageHandler handler, Class clzz) {
+		synchronized (partialHandlers) {
+			LinkedList<MessageHandler> handlers = partialHandlers.get(clzz);
+			if (null == handlers) {
+				handlers = new LinkedList<MessageHandler> ();
+				partialHandlers.put(clzz, handlers);
+			}
+			handlers.add(handler);
+		}
+	}
+	
+	/**
+	 * remove a handler from the handlers list.
+	 * @param handler the handler to remove.
+	 * @param clzz the class where the handler is registered.
+	 */
+	public void deregisterPartialHandler(MessageHandler handler, Class clzz) {
+		synchronized (partialHandlers) {
+			LinkedList<MessageHandler> handlers = partialHandlers.get(clzz);
+			if (null != handlers) {
+				synchronized (handlers) {					
+					handlers.remove(handler);
+				}
+			}
+		}
+	}
+	
+	/**
+	 * checks whether a given handler is registered at a given selector class.
+	 * @param handler the handler to check.
+	 * @param clzz the class where to search for the handler.
+	 * @return true if the handler is present, false otherwise.
+	 */
+	public boolean hasPartialHandler(MessageHandler handler, Class clzz) {
+		synchronized (partialHandlers) {
+			LinkedList<MessageHandler> handlers = partialHandlers.get(clzz);
+			if (null != handlers) {
+				synchronized (handlers) {
+					return handlers.contains(handler);
+				}
+			}
+		}
+		return false;
+	}
+	
+	/**
+	 * dispatches an LLRP message to all the registered full handlers. All the 
+	 * handlers that have interest into the class of the message will be 
+	 * informed as well.
+	 * @param adaptorName the name of the adapter that received the message.
+	 * @param readerName the reader that received the message. 
+	 * @param message the LLRP message itself.
+	 */
+	public void dispatchHandlers(String adaptorName, String readerName, 
+			LLRPMessage message) {
+		
+		// handle full handlers...
+		synchronized (fullHandlers) {
+			for (MessageHandler handler : fullHandlers) {
+				handler.handle(adaptorName, readerName, message);
+			}
 		}
 		
-		repository.put(message);
+		// handle partial handlers
+		synchronized (partialHandlers) {
+			LinkedList<MessageHandler> handlers = partialHandlers.get(message.getClass());
+			if (null != handlers) {
+				synchronized (handlers) {
+					for (MessageHandler handler : handlers) {
+						handler.handle(adaptorName, readerName, message);
+					}
+				}
+			}
+		}
+		
 	}
 	
 	/**
@@ -969,22 +1085,23 @@ public class AdaptorManagement {
 	
 	// ------------------------------- getter and setter -------------------------------
 	
-	/**
-	 * returns the message repository.
-	 * @return the message repository.
-	 */
-	public Repository getRepository() {
-		return repository;
-	}
-
-	/**
-	 * set the repository where to store the LLRPMessages to.
-	 * @param repository the repository.
-	 */
-	public void setRepository(Repository repository) {
-		this.repository = repository;
-	}
-	
+// FIXME	
+//	/**
+//	 * returns the message repository.
+//	 * @return the message repository.
+//	 */
+//	public Repository getRepository() {
+//		return repository;
+//	}
+//
+//	/**
+//	 * set the repository where to store the LLRPMessages to.
+//	 * @param repository the repository.
+//	 */
+//	public void setRepository(Repository repository) {
+//		this.repository = repository;
+//	}
+//	
 	/**
 	 * returns the exception handler.
 	 * @return the exception handler.

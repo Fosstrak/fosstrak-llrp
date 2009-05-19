@@ -25,7 +25,6 @@ import java.rmi.NotBoundException;
 import java.rmi.RemoteException;
 import java.rmi.registry.LocateRegistry;
 import java.rmi.registry.Registry;
-import java.util.ArrayList;
 
 import org.apache.log4j.BasicConfigurator;
 import org.apache.log4j.Level;
@@ -36,8 +35,8 @@ import org.fosstrak.llrp.adaptor.AdaptorManagement;
 import org.fosstrak.llrp.adaptor.Constants;
 import org.fosstrak.llrp.adaptor.exception.LLRPDuplicateNameException;
 import org.fosstrak.llrp.adaptor.exception.LLRPRuntimeException;
-import org.fosstrak.llrp.client.LLRPMessageItem;
-import org.fosstrak.llrp.client.Repository;
+import org.fosstrak.llrp.client.MessageHandler;
+import org.llrp.ltk.types.LLRPMessage;
 
 import junit.framework.TestCase;
 
@@ -138,55 +137,28 @@ public class AdaptorManagementTest extends TestCase {
 		assertNotNull(management.getAdaptorNames());
 		assertEquals(1, management.getAdaptorNames().size());
 		assertEquals(defaultAdaptorName, management.getAdaptorNames().get(0));
-
-		
-		
-		// test that the repository gets removed.
-		assertNull(management.getRepository());
-				
-		
-		
-		// test that the repository can be added and retrieved correctly.
-		class TestNotify implements Repository {
-
-			public void clearAll() {
-				// do nothing
-			}
-
-			public void close() {
-				// do nothing				
-			}
-
-			public LLRPMessageItem get(String arg0) {
-				// do nothing
-				return null;
-			}
-
-			public void open() {
-				// do nothing				
-			}
-
-			public void put(LLRPMessageItem arg0) {
-				// do nothing				
-			}
-
-			public ArrayList<LLRPMessageItem> get(String adaptorName,
-					String readerName, int num, boolean content) {
-				// do nothing
-				return null;
-			}
-
-			public int count(String adaptor, String reader) {
-				// do nothing
-				return 0;
-			}
-
 			
-		}
-		TestNotify testNotify = new TestNotify();
-		management.setRepository(testNotify);
-		assertNotNull(management.getRepository());
-		assertEquals(testNotify, management.getRepository());
+		
+		
+		// test that the handler can be added and retrieved correctly.
+		MessageHandler handler = new MessageHandler() {
+
+			public void handle(String adaptorName, String readerName,
+					LLRPMessage message) {
+				// do nothing
+			}
+			
+		};
+		
+		management.registerFullHandler(handler);
+		management.registerPartialHandler(handler, String.class);
+		assertTrue(management.hasFullHandler(handler));
+		assertTrue(management.hasPartialHandler(handler, String.class));
+		
+		management.deregisterFullHandler(handler);
+		management.deregisterPartialHandler(handler, String.class);
+		assertFalse(management.hasFullHandler(handler));
+		assertFalse(management.hasPartialHandler(handler, String.class));
 	}
 	
 	/**
