@@ -20,7 +20,7 @@ Developers guide - Adaptor Management
 	
 	[[6]] {{{#Enqueuing}Enqueuing}}
 	
-	[[7]] {{{#MessagePosting}MessagePosting}}
+	[[7]] {{{#MessagePosting}MessagePosting and Dispatching}}
 	
 	[[8]] {{{#ExceptionPosting}ExceptionPosting}}
 	
@@ -30,19 +30,17 @@ Developers guide - Adaptor Management
 	
 	[[11]] {{{#ExceptionHandler}ExceptionHandler}}
 	
-	[[12]] {{{#Repository}Repository}}
+	[[12]] {{{#Sample}Sample}}
 	
-	[[13]] {{{#Sample}Sample}}
-	
-	[[14]] {{{#Multithreading}Multithreading}}
+	[[13]] {{{#Multithreading}Multithreading}}
 	
 
 * {Overview}
 
 	This chapter shall give an overview to the adaptor management 
-	providing access to adaptors and readers. The behaviour of the 
+	providing access to adaptors and readers. The behavior of the 
 	adaptor management is explained by explaining the most important 
-	methods and their behaviour.
+	methods and their behavior.
 	
 	This includes:
 	
@@ -65,7 +63,7 @@ public boolean initialize(
 		String storeConfig,
 		boolean commitChanges,
 		LLRPExceptionHandler exceptionHandler,
-		Repository repository) 
+		MessageHandler handler) 
 	throws LLRPRuntimeException { ... }
 +---+
 	
@@ -80,10 +78,10 @@ public boolean initialize(
 	to the adaptors and to the readers in the local adaptors will be 
 	reflected <<immediately>> back into the configuration file.
 	
-	The exception handler and the repository are responsible for 
+	The exception handler and the handler are responsible for 
 	error and message reporting. If you set them to <<null>> you will 
 	have to use the corresponding setters to specify them in a later 
-	phase.
+	phase. 
 	
 	
 * {Shutdown}
@@ -158,29 +156,122 @@ public void enqueueLLRPMessage(String adaptorName,
 	
 	In order to simplify the sending of an LLRPMessage the adaptor 
 	management provides a short-cut. When you post an LLRPMessage 
-	together with the readerName and the adaptorName the 
+	together with the <<readerName>> and the <<adaptorName>> the 
 	adaptor management will select the correct adaptor and send 
 	the message asynchronously to the specified reader. One of the 
 	main advantages of this procedure is that you do not have 
-	to wait for the message to be sent. 
+	to wait for the message to be sent (Asynchronous messaging). 
 
 
 
 
-* {MessagePosting}
+* {MessagePosting} and Dispatching
+
+	Incoming messages are distributed in a publish/subscribe mechanism. Clients 
+	interested into a certain message type (or into all messages) can register 
+	by means of provided subscription methods. A subscriber needs to implement the 
+	interface <<<MessageHandler>>>. The adapter management will then, after a 
+	registration, distribute the LLRP messages automatically and asynchronously. 
+	
+	We basically distinguish between full-handlers and partial-handlers.
+	
+** Full-handler 
+
+	A full handler receives all incoming messages regardless of their type. 
+	Below the available methods are provided:
+	
++---+
+/**
+ * register a handler that will receive all the incoming messages.
+ * @param handler the handler.
+ */
+public void registerFullHandler(MessageHandler handler) { ... }
+
+/**
+ * remove a handler from the full handler list.
+ * @param handler the handler to be removed.
+ */
+public void deregisterFullHandler(MessageHandler handler) { ... }
+
+/**
+ * tests whether a given handler is already registered or not.
+ * @param handler the handler to check for.
+ * @return true if the handler is present, false otherwise.
+ */
+public boolean hasFullHandler(MessageHandler handler) { ...}
++---+
+
+
+** Partial-handler
+
+	A partial handler receives only a subset of the incoming LLRP messages 
+	filtered by the class of the message. At the subscription, the handler 
+	can submit a class that hints the adapter management to only deliver the 
+	messages that match the the class.
 
 +---+
-public void postLLRPMessageToRepo(LLRPMessageItem message) { ... }
+/**
+ * register a handler that will receive only a restricted set of messages.
+ * @param handler the handler.
+ * @param clzz the type of messages that the handler likes to receive (example KEEPALIVE.class).
+ */
+public void registerPartialHandler(MessageHandler handler, Class clzz) { ... }
+
+/**
+ * remove a handler from the handlers list.
+ * @param handler the handler to remove.
+ * @param clzz the class where the handler is registered.
+ */
+public void deregisterPartialHandler(MessageHandler handler, Class clzz) { ... }
+
+/**
+ * checks whether a given handler is registered at a given selector class.
+ * @param handler the handler to check.
+ * @param clzz the class where to search for the handler.
+ * @return true if the handler is present, false otherwise.
+ */
+public boolean hasPartialHandler(MessageHandler handler, Class clzz) { ... )
 +---+
+
+** Distribution to the handlers
+
+	Whenever a new LLRP message is submitted to the adapter management, the 
+	method <<<dispatchHandlers>>> is invoked. All the full-handlers get informed 
+	about the new message. Depending on the class, the partial-handlers get 
+	retrieved from a lookup-table and then handled in the same way as full-handlers.
 	
-	If an LLRPMessage arrived on any of the adaptors, this 
-	method can be invoked. The adaptor management then takes 
-	care of the delivery of the message to the repository.
+** Example registration
+
+	The registration example below shows, how to register a full handler and 
+	a second handler that only retrieves <<<KEEP_ALIVE>>> messages.
 	
-	This also ensures, that if the repository has not been set 
-	correctly in advance, the error message will be posted 
-	to the error logger.
-	
++---+
+// example for a full handler
+MessageHandler fullHandler = new MessageHandler() {
+	public void handle(String adapter, String reader, LLRPMessage msg) {
+		System.out.println(
+			String.format(
+				"received message from adapter: %s, reader: %s",
+				adapter, 
+				reader));
+	}
+};
+AdaptorManagement.getInstance().registerFullHandler(fullHandler);
+
+// example for a partial handler
+MessageHandler partialHandler = new MessageHandler() {
+	public void handle(String adapter, String reader, LLRPMessage msg) {
+		System.out.println(
+			String.format(
+				"received keep-alive message from adapter: %s, reader: %s",
+				adapter, 
+				reader));
+	}
+};
+AdaptorManagement.getInstance().registerPartialHandler(
+	partialHandler,
+	KEEP_ALIVE.class);
++---+
 	
 	
 	
@@ -245,33 +336,25 @@ public void setExceptionHandler(LLRPExceptionHandler exceptionHandler) { ... }
 	
 	
 	
-* {Repository}
-	
-+---+
-public void setRepository(Repository repository) {
-+---+
-	
-	In order to receive LLRP messages in the LLRP GUI Client the 
-	respective message repository has to be specified. If you did 
-	not set the repository during initialization you can use this 
-	helper method to perform this task.
-
-	
 * {Sample}
 
 +---+
-// create a message repository
-Repository repository = new MessageRepository();
+// create a message handler
+MessageHandler msgHandler = new MessageHandler() {
+	public void handle(String adapter, String reader, LLRPMessage msg) {
+		...
+	}
+};
 
 // create an exception handler
-ExceptionHandler handler = new ExceptionHandler();
+ExceptionHandler exHandler = new ExceptionHandler();
 
 // run the initializer method
 String readConfig = Utility.findWithFullPath("/readerDefaultConfig.properties");
 String writeConfig = readConfig;
 boolean commitChanges = true;
 AdaptorManagement.getInstance().initialize(
-    readConfig, storeConfig, commitChanges, handler, repo);
+    readConfig, storeConfig, commitChanges, exHandler, msgHandler);
 
 // now the management should be initialized and ready to be used
 
@@ -298,7 +381,7 @@ AdaptorManagement.getInstance().shutdown();
 * {Multithreading}
 
 	The LLRP GUI Client allows several adaptors to be run simultaneously, 
-	therefor the AdaptorManagement needs some mechanisms to support a 
+	therefore the AdaptorManagement needs some mechanisms to support a 
 	parallel execution of different adaptors.
 	
 	Each adaptor runs on a thread <<<AdaptorWorker>>>. Each thread 
