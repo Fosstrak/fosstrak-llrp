@@ -21,10 +21,12 @@
 package org.fosstrak.llrp.commander;
 
 import java.io.*;
+import java.lang.reflect.Method;
 import java.util.*;
 
 import org.fosstrak.llrp.client.LLRPExceptionHandlerTypeMap;
 import org.fosstrak.llrp.client.LLRPMessageItem;
+import org.fosstrak.llrp.client.MessageHandler;
 import org.fosstrak.llrp.client.Repository;
 import org.fosstrak.llrp.adaptor.exception.*;
 import org.fosstrak.llrp.adaptor.AdaptorManagement;
@@ -53,6 +55,8 @@ import org.fosstrak.llrp.commander.views.MessageboxView;
 import org.fosstrak.llrp.commander.views.ReaderExplorerView;
 import org.jdom.Document;
 import org.llrp.ltk.generated.LLRPMessageFactory;
+import org.llrp.ltk.generated.messages.KEEPALIVE;
+import org.llrp.ltk.generated.parameters.LLRPStatus;
 import org.llrp.ltk.types.LLRPMessage;
 import org.llrp.ltk.exceptions.InvalidLLRPMessageException;
 
@@ -211,8 +215,42 @@ public class ResourceCenter {
 				e.printStackTrace();
 			}
 		}
+		// create our message handler
+		MessageHandler handler = new MessageHandler() {
+
+			public void handle(String adapter, String reader, LLRPMessage msg) {
+				LLRPMessageItem item = new LLRPMessageItem();
+				item.setAdapter(adapter);
+				item.setReader(reader);
+				
+				// set the message type
+				Integer typeNum = msg.getTypeNum().toInteger();
+				String msgName = msg.getName();
+				item.setMessageType(msgName);
+				
+				// if the message contains a "LLRPStatus" parameter, set the status code (otherwise use empty string)
+				String statusCode = "";
+				try {
+					Method getLLRPStatusMethod = msg.getClass().getMethod("getLLRPStatus", new Class[0]);
+					LLRPStatus status = (LLRPStatus) getLLRPStatusMethod.invoke(msg, new Object[0]);
+					statusCode = status.getStatusCode().toString();
+				} catch (Exception e) {
+					// do nothing
+				} 
+				item.setStatusCode(statusCode);
+				
+				// store the xml string to the repository
+				try {
+					item.setContent(msg.toXMLString());
+				} catch (InvalidLLRPMessageException e) {
+					e.printStackTrace();
+				}
+				
+				getRepository().put(item);
+			}
+		};
 		
-		AdaptorManagement.getInstance().setRepository(getRepository());
+		AdaptorManagement.getInstance().registerFullHandler(handler);
 		IWorkspaceRoot myWorkspaceRoot = ResourcesPlugin.getWorkspace().getRoot();
 		String readConfig = myWorkspaceRoot.getLocation().toString() + 
 				cfg.getFullPath().toString();
@@ -221,7 +259,7 @@ public class ResourceCenter {
 		boolean commitChanges = true;
 		try {
 			AdaptorManagement.getInstance().initialize(
-					readConfig, storeConfig, commitChanges, null, repo);
+					readConfig, storeConfig, commitChanges, null, null);
 		} catch (LLRPRuntimeException e) {
 			e.printStackTrace();
 		}

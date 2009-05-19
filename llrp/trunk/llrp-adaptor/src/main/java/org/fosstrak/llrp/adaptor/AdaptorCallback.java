@@ -20,17 +20,14 @@
 
 package org.fosstrak.llrp.adaptor;
 
-import java.lang.reflect.Method;
 import java.rmi.RemoteException;
 import java.rmi.StubNotFoundException;
 import java.rmi.server.UnicastRemoteObject;
 
-import org.fosstrak.llrp.client.LLRPMessageItem;
-import org.fosstrak.llrp.client.LLRPExceptionHandlerTypeMap;
 import org.fosstrak.llrp.adaptor.exception.LLRPRuntimeException;
+import org.fosstrak.llrp.client.LLRPExceptionHandlerTypeMap;
 import org.llrp.ltk.exceptions.InvalidLLRPMessageException;
 import org.llrp.ltk.generated.LLRPMessageFactory;
-import org.llrp.ltk.generated.parameters.LLRPStatus;
 import org.llrp.ltk.types.LLRPMessage;
 
 /**
@@ -77,31 +74,10 @@ public class AdaptorCallback extends UnicastRemoteObject implements Asynchronous
 			// create the llrp message 
 			LLRPMessage llrpMessage = LLRPMessageFactory.createLLRPMessage(message);
 			
-			LLRPMessageItem item = new LLRPMessageItem();
-			item.setAdapter(worker.getAdaptor().getAdaptorName());
-			item.setReader(readerName);
+			// dispatch the message to the simplified handlers
+			AdaptorManagement.getInstance().dispatchHandlers(
+					worker.getAdaptor().getAdaptorName(), readerName, llrpMessage);
 			
-			// set the message type
-			Integer typeNum = llrpMessage.getTypeNum().toInteger();
-			String msgName = llrpMessage.getName();
-			item.setMessageType(msgName);
-			
-			// if the message contains a "LLRPStatus" parameter, set the status code (otherwise use empty string)
-			String statusCode = "";
-			try {
-				Method getLLRPStatusMethod = llrpMessage.getClass().getMethod("getLLRPStatus", new Class[0]);
-				LLRPStatus status = (LLRPStatus) getLLRPStatusMethod.invoke(llrpMessage, new Object[0]);
-				statusCode = status.getStatusCode().toString();
-			} catch (Exception e) {
-				// do nothing
-			} 
-			item.setStatusCode(statusCode);
-			
-			// store the xml string to the repository
-			item.setContent(llrpMessage.toXMLString());
-			
-			// store to the repository
-			AdaptorManagement.getInstance().postLLRPMessageToRepo(item);
 		} catch (InvalidLLRPMessageException e) {
 			AdaptorManagement.getInstance().postException(new LLRPRuntimeException(e.getMessage()), 
 					LLRPExceptionHandlerTypeMap.EXCEPTION_MSG_SENDING_ERROR, 
