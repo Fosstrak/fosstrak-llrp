@@ -83,6 +83,9 @@ public class ReaderImpl extends UnicastRemoteObject implements LLRPEndpoint, Rea
 	/** io handler. */
 	private LLRPIoHandlerAdapter handler = null;
 	
+	/** handle to the connection watch-dog. */
+	private Thread wd = null;
+	
 	/**
 	 * constructor for a local reader stub. the stub maintains connection
 	 * to the llrp reader.
@@ -195,6 +198,11 @@ public class ReaderImpl extends UnicastRemoteObject implements LLRPEndpoint, Rea
 		}
 		
 		metaData._setConnected(false);
+		
+		// stop the connection watch-dog.
+		if (null != wd) {
+			wd.interrupt();
+		}
 	}
 	
 	/* (non-Javadoc)
@@ -394,8 +402,35 @@ public class ReaderImpl extends UnicastRemoteObject implements LLRPEndpoint, Rea
 			e.printStackTrace();
 		}
 		
-		// run the watchdog
-		new Thread(new ConnectionWatchDog()).start();
+		// run the watch-dog
+		wd = new Thread(new Runnable() {
+			public void run() {
+				log.debug("starting connection watchdog.");
+				try {
+					while (isConnected()) {
+						try {
+							Thread.sleep(metaData.getAllowNKeepAliveMisses() * metaData.getKeepAlivePeriod());
+							if (!metaData.isAlive()) {
+								log.debug("connection timed out...");
+								disconnect();
+								if (throwExceptionKeepAlive) {
+									reportException(new LLRPRuntimeException("Connection timed out",
+											LLRPExceptionHandlerTypeMap.EXCEPTION_READER_LOST));
+								}
+							}
+							metaData._setAlive(false);
+						} catch (InterruptedException e) {
+							log.debug("received interrupt - stopping watchdog.");
+						}
+						
+					}
+				} catch (RemoteException e) {
+					e.printStackTrace();
+				}
+				log.debug("connection watchdog stopped.");
+			}
+		});
+		wd.start();
 	}
 
 	/* (non-Javadoc)
@@ -415,37 +450,6 @@ public class ReaderImpl extends UnicastRemoteObject implements LLRPEndpoint, Rea
 		metaData._setAllowNKeepAliveMisses(times);
 		metaData._setReportKeepAlive(report);
 		this.throwExceptionKeepAlive = throwException;
-		
-	}
-	
-	/**
-	 * helper class that periodically tests whether the connection is still alive.
-	 * @author sawielan
-	 *
-	 */
-	private class ConnectionWatchDog implements Runnable {
-
-		public void run() {
-			try {
-				while (isConnected()) {
-					try {
-						Thread.sleep(metaData.getAllowNKeepAliveMisses() * metaData.getKeepAlivePeriod());
-						if (!metaData.isAlive()) {
-							disconnect();
-							if (throwExceptionKeepAlive) {
-								reportException(new LLRPRuntimeException("Connection timed out",
-										LLRPExceptionHandlerTypeMap.EXCEPTION_READER_LOST));
-							}
-						}
-						metaData._setAlive(false);
-					} catch (InterruptedException e) {
-					}
-					
-				}
-			} catch (RemoteException e) {
-				e.printStackTrace();
-			}
-		}
 		
 	}
 
