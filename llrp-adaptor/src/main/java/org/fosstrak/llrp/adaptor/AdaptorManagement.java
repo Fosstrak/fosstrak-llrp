@@ -1084,24 +1084,6 @@ public class AdaptorManagement {
 	}
 	
 	// ------------------------------- getter and setter -------------------------------
-	
-// FIXME	
-//	/**
-//	 * returns the message repository.
-//	 * @return the message repository.
-//	 */
-//	public Repository getRepository() {
-//		return repository;
-//	}
-//
-//	/**
-//	 * set the repository where to store the LLRPMessages to.
-//	 * @param repository the repository.
-//	 */
-//	public void setRepository(Repository repository) {
-//		this.repository = repository;
-//	}
-//	
 	/**
 	 * returns the exception handler.
 	 * @return the exception handler.
