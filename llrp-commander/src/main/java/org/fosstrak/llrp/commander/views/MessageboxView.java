@@ -89,40 +89,44 @@ public class MessageboxView extends TableViewPart implements ISelectionListener 
 	 */
 	public static final int COL_MSG_ID = 1;
 	
-	/**
-	 * Column ID for Message Type.
-	 */
-	public static final int COL_MSG_READER = 2;
+	/** column for the adapter. */
+	public static final int COL_MSG_ADAPTER = 2;
 	
 	/**
 	 * Column ID for Message Type.
 	 */
-	public static final int COL_MSG_TYPE = 3;
+	public static final int COL_MSG_READER = 3;
+	
+	/**
+	 * Column ID for Message Type.
+	 */
+	public static final int COL_MSG_TYPE = 4;
 	
 	/**
 	 * Column ID for Status Code.
 	 */
-	public static final int COL_STATUS_CODE = 4;
+	public static final int COL_STATUS_CODE = 5;
 
 	/**
 	 * Column ID for Message Issue Time.
 	 */
-	public static final int COL_MSG_TIME = 5;
+	public static final int COL_MSG_TIME = 6;
 
 	/**
 	 * Column ID for Message Comments.
 	 */
-	public static final int COL_MSG_COMMENT = 6;
+	public static final int COL_MSG_COMMENT = 7;
 	
 	/** the number of messages to display in the message box. */
 	private int displayNumMessages = ResourceCenter.GET_MAX_MESSAGES;
 
-	private String columnHeaders[] = { "", "ID", "Reader", "Message Type", "Status Code",
+	private String columnHeaders[] = { "", "ID", "Adapter", "Reader", "Message Type", "Status Code",
 			"Time", "Comment" };
 	private ColumnLayoutData columnLayouts[] = { new ColumnWeightData(12),
-			new ColumnWeightData(80), new ColumnWeightData(60),
-			new ColumnWeightData(100), new ColumnWeightData(80), 
-			new ColumnWeightData(80), new ColumnWeightData(100) };
+			new ColumnWeightData(80), new ColumnWeightData(60), 
+			new ColumnWeightData(60), new ColumnWeightData(100), 
+			new ColumnWeightData(80), new ColumnWeightData(80), 
+			new ColumnWeightData(100) };
 
 	private Action deleteAction;
 	
@@ -167,6 +171,13 @@ public class MessageboxView extends TableViewPart implements ISelectionListener 
 		}
 		
 		public boolean select(Viewer aViewer, Object aParentElement, Object aElement) {
+			// special filter for the root adapter...
+			if ((null == adapterName) || (
+					ReaderExplorerViewContentProvider.ROOT_NAME.
+						equals(adapterName))) {
+				
+				return true;
+			}
 			
 			if ((null == adapterName) && (null == readerName)) {
 				return true;

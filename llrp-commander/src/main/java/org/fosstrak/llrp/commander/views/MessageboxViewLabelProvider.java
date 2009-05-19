@@ -55,6 +55,8 @@ public class MessageboxViewLabelProvider extends LabelProvider implements
 		switch (aIndex) {
 			case MessageboxView.COL_MSG_ID:
 				return msg.getId();
+			case MessageboxView.COL_MSG_ADAPTER:
+				return (msg.getAdapter()).trim();
 			case MessageboxView.COL_MSG_READER:
 				return (msg.getReader().trim());
 			case MessageboxView.COL_MSG_TYPE:

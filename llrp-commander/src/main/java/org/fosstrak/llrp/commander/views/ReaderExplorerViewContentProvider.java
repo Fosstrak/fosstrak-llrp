@@ -47,6 +47,9 @@ import org.fosstrak.llrp.commander.ResourceCenter;
 public class ReaderExplorerViewContentProvider implements
 		IStructuredContentProvider, ITreeContentProvider {
 
+	/** the name of the root in the reader explorer view. */
+	public static final String ROOT_NAME =  "Adapters";
+	
 	/**
 	 * Log4j instance.
 	 */
@@ -174,7 +177,7 @@ public class ReaderExplorerViewContentProvider implements
 		adapters = new HashMap<String, ReaderTreeObject>();
 		
 		// Create the reserved nodes in the tree view
-		ReaderTreeObject rootAdapters = new ReaderTreeObject("Adapters");
+		ReaderTreeObject rootAdapters = new ReaderTreeObject(ROOT_NAME);
 		
 		log.debug("Retrieving Adaptor Lists from Adapter Management");
 		try {

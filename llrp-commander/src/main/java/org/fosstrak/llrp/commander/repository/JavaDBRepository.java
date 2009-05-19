@@ -36,6 +36,8 @@ import org.fosstrak.llrp.adaptor.AdaptorManagement;
 import org.fosstrak.llrp.client.LLRPMessageItem;
 import org.fosstrak.llrp.client.Repository;
 import org.fosstrak.llrp.commander.ResourceCenter;
+import org.fosstrak.llrp.commander.views.ReaderExplorerView;
+import org.fosstrak.llrp.commander.views.ReaderExplorerViewContentProvider;
 
 /**
  * The LLRP message repository implementation based on Sun JavaDB.
@@ -308,7 +310,9 @@ public class JavaDBRepository implements Repository {
 			PreparedStatement st = null;
 			ResultSet results = null;
 			String sql = null;
-			if (adaptorName == null) {	
+			if ((null == adaptorName) || 
+					(ReaderExplorerViewContentProvider.ROOT_NAME.equals(
+							adaptorName))) {	
 				sql = SQL_SELECT_ALL;
 				if (content) {
 					sql = SQL_SELECT_ALL_CONTENT;
