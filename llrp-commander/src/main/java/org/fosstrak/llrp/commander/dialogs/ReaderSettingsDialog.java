@@ -67,19 +67,21 @@ public class ReaderSettingsDialog extends Dialog {
 		GridData gridLabel = new GridData(GridData.FILL_BOTH);
 		gridLabel.verticalSpan = 1;
 		gridLabel.horizontalSpan = 1;
+		gridLabel.heightHint=20;
 		
 		GridData gridText = new GridData(GridData.FILL_BOTH);
 		gridText.verticalSpan = 1;
 		gridText.horizontalSpan = 2;
+		gridText.heightHint=20;
 		
 		parent.getShell().setLayout(layout);
 		parent.getShell().setText("Messagebox View Options");
-		int nMetaData = 14;
-		parent.setSize(400, 70 + nMetaData * 20);
 		
 		GridData gridAll = new GridData(GridData.FILL_BOTH);
 		gridAll.verticalSpan = 1;
 		gridAll.horizontalSpan = 3;
+		gridAll.widthHint = 400;
+		gridAll.heightHint=20;
 			
 		final Button logKAMsg = new Button(parent, SWT.CHECK);
 		logKAMsg.setText("Log Keep-Alive Messages");
@@ -229,6 +231,7 @@ public class ReaderSettingsDialog extends Dialog {
 		      }
 		    });
 		
+		parent.pack();
 		return parent;
 	}
 }

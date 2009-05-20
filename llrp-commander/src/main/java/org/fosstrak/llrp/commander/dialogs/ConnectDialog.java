@@ -58,8 +58,20 @@ public abstract class ConnectDialog extends org.eclipse.jface.dialogs.Dialog {
 	/** the values collected from the fields. */
 	public String [] values;
 	
+	/** the text fields. */
+	protected Text []txts;
+	
 	/** the caption. */
-	private final String caption;
+	protected final String caption;
+	
+	/** the grid settings for the label fields. */
+	protected GridData gridLabel = new GridData(GridData.FILL_BOTH);
+	
+	/** the grid settings for the text fields. */
+	protected GridData gridText = new GridData(GridData.FILL_BOTH);
+	
+	/** the grid settings for a horizontal filler. */
+	protected GridData gridAll = new GridData(GridData.FILL_BOTH);
 	
 	/**
 	 * create a new connect dialog.
@@ -72,27 +84,38 @@ public abstract class ConnectDialog extends org.eclipse.jface.dialogs.Dialog {
 	}
 	
 	/**
-	 * Create GUI elements in the dialog.
+	 * sets the layout for the dialog.
+	 * @param parent the parent where to set the layout.
 	 */
-	protected Control createContents(Composite parent) {
-		values = new String[DEFAULTS.length];
-		final Text []txts = new Text[DEFAULTS.length];
-		
+	protected void setLayout(Composite parent) {
 		GridLayout layout = new GridLayout();
 		layout.numColumns = 3;
 		
-		GridData gridLabel = new GridData(GridData.FILL_BOTH);
 		gridLabel.verticalSpan = 1;
 		gridLabel.horizontalSpan = 1;
-		
-		GridData gridText = new GridData(GridData.FILL_BOTH);
+		gridLabel.widthHint=100;
+		gridLabel.heightHint = 20;
+
 		gridText.verticalSpan = 1;
 		gridText.horizontalSpan = 2;
+		gridText.widthHint=200;	
+		gridText.heightHint = 20;
+
+		gridAll.verticalSpan = 1;
+		gridAll.horizontalSpan = 3;
+		gridAll.heightHint = 20;
 		
 		parent.getShell().setLayout(layout);
 		parent.getShell().setText(caption);
-		parent.setSize(300, 50 + DEFAULTS.length * 30);	
-		
+	}
+	
+	/**
+	 * adds the text fields.
+	 * @param parent the parent where to add.
+	 */
+	protected void addTextFields(Composite parent) {
+		values = new String[DEFAULTS.length];
+		txts = new Text[DEFAULTS.length];
 		for (int i=0; i<FIELDS.length; i++) {
 			Label label = new Label(parent, SWT.NONE);
 			label.setText(FIELDS[i]);
@@ -102,7 +125,29 @@ public abstract class ConnectDialog extends org.eclipse.jface.dialogs.Dialog {
 			txts[i].setText(DEFAULTS[i]);
 			txts[i].setLayoutData(gridText);
 		}
-		
+	}
+	
+	/**
+	 * adds a Cancel button.
+	 * @param parent the parent where to add.
+	 */
+	protected void addCancelButton(Composite parent) {		
+		final Button btnCancel = new Button(parent, SWT.PUSH);
+		btnCancel.setText("Cancel");
+		btnCancel.setLayoutData(gridLabel);
+		btnCancel.addSelectionListener(new SelectionAdapter() {
+		      public void widgetSelected(SelectionEvent e) {
+		    	  setReturnCode(Window.CANCEL);
+		    	  close();
+		      }
+		    });
+	}
+	
+	/**
+	 * adds a OK button and installs the necessary listeners.
+	 * @param parent the parent where to add.
+	 */
+	protected void addOKButton(Composite parent) {
 		final Button btnOK = new Button(parent, SWT.PUSH);
 		btnOK.setText("OK");
 		btnOK.setLayoutData(gridLabel);
@@ -126,17 +171,32 @@ public abstract class ConnectDialog extends org.eclipse.jface.dialogs.Dialog {
 				txts[i].addListener(SWT.Modify, listener);
 			}
 		}
+	}
+	
+	/**
+	 * adds an invisible button to the grid to keep the alignment.
+	 * @param parent the parent where to add.
+	 */
+	protected void addInvisibleButton(Composite parent) {
+		// empty invisible button to make nice alignment
+		final Button none = new Button(parent, SWT.NONE);
+		none.setVisible(false);
+		none.setLayoutData(gridLabel);
+	}
+	
+	/**
+	 * Create GUI elements in the dialog.
+	 */
+	protected Control createContents(Composite parent) {
 		
-		final Button btnCancel = new Button(parent, SWT.PUSH);
-		btnCancel.setText("Cancel");
-		btnCancel.setLayoutData(gridLabel);
-		btnCancel.addSelectionListener(new SelectionAdapter() {
-		      public void widgetSelected(SelectionEvent e) {
-		    	  setReturnCode(Window.CANCEL);
-		    	  close();
-		      }
-		    });
+		setLayout(parent);
 		
+		addTextFields(parent);
+		addInvisibleButton(parent);
+		addOKButton(parent);
+		addCancelButton(parent);
+
+		parent.pack();	
 		return parent;
 	}
 	

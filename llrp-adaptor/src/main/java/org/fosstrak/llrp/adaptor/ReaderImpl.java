@@ -22,6 +22,7 @@ package org.fosstrak.llrp.adaptor;
 
 import java.rmi.RemoteException;
 import java.rmi.server.UnicastRemoteObject;
+import java.util.LinkedList;
 
 import org.apache.log4j.Logger;
 import org.fosstrak.llrp.adaptor.exception.LLRPRuntimeException;
@@ -45,7 +46,15 @@ import org.llrp.ltk.types.LLRPMessage;
 import org.llrp.ltk.types.UnsignedInteger;
 
 /**
- * This class implements the ReaderInterface.
+ * This class implements the ReaderInterface. The Reader implementation 
+ * maintains two queues to decouple the user interface from the actual message 
+ * delivery over the network.<br/>
+ * 1. from the user to the LLRP reader: the message to be sent is put into a 
+ * queue. a queue watch-dog awakes as soon as there are messages in the queue 
+ * and delivers them via LTK.<br/>
+ * 2. from the LLRP reader to user: the incoming message from the reader is 
+ * stored into a queue. a queue watch-dog awakes as soon as there are messages 
+ * in the queue and delivers them to the user.
  * @author sawielan
  *
  */
@@ -68,10 +77,10 @@ public class ReaderImpl extends UnicastRemoteObject implements LLRPEndpoint, Rea
 	/** a list with all the receivers of asynchronous messages. */
 	private AsynchronousNotifiableList toNotify = new AsynchronousNotifiableList();
 	
-	/** the default keepalive interval for the reader. */
+	/** the default keep-alive interval for the reader. */
 	public static final int DEFAULT_KEEPALIVE_PERIOD = 10000; 
 	
-	/** default how many times a keepalive can be missed. */
+	/** default how many times a keep-alive can be missed. */
 	public static final int DEFAULT_MISS_KEEPALIVE = 3;
 	
 	/** flag whether to throw an exception when a timeout occurred. */
@@ -80,11 +89,29 @@ public class ReaderImpl extends UnicastRemoteObject implements LLRPEndpoint, Rea
 	/** meta-data about the reader, if connection is up, number of packages, etc... */
 	private ReaderMetaData metaData = new ReaderMetaData();
 	
-	/** io handler. */
+	/** IO handler. */
 	private LLRPIoHandlerAdapter handler = null;
 	
 	/** handle to the connection watch-dog. */
 	private Thread wd = null;
+	
+	/** handle to the out queue worker. */
+	private Thread outQueueWorker = null;
+	
+	/** handle to the in queue worker. */
+	private Thread inQueueWorker = null;
+	
+	/** queue to hold the incoming messages.*/
+	private LinkedList<byte[]> inqueue = new LinkedList<byte[]> ();
+	
+	/** queue to hold the outgoing messages. */
+	private LinkedList<LLRPMessage> outqueue = new LinkedList<LLRPMessage> ();
+	
+	/** queue policies. */
+	public enum QueuePolicy {
+		DROP_QUEUE_ON_ERROR,
+		KEEP_QUEUE_ON_ERROR
+	};
 	
 	/**
 	 * constructor for a local reader stub. the stub maintains connection
@@ -124,56 +151,76 @@ public class ReaderImpl extends UnicastRemoteObject implements LLRPEndpoint, Rea
 	 * @see org.fosstrak.llrp.adaptor.ReaderIface#connect(boolean)
 	 */
 	public void connect(boolean clientInitiatedConnection) throws LLRPRuntimeException, RemoteException {
-		String address = metaData.getReaderAddress();
-		metaData._setClientInitiated(clientInitiatedConnection);
 		
-		// start a new counter session
-		metaData._newSession();
-		
-		if (metaData.getPort() == -1) {
-			metaData._setPort(Constants.DEFAULT_LLRP_PORT);
-			log.warn("port for reader '" + metaData.getReaderName() + "' not specified. using default port " + metaData.getPort());
-		}
-		
-		if (clientInitiatedConnection) {
-			if (address == null) {
-				log.error("address for reader '" + metaData.getReaderName() + "' is empty!");
-				reportException(new LLRPRuntimeException("address for reader '" + metaData.getReaderName() + "' is empty!"));
-				return;
+		try {
+			String address = metaData.getReaderAddress();
+			metaData._setClientInitiated(clientInitiatedConnection);
+			
+			// start a new counter session
+			metaData._newSession();
+			
+			if (metaData.getPort() == -1) {
+				metaData._setPort(Constants.DEFAULT_LLRP_PORT);
+				log.warn("port for reader '" + metaData.getReaderName() + "' not specified. using default port " + metaData.getPort());
 			}
+			
+			if (clientInitiatedConnection) {
+				if (address == null) {
+					log.error("address for reader '" + metaData.getReaderName() + "' is empty!");
+					reportException(new LLRPRuntimeException("address for reader '" + metaData.getReaderName() + "' is empty!"));
+					return;
+				}
+					
+				// run ltk connector.
+				LLRPConnector connector = new LLRPConnector(this, address, metaData.getPort());
+				connector.getHandler().setKeepAliveAck(true);
+				connector.getHandler().setKeepAliveForward(true);
+				try {
+					connector.connect();
+				} catch (LLRPConnectionAttemptFailedException e) {
+					log.error("connection attempt to reader " + metaData.getReaderName() + " failed");
+					reportException(new LLRPRuntimeException("connection attempt to reader " + metaData.getReaderName() + " failed"));
+				}
 				
-			// run ltk connector.
-			LLRPConnector connector = new LLRPConnector(this, address, metaData.getPort());
-			connector.getHandler().setKeepAliveAck(true);
-			connector.getHandler().setKeepAliveForward(true);
-			try {
-				connector.connect();
-			} catch (LLRPConnectionAttemptFailedException e) {
-				log.error("connection attempt to reader " + metaData.getReaderName() + " failed");
-				reportException(new LLRPRuntimeException("connection attempt to reader " + metaData.getReaderName() + " failed"));
+				this.connector = connector;
+			} else {
+				// run the ltk acceptor
+				LLRPAcceptor acceptor = new LLRPAcceptor(this, metaData.getPort());
+				handler = new LLRPIoHandlerAdapterImpl(acceptor);
+				handler.setKeepAliveAck(true);
+				acceptor.getHandler().setKeepAliveForward(true);
+				acceptor.setHandler(handler);
+				try {
+					acceptor.bind();
+				} catch (LLRPConnectionAttemptFailedException e) {
+					log.error("could not bind acceptor for reader " + metaData.getReaderName());
+					reportException(new LLRPRuntimeException("could not bind acceptor for reader " + metaData.getReaderName()	));
+				}
+				
+				this.connector = acceptor;
 			}
+			metaData._setConnected(true);
 			
-			this.connector = connector;
-		} else {
-			// run the ltk acceptor
-			LLRPAcceptor acceptor = new LLRPAcceptor(this, metaData.getPort());
-			handler = new LLRPIoHandlerAdapterImpl(acceptor);
-			handler.setKeepAliveAck(true);
-			connector.getHandler().setKeepAliveForward(true);
-			acceptor.setHandler(handler);
-			try {
-				acceptor.bind();
-			} catch (LLRPConnectionAttemptFailedException e) {
-				log.error("could not bind acceptor for reader " + metaData.getReaderName());
-				reportException(new LLRPRuntimeException("could not bind acceptor for reader " + metaData.getReaderName()	));
+			outQueueWorker = new Thread(getOutQueueWorker());
+			outQueueWorker.start();
+			
+			inQueueWorker = new Thread(getInQueueWorker());
+			inQueueWorker.start();
+	
+			// only do heart beat in client initiated mode.
+			if (clientInitiatedConnection) {
+				enableHeartBeat();
 			}
+			log.info(String.format("reader %s connected.", metaData.getReaderName()));
 			
-			this.connector = acceptor;
+		} catch (Exception e) {
+			// catch all unexpected errors...
+			LLRPRuntimeException ex = new LLRPRuntimeException(
+					String.format("Could not connect to reader %s on adapter %s:\nException: %s",
+							getReaderName(), adaptor.getAdaptorName(), e.getMessage()));
+			reportException(ex);
+			throw ex;
 		}
-		metaData._setConnected(true);
-
-		enableHeartBeat();
-		log.info(String.format("reader %s connected.", metaData.getReaderName()));
 	}
 	
 	/* (non-Javadoc)
@@ -198,6 +245,16 @@ public class ReaderImpl extends UnicastRemoteObject implements LLRPEndpoint, Rea
 		}
 		
 		metaData._setConnected(false);
+		
+		// stop the outqueue worker
+		if (null != outQueueWorker) {
+			outQueueWorker.interrupt();
+		}
+		
+		// stop the inqueue worker
+		if (null != inQueueWorker) {
+			inQueueWorker.interrupt();
+		}
 		
 		// stop the connection watch-dog.
 		if (null != wd) {
@@ -236,6 +293,19 @@ public class ReaderImpl extends UnicastRemoteObject implements LLRPEndpoint, Rea
 			return;
 		}
 		
+		// put the message into the outqueue
+		synchronized (outqueue) {
+			outqueue.add(llrpMessage);
+			outqueue.notifyAll();
+		}
+	}
+	
+	/**
+	 * performs the actual sending of the LLRP message to the reader.
+	 * @param llrpMessage the LLRP message to be sent.
+	 * @throws RemoteException at RMI exception.
+	 */
+	private void sendLLRPMessage(LLRPMessage llrpMessage) throws RemoteException {
 		try {
 			// send the message asynchronous.
 			connector.send(llrpMessage);
@@ -249,9 +319,9 @@ public class ReaderImpl extends UnicastRemoteObject implements LLRPEndpoint, Rea
 		} catch (Exception e) {
 			// just to be sure...
 			disconnect();			
-		}
+		}		
 	}
-	
+
 	/* (non-Javadoc)
 	 * @see org.fosstrak.llrp.adaptor.ReaderIface#isConnected()
 	 */
@@ -292,6 +362,18 @@ public class ReaderImpl extends UnicastRemoteObject implements LLRPEndpoint, Rea
 			}
 		}
 		
+		// put the message into the inqueue.
+		synchronized (inqueue) {
+			inqueue.add(binaryEncoded);
+			inqueue.notifyAll();
+		}
+	}
+
+	/**
+	 * deliver a received message to the handlers.
+	 * @param binaryEncoded the binary encoded LLRP message.
+	 */
+	private void deliverMessage(byte[] binaryEncoded) {
 		try {
 			adaptor.messageReceivedCallback(binaryEncoded, metaData.getReaderName());
 		} catch (RemoteException e) {
@@ -463,6 +545,60 @@ public class ReaderImpl extends UnicastRemoteObject implements LLRPEndpoint, Rea
 
 	public final ReaderMetaData getMetaData() throws RemoteException {
 		return new ReaderMetaData(metaData);
+	}
+	
+	/**
+	 * creates a runnable that watches the out queue for new messages to be 
+	 * sent. at arrival of a new message, the message is sent via LTK.
+	 * @return a runnable.
+	 */
+	private Runnable getOutQueueWorker() {
+		final LinkedList<LLRPMessage> queue = outqueue;
+		return new Runnable() {
+			public void run() {
+				try {
+					while (true) {
+						synchronized (queue) {
+							while (queue.isEmpty()) queue.wait();
+							
+							LLRPMessage msg = queue.removeFirst();
+							try {
+								sendLLRPMessage(msg);
+							} catch (RemoteException e) {
+							}
+						}
+					}
+				} catch (InterruptedException e) {
+					log.debug("stopping out queue worker.");
+				}
+			}
+			
+		};
+	}
+	
+	/**
+	 * creates a runnable that watches the in queue for new messages and at 
+	 * arrival, delivers them to the management.
+	 * @return a runnable.
+	 */
+	private Runnable getInQueueWorker() {
+		final LinkedList<byte[]> queue = inqueue;
+		return new Runnable() {
+			public void run() {
+				try {
+					while (true) {
+						synchronized (queue) {
+							while (queue.isEmpty()) queue.wait();
+							
+							byte[] msg = queue.removeFirst();
+							deliverMessage(msg);
+						}
+					}
+				} catch (InterruptedException e) {
+					log.debug("stopping in queue worker.");
+				}
+			}			
+		};
 	}
 
 }
