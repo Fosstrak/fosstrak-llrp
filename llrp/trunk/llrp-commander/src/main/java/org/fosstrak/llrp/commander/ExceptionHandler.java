@@ -104,7 +104,7 @@ public class ExceptionHandler implements LLRPExceptionHandler {
 						break;
 					}
 					default: {
-						processGeneralException(aAdapter, aReader);
+						processGeneralException(aAdapter, aReader, ex.getMessage());
 					}
 				}
 				ResourceCenter.getInstance().
@@ -150,8 +150,7 @@ public class ExceptionHandler implements LLRPExceptionHandler {
 		MessageDialog.openWarning(shell, DIALOG_CAPTION, aText);
 	}
 	
-	private void processGeneralException(String aAdapter, String aReader) {
-		String aText = "Unkown Error!";
+	private void processGeneralException(String aAdapter, String aReader, String aText) {
 		MessageDialog.openWarning(shell, DIALOG_CAPTION, aText);
 	}
 	

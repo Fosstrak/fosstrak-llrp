@@ -20,7 +20,13 @@
 
 package org.fosstrak.llrp.commander.dialogs;
 
+import org.eclipse.jface.window.Window;
+import org.eclipse.swt.SWT;
+import org.eclipse.swt.events.SelectionAdapter;
+import org.eclipse.swt.events.SelectionEvent;
 import org.eclipse.swt.widgets.Button;
+import org.eclipse.swt.widgets.Composite;
+import org.eclipse.swt.widgets.Control;
 import org.eclipse.swt.widgets.Event;
 import org.eclipse.swt.widgets.Listener;
 import org.eclipse.swt.widgets.Shell;
@@ -46,6 +52,18 @@ public class AddReaderDialog extends ConnectDialog {
 	/** increasing number added automatically to the reader name. */
 	private static long num = 0;
 	
+	/** flag whether client initiated or not. */
+	private boolean ci = true;
+	
+	/** handle to the client initiated connection button. */
+	protected Button cICon;
+	
+	/** flag whether connect immediately or not. */
+	private boolean connectImmediate = true;
+	
+	/** handle to the connect immediately button. */
+	protected Button conImmed;
+	
 	/**
 	 * create a new add reader dialog.
 	 * @param aShell the parent shell.
@@ -70,6 +88,62 @@ public class AddReaderDialog extends ConnectDialog {
 		DEFAULTS = new String [] { 	readerName, "127.0.0.1", "5084" };
 	}
 	
+	@Override
+	protected void addOKButton(Composite parent) {
+		final Button btnOK = new Button(parent, SWT.PUSH);
+		btnOK.setText("OK");
+		btnOK.setLayoutData(gridLabel);
+		
+		btnOK.addSelectionListener(new SelectionAdapter() {
+		      public void widgetSelected(SelectionEvent e) {
+		    	  for (int i=0; i<DEFAULTS.length; i++) {
+		    		  values[i] = txts[i].getText();
+		    	  }
+				
+		    	  ci = cICon.getSelection();
+		    	  connectImmediate = conImmed.getSelection();
+		    	  
+		    	  setReturnCode(Window.OK);
+		    	  close();
+		      }
+		    });
+		
+		// add the selection listeners.
+		for (int i=0; i<DEFAULTS.length; i++) {
+			Listener listener = getListener(txts[i], i, btnOK);
+			if (null != listener) {
+				// add a listener
+				txts[i].addListener(SWT.Modify, listener);
+			}
+		}
+	}
+	
+	/**
+	 * Create GUI elements in the dialog.
+	 */
+	protected Control createContents(Composite parent) {
+		setLayout(parent);
+		
+		addTextFields(parent);
+		
+		conImmed = new Button(parent, SWT.CHECK);
+		conImmed.setText("Connect immediately");
+		conImmed.setLayoutData(gridAll);
+		conImmed.setSelection(true);
+		
+		cICon = new Button(parent, SWT.CHECK);
+		cICon.setText("Connector mode (initiate connection to the reader)");
+		cICon.setLayoutData(gridAll);
+		cICon.setSelection(true);
+		
+		addInvisibleButton(parent);
+		addOKButton(parent);
+		addCancelButton(parent);
+
+		parent.pack();
+		return parent;
+	}
+	
 	/**
 	 * @return Logical Name of connection resource
 	 */
@@ -89,6 +163,20 @@ public class AddReaderDialog extends ConnectDialog {
 	 */
 	public int getPort() {
 		return Integer.parseInt(values[VALUE_READER_PORT]);
+	}
+	
+	/**
+	 * @return true if client initiates connection, false otherwise.
+	 */
+	public boolean isClientInitiated() {
+		return ci;
+	}
+	
+	/**
+	 * @return true if connect immediately, false otherwise.
+	 */
+	public boolean isConnectImmediately() {
+		return connectImmediate;
 	}
 	
 	@Override

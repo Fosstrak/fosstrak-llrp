@@ -390,7 +390,9 @@ public class ReaderExplorerView extends ViewPart {
 				try {
 					// Define the Adapter in Adapter Management module.
 					Adaptor localAdapter = AdaptorManagement.getInstance().getDefaultAdaptor();
-					localAdapter.define(dlg.getName(), dlg.getIP(), dlg.getPort(), true, true);
+					localAdapter.define(dlg.getName(), dlg.getIP(), 
+							dlg.getPort(), dlg.isClientInitiated(), 
+							dlg.isConnectImmediately());
 				} catch (LLRPRuntimeException llrpe) {
 					log.info(llrpe.getMessage());
 					message = llrpe.getMessage();
@@ -762,15 +764,15 @@ public class ReaderExplorerView extends ViewPart {
 							log.debug("reader connected - disconnecting.");
 							reader.disconnect();
 						} else {
-							log.debug("reader not connected - disconnecting.");
+							log.debug("reader not connected - connecting.");
 							reader.connect(reader.isClientInitiated());
 						}
 					
 						refresh();
 					}
 				} catch (Exception e) {
-					log.debug("could not communicate with reader.");
-					e.printStackTrace();
+					log.debug("could not communicate with reader:\n" + 
+							e.getMessage());
 				}
 			}
 		});
