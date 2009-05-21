@@ -92,4 +92,17 @@ public interface Repository {
 	 * Clear all the items in repository.
 	 */
 	public void clearAll();
+	
+	/**
+	 * clear all the items that belong to a given adapter.
+	 * @param adapter the name of the adapter to clear.
+	 */
+	public void clearAdapter(String adapter);
+	
+	/**
+	 * clear all the items that belong to a given reader on a given adapter.
+	 * @param adapter the name of the adapter where the reader belongs to.
+	 * @param reader the name of the reader to clear.
+	 */
+	public void clearReader(String adapter, String reader);
 }
