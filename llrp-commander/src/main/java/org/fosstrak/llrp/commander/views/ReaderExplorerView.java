@@ -798,7 +798,29 @@ public class ReaderExplorerView extends ViewPart {
 		viewer.refresh(true);
 		viewer.expandAll();
 	}	
-
+	
+	/**
+	 * @return the name of the currently selected adapter.
+	 */
+	public String getSelectedAdapter() {
+		if ((null != currentSelectedReader) && (currentSelectedReader.isReader())) {
+			return currentSelectedReader.getParent().getName();
+		} else if (null != currentSelectedReader) {
+			return currentSelectedReader.getName();
+		}
+		return null;
+	}
+	
+	/**
+	 * @return the name of the currently selected reader.
+	 */
+	public String getSelectedReader() {
+		if ((null != currentSelectedReader) && (currentSelectedReader.isReader())) {
+			return currentSelectedReader.getName();
+		}
+		return null;
+	}
+	
 	/**
 	 * When a user wants to send a START_ROSPEC message via the context menu of the ReaderExplorerView,
 	 * a dialog asks him for a ROSpecID. This class validates the user input.
@@ -852,6 +874,5 @@ public class ReaderExplorerView extends ViewPart {
 				return "";
 			}
 		}
-		
 	}
 }

@@ -100,6 +100,14 @@ public class JavaDBRepository implements Repository {
 	/** remove all the messages. */
 	private static final String SQL_REMOVEALL_MSG = "delete from LLRP_MSG";
 	
+	/** remove all the messages that belong to a given adapter. */
+	private static final String SQL_REMOVE_ADAPTER_MSG = 
+		"delete from LLRP_MSG where ADAPTER=?";
+	
+	/** remove all the messages that belong to a given reader. */
+	private static final String SQL_REMOVE_READER_MSG = 
+		"delete from LLRP_MSG where ADAPTER=? and READER=?";
+	
 	/** insert a new item into the database. */
 	private static final String SQL_INSERT_MSG = 
 		"insert into LLRP_MSG values (?, ?, ?, ?, ?, ?, ?, ?, ?)";
@@ -486,6 +494,29 @@ public class JavaDBRepository implements Repository {
 		}
 		
 		return rowcount;
+	}
+
+	public void clearAdapter(String adapter) {
+		try {
+			PreparedStatement psRemove = conn.prepareStatement(SQL_REMOVE_ADAPTER_MSG);
+			psRemove.setString(1, adapter);
+			psRemove.executeUpdate();
+			psRemove.close();
+		} catch (SQLException sqle) {
+            sqle.printStackTrace();
+		}		
+	}
+
+	public void clearReader(String adapter, String reader) {
+		try {
+			PreparedStatement psRemove = conn.prepareStatement(SQL_REMOVE_READER_MSG);
+			psRemove.setString(1, adapter);
+			psRemove.setString(2, reader);
+			psRemove.executeUpdate();
+			psRemove.close();
+		} catch (SQLException sqle) {
+            sqle.printStackTrace();
+		}	
 	}
 }
 

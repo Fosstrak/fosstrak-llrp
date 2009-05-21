@@ -27,8 +27,6 @@ import org.eclipse.jface.action.Action;
 import org.eclipse.jface.action.IMenuManager;
 import org.eclipse.jface.action.IToolBarManager;
 import org.eclipse.jface.action.Separator;
-import org.eclipse.jface.dialogs.Dialog;
-import org.eclipse.jface.dialogs.IInputValidator;
 import org.eclipse.jface.resource.ImageDescriptor;
 import org.eclipse.jface.viewers.ColumnLayoutData;
 import org.eclipse.jface.viewers.ColumnWeightData;
@@ -331,7 +329,21 @@ public class MessageboxView extends TableViewPart implements ISelectionListener 
 		super.createActions();
 		deleteAction = new Action() {
 			public void run() {
-				ResourceCenter.getInstance().getRepository().clearAll();
+				String adapter = ResourceCenter.getInstance().
+					getReaderExplorerView().getSelectedAdapter();
+				String reader = ResourceCenter.getInstance().
+					getReaderExplorerView().getSelectedReader();
+				
+				if (ReaderExplorerViewContentProvider.ROOT_NAME.
+						equals(adapter) || (null == adapter)) {
+					
+					ResourceCenter.getInstance().getRepository().clearAll();
+				} else if (null == reader) {
+					ResourceCenter.getInstance().getRepository().clearAdapter(adapter);
+				} else {
+					ResourceCenter.getInstance().getRepository().clearReader(
+							adapter, reader);
+				}
 				ResourceCenter.getInstance().clearMessageMetadataList();
 				
 				getTable().setRedraw(false);
@@ -340,8 +352,13 @@ public class MessageboxView extends TableViewPart implements ISelectionListener 
 				getTable().setRedraw(true);
 			}
 		};
-		String deleteText = "Delete all messages";
-		deleteAction.setText(deleteText);
+		String deleteText = String.format(
+				"Remove LLRP messages from the repository:\n" +
+				" - Select reader in reader explorer to delete messages of the reader.\n" + 
+				" - Select adapter in reader explorer to delete messages of the adapter.\n" + 
+				" - Select root in reader explorer to delete all messages."
+				);
+		deleteAction.setText("Remove Messages");
 		deleteAction.setToolTipText(deleteText);
 		deleteAction.setImageDescriptor(PlatformUI.getWorkbench()
 				.getSharedImages().getImageDescriptor(
