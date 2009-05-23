@@ -4,10 +4,10 @@
   <!-- =========================================================== -->
   <!-- Basics                                                      -->
   <!-- =========================================================== -->
-
+	
   <groupId>org.fosstrak.llrp</groupId>
   <artifactId>llrp</artifactId>
-  <version>0.0.1-SNAPSHOT</version>
+  <version>1.0.0-SNAPSHOT</version>
   <packaging>pom</packaging>
   <modelVersion>4.0.0</modelVersion>
 
@@ -15,7 +15,7 @@
   <!-- =========================================================== -->
   <!-- Modules                                                     -->
   <!-- =========================================================== -->
-
+	
   <modules>
     <module>llrp-commander</module>
     <module>llrp-adaptor</module>
@@ -25,7 +25,7 @@
   <!-- =========================================================== -->
   <!-- Dependencies                                                -->
   <!-- =========================================================== -->
-
+	
   <dependencies>
     <dependency>
       <groupId>org.slf4j</groupId>
@@ -45,14 +45,15 @@
       <version>1.2.12</version>
       <scope>compile</scope>
     </dependency>
-    
-    
-    <!-- FIXME HOW TO INCLUDE LTK ?? -->
     <dependency>
-      <groupId>ltk</groupId>
-      <artifactId>ltk</artifactId>
-      <version>0.1.1-with_dep</version>
-      <scope>compile</scope>
+      <groupId>org.llrp</groupId>
+      <artifactId>ltkjava</artifactId>
+      <version>1.0.0.6-SNAPSHOT</version>
+    </dependency>
+    <dependency>
+      <groupId>org.llrp</groupId>
+      <artifactId>ltkjava-generator</artifactId>
+      <version>1.0.0.6-SNAPSHOT</version>
     </dependency>
   </dependencies>
 
@@ -60,7 +61,7 @@
   <!-- =========================================================== -->
   <!-- Plugins                                                     -->
   <!-- =========================================================== -->
-
+	
   <build>
     <plugins>
       <plugin>
@@ -99,21 +100,21 @@
             <source>1.5</source>
             <target>1.5</target>
           </configuration>
-	</plugin>
+        </plugin>
         <plugin>
           <groupId>org.apache.maven.plugins</groupId>
           <artifactId>maven-site-plugin</artifactId>
-          <!-- Lock to this version in order to prevent generating corrupted
-               menu structures for sub-modules when running site:site from the
-               parent module. See http://jira.codehaus.org/browse/MSITE-270 for
-               details on this issue. -->
+	  <!-- Lock to this version in order to prevent generating corrupted
+	  menu structures for sub-modules when running site:site from the
+	  parent module. See http://jira.codehaus.org/browse/MSITE-270 for
+	  details on this issue. -->
           <version>2.0-beta-5</version>
           <configuration>
             <locales>en</locales>
             <publishDate position="left" format="yyyy-MM-dd hh:mm:ss" />
           </configuration>
         </plugin>
-
+			
       </plugins>
     </pluginManagement>
   </build>
@@ -122,7 +123,7 @@
   <!-- =========================================================== -->
   <!-- Repositories                                                -->
   <!-- =========================================================== -->
-
+	
   <repositories>
     <repository>
       <releases>
@@ -138,6 +139,25 @@
       <url>http://maven-repository.fosstrak.org/releases</url>
       <layout>default</layout>
     </repository>
+    <repository>
+      <releases>
+        <enabled>false</enabled>
+      </releases>
+      <snapshots>
+        <enabled>true</enabled>
+        <updatePolicy>always</updatePolicy>
+        <checksumPolicy>warn</checksumPolicy>
+      </snapshots>
+      <id>fosstrak-snapshot-repository</id>
+      <name>Fosstrak snapshot repository</name>
+      <url>http://maven-repository.fosstrak.org/snapshots</url>
+      <layout>default</layout>
+    </repository>
+    <repository>
+      <id>sibboleth</id>
+      <url>http://shibboleth.internet2.edu/downloads/maven2/</url>
+      <name>sibboleth maven repo</name>
+    </repository>    
   </repositories>
 
   <!-- =========================================================== -->
@@ -164,45 +184,45 @@
   <!-- =========================================================== -->
   <!-- Reporting                                                   -->
   <!-- =========================================================== -->
-
+	
   <reporting>
     <plugins>
       <plugin>
         <groupId>org.apache.maven.plugins</groupId>
         <artifactId>maven-project-info-reports-plugin</artifactId>
-	<configuration>
-	  <dependencyLocationsEnabled>false</dependencyLocationsEnabled>
-	</configuration>
+        <configuration>
+          <dependencyLocationsEnabled>false</dependencyLocationsEnabled>
+        </configuration>
       </plugin>
       <plugin>
         <groupId>org.apache.maven.plugins</groupId>
-	<artifactId>maven-javadoc-plugin</artifactId>
-	<version>2.5</version>
-	<reportSets>
-		<reportSet>
-			<configuration>
-				<maxmemory>1024</maxmemory>
-				<source>1.5</source>
-				<verbose>true</verbose>
-				<quiet>false</quiet>
-				<failOnError>true</failOnError>
-				<dependencyLocationsEnabled>false</dependencyLocationsEnabled>
-			</configuration>
-			<reports>
-				<!--
-				    there is a problem with the aggregate 
-				    according to the javadoc maintainer team.
-				    with 2.5 and (all minor versions together with
-				    maven >=2.0.9).
-				so for now generate the reports seperately
-				<report>aggregate</report>
-				<report>test-aggregate</report>
-				-->
-				<report>javadoc</report>
-				<report>test-javadoc</report>
-			</reports>
-		</reportSet>
-	</reportSets>
+        <artifactId>maven-javadoc-plugin</artifactId>
+        <version>2.5</version>
+        <reportSets>
+          <reportSet>
+            <configuration>
+              <maxmemory>1024</maxmemory>
+              <source>1.5</source>
+              <verbose>true</verbose>
+              <quiet>false</quiet>
+              <failOnError>true</failOnError>
+              <dependencyLocationsEnabled>false</dependencyLocationsEnabled>
+            </configuration>
+            <reports>
+	    <!--
+		there is a problem with the aggregate 
+		according to the javadoc maintainer team.
+		with 2.5 and (all minor versions together with
+		maven >=2.0.9).
+	    so for now generate the reports seperately
+	    <report>aggregate</report>
+	    <report>test-aggregate</report>
+	    -->
+              <report>javadoc</report>
+              <report>test-javadoc</report>
+            </reports>
+          </reportSet>
+        </reportSets>
       </plugin>
       <plugin>
         <groupId>org.apache.maven.plugins</groupId>
@@ -246,7 +266,7 @@
         <groupId>org.codehaus.mojo</groupId>
         <artifactId>taglist-maven-plugin</artifactId>
       </plugin>
-      
+			
       <plugin>
         <groupId>org.apache.maven.plugins</groupId>
         <artifactId>maven-changes-plugin</artifactId>
@@ -269,7 +289,7 @@
   <!-- =========================================================== -->
   <!-- Project Information                                         -->
   <!-- =========================================================== -->
-
+	
   <name>llrp</name>
   <url>http://www.fosstrak.org/llrp</url>
   <licenses>
