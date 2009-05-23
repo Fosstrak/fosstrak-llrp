@@ -39,6 +39,7 @@ public class ReaderTest extends TestCase {
 	private String readerName = "readerName";
 	private String readerAddress = "localhost";
 	private String adaptorName = "adaptorName";
+	private final int readerPort = 49212;
 	
 	public void testSetterAndGetterAndConstructor() throws Exception {
 		Reader reader = new ReaderImpl(null, readerName, readerAddress);
@@ -57,7 +58,10 @@ public class ReaderTest extends TestCase {
 		AsyncNotif notif = new AsyncNotif(false);
 		Adaptor adaptor = new AdaptorImpl(adaptorName);
 		
-		Reader reader = new ReaderImpl(adaptor, readerName, readerAddress);
+		Reader reader = new ReaderImpl(adaptor, readerName, 
+				readerAddress, readerPort);
+		// to enable the queue-worker, we need to connect
+		reader.connect(false);
 		reader.setKeepAlivePeriod(10000, 10, false, false);
 		// register
 		reader.registerForAsynchronous(notif);
@@ -70,6 +74,9 @@ public class ReaderTest extends TestCase {
 		notif.asyncNotifMessage = null;
 		notif.asyncNotifReaderName = null;
 		((ReaderImpl)reader).messageReceived(message);
+		// we need to wait a few milliseconds to allow the worker to process
+		// the message
+		Thread.sleep(1000);
 		assertNotNull(notif.asyncNotifMessage);
 		assertTrue(notif.asyncNotifMessage instanceof LLRPMessage);
 		
@@ -83,5 +90,6 @@ public class ReaderTest extends TestCase {
 		((ReaderImpl)reader).messageReceived(message);
 		assertNull(notif.asyncNotifMessage);
 		assertNull(notif.asyncNotifReaderName);
+		reader.disconnect();
 	}
 }
