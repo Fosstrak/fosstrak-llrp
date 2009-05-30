@@ -110,6 +110,21 @@ public abstract class ConnectDialog extends org.eclipse.jface.dialogs.Dialog {
 	}
 	
 	/**
+	 * registers listeners to the text fields with the OK button as the parent.
+	 * @param btnOK the ok button to use as parent.
+	 */
+	protected void registerTextFieldListeners(Button btnOK) {
+		// add the selection listeners.
+		for (int i=0; i<DEFAULTS.length; i++) {
+			Listener listener = getListener(txts[i], i, btnOK);
+			if (null != listener) {
+				// add a listener
+				txts[i].addListener(SWT.Modify, listener);
+			}
+		}
+	}
+	
+	/**
 	 * adds the text fields.
 	 * @param parent the parent where to add.
 	 */

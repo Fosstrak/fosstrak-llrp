@@ -419,12 +419,25 @@ public class AdaptorManagement {
 	/**
 	 * tells whether an adaptorName already exists.
 	 * @param adaptorName the name of the adaptor to check.
+	 * @throws LLRPRuntimeException whever something goes wrong ...
 	 * @return true if adaptor exists else false.
 	 */
 	public boolean containsAdaptor(String adaptorName) throws LLRPRuntimeException {
 		checkStatus();
 	
 		return workers.containsKey(adaptorName);
+	}
+	
+	/**
+	 * checks, whether a given adapter is a local adapter or not.
+	 * @param adapterName the name of the adapter to check.
+	 * @return true if the adapter is local, false otherwise.
+	 * @throws LLRPRuntimeException whenever something goes wrong...
+	 */
+	public boolean isLocalAdapter(String adapterName) throws LLRPRuntimeException {
+		checkStatus();
+		
+		return localWorkers.containsKey(adapterName);
 	}
 	
 	/**

@@ -107,7 +107,7 @@ public class AddReaderDialog extends ConnectDialog {
 		    	  close();
 		      }
 		    });
-		
+		/*
 		// add the selection listeners.
 		for (int i=0; i<DEFAULTS.length; i++) {
 			Listener listener = getListener(txts[i], i, btnOK);
@@ -115,7 +115,8 @@ public class AddReaderDialog extends ConnectDialog {
 				// add a listener
 				txts[i].addListener(SWT.Modify, listener);
 			}
-		}
+		}*/
+		registerTextFieldListeners(btnOK);
 	}
 	
 	/**
