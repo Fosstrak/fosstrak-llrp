@@ -20,7 +20,13 @@
 
 package org.fosstrak.llrp.commander.dialogs;
 
+import org.eclipse.jface.window.Window;
+import org.eclipse.swt.SWT;
+import org.eclipse.swt.events.SelectionAdapter;
+import org.eclipse.swt.events.SelectionEvent;
 import org.eclipse.swt.widgets.Button;
+import org.eclipse.swt.widgets.Composite;
+import org.eclipse.swt.widgets.Control;
 import org.eclipse.swt.widgets.Event;
 import org.eclipse.swt.widgets.Listener;
 import org.eclipse.swt.widgets.Shell;
@@ -38,6 +44,12 @@ public class AddFCDialog extends ConnectDialog {
 	
 	/** the index for the adaptor ip in the values array. */
 	private static final int VALUE_IP = 1;
+	
+	/** handle to the local/remote button. */
+	protected Button localAdapter;
+	
+	/** flag, whether local or remote adapter. */
+	private boolean isLocalAdapter = false;
 
 	/**
 	 * create a new add adaptor dialog.
@@ -57,10 +69,61 @@ public class AddFCDialog extends ConnectDialog {
 	}
 	
 	/**
+	 * if set to true, the adapter management will create a local adapter and 
+	 * therefore ignoring the IP-address provided.
+	 * @return true if user requests a local adapter, false otherwise. 
+	 */
+	public boolean isLocalAdapter() {
+		return isLocalAdapter;
+	}
+	
+	/**
 	 * @return IP Address of connection resource
 	 */
 	public String getIP() {
 		return values[VALUE_IP];
+	}
+	
+	@Override
+	protected Control createContents(Composite parent) {
+		setLayout(parent);
+		
+		addTextFields(parent);
+		
+		localAdapter = new Button(parent, SWT.CHECK);
+		localAdapter.setText("local Adapter");
+		localAdapter.setLayoutData(gridAll);
+		localAdapter.setSelection(false);
+		
+		addInvisibleButton(parent);
+		addOKButton(parent);
+		addCancelButton(parent);
+
+		parent.pack();
+		return parent;
+	}
+	
+	@Override
+	protected void addOKButton(Composite parent) {
+		final Button btnOK = new Button(parent, SWT.PUSH);
+		btnOK.setText("OK");
+		btnOK.setLayoutData(gridLabel);
+		
+		btnOK.addSelectionListener(new SelectionAdapter() {
+		      public void widgetSelected(SelectionEvent e) {
+		    	  for (int i=0; i<DEFAULTS.length; i++) {
+		    		  values[i] = txts[i].getText();
+		    	  }
+		    	  
+		    	  isLocalAdapter = localAdapter.getSelection();
+		    	  
+		    	  setReturnCode(Window.OK);
+		    	  close();
+		      }
+		    });
+		
+		
+		registerTextFieldListeners(btnOK);
 	}
 
 	@Override
