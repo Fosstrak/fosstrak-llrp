@@ -252,7 +252,7 @@ public class ReaderMetaData implements Remote, Serializable  {
 	}
 
 	/**
-	 * @param the number of sent packages in total.
+	 * @param packagesSent the number of sent packages in total.
 	 */
 	public void _setPackagesSent(int packagesSent) {
 		this.packagesSent = packagesSent;
@@ -309,7 +309,7 @@ public class ReaderMetaData implements Remote, Serializable  {
 	}
 
 	/**
-	 * @param whether keep alive messages get logged or not.
+	 * @param reportKeepAlive whether keep alive messages get logged or not.
 	 */
 	public void _setReportKeepAlive(boolean reportKeepAlive) {
 		this.reportKeepAlive = reportKeepAlive;

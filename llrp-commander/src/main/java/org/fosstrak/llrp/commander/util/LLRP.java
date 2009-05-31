@@ -337,7 +337,7 @@ public class LLRP {
      * and <code>false</code> otherwise.
      * 
      * @param fieldDefinition the definition of the field
-     * @return
+     * @return true if the field is an enumeration, false otherwise.
      */
     public static boolean isEnumeration(FieldDefinition fieldDefinition){
     	return fieldDefinition.getEnumeration() != null;
@@ -350,7 +350,7 @@ public class LLRP {
      * 
      * @param messageOrParameterDefinition either a <code> MessageDefinition</code> or a <code>ParameterDefinition</code>
      * @param parameterOrChoiceName the name of a parameter/choice
-     * @return
+     * @return true if a parameter can occur multiple times, false otherwise.
      */
     public static boolean canOccurMultipleTimes(Object messageOrParameterDefinition, String parameterOrChoiceName){
     	boolean result = false;
@@ -368,7 +368,7 @@ public class LLRP {
 	 * 
 	 * @param messageOrParameterDefinition either a <code> MessageDefinition</code> or a <code>ParameterDefinition</code>
 	 * @param parameterOrChoiceName the name of a parameter/choice
-	 * @return
+	 * @return true if parameter must occur at least once, false otherwise.
 	 */
 	public static boolean mustOccurAtLeastOnce(Object messageOrParameterDefinition, String parameterOrChoiceName) {
 		boolean result = false;
@@ -417,7 +417,7 @@ public class LLRP {
 	 * 
 	 * @param messageOrParameterDefinition either a <code> MessageDefinition</code> or a <code>ParameterDefinition</code>
 	 * @param parameterOrChoiceName the name of a parameter/choice
-	 * @return
+	 * @return true if the parameter is a choise parameter, false otherwise.
 	 */
 	public static boolean isChoice(Object messageOrParameterDefinition, String parameterOrChoiceName) {
 		boolean result = false;

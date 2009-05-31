@@ -48,7 +48,8 @@ public class ReaderSettingsDialog extends Dialog {
 	/**
 	 * create a new options dialog. 
 	 * @param aShell Shell instance.
-	 * @param mbv a link to the surrounding message box view.
+	 * @param adaptor a name of the adapter where the reader belongs to.
+	 * @param reader the name of the reader to display the settings of.
 	 */
 	public ReaderSettingsDialog(Shell aShell, String adaptor, String reader) {
 		super(aShell);
