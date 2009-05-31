@@ -24,6 +24,7 @@ import org.eclipse.jface.window.Window;
 import org.eclipse.swt.SWT;
 import org.eclipse.swt.events.SelectionAdapter;
 import org.eclipse.swt.events.SelectionEvent;
+import org.eclipse.swt.layout.GridData;
 import org.eclipse.swt.widgets.Button;
 import org.eclipse.swt.widgets.Composite;
 import org.eclipse.swt.widgets.Control;
@@ -90,9 +91,15 @@ public class AddFCDialog extends ConnectDialog {
 		
 		addTextFields(parent);
 		
+		// we need to create a special grid data object for the check-box 
+		// without width-hint as otherwise the check-box will not be displayed 
+		// in *nix ...
+		GridData gridNoWidthHint = new GridData();
+		gridNoWidthHint.horizontalSpan = 3;
+		
 		localAdapter = new Button(parent, SWT.CHECK);
 		localAdapter.setText("local Adapter");
-		localAdapter.setLayoutData(gridAll);
+		localAdapter.setLayoutData(gridNoWidthHint);
 		localAdapter.setSelection(false);
 		
 		addInvisibleButton(parent);

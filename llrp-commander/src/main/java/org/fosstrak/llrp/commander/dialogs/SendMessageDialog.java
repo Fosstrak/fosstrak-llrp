@@ -95,11 +95,11 @@ public class SendMessageDialog extends org.eclipse.jface.dialogs.Dialog {
 		
 		parent.getShell().setLayout(new GridLayout(2, false));
 		parent.getShell().setText("Sending " + fileName);
-		parent.setSize(400, 490);
 		
 		GridData gridText = new GridData(GridData.FILL_HORIZONTAL);
 		gridText.horizontalSpan = 2;
 		gridText.heightHint = 15;
+		gridText.widthHint = 400;
 		
 		GridData gridList = new GridData(GridData.FILL_HORIZONTAL);
 		gridList.horizontalSpan = 2;
@@ -255,6 +255,7 @@ public class SendMessageDialog extends org.eclipse.jface.dialogs.Dialog {
 			}
 		});
 		
+		parent.pack();
 		return parent;
 		
 	}

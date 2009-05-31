@@ -25,6 +25,7 @@ import org.eclipse.jface.window.Window;
 import org.eclipse.swt.SWT;
 import org.eclipse.swt.events.SelectionAdapter;
 import org.eclipse.swt.events.SelectionEvent;
+import org.eclipse.swt.events.SelectionListener;
 import org.eclipse.swt.layout.GridData;
 import org.eclipse.swt.layout.GridLayout;
 import org.eclipse.swt.widgets.Button;
@@ -35,6 +36,7 @@ import org.eclipse.swt.widgets.Label;
 import org.eclipse.swt.widgets.Listener;
 import org.eclipse.swt.widgets.Shell;
 import org.eclipse.swt.widgets.Text;
+import org.fosstrak.llrp.client.Repository;
 import org.fosstrak.llrp.commander.ResourceCenter;
 import org.fosstrak.llrp.commander.views.MessageboxView;
 
@@ -51,7 +53,7 @@ public class MessageboxViewOptionsDialog extends Dialog {
 	/** the number of messages to be displayed. */
 	private int numberOfMessages;
 	
-	/** the messagebox view. */
+	/** the message-box view. */
 	private MessageboxView mbv;
 	
 	/**
@@ -77,14 +79,17 @@ public class MessageboxViewOptionsDialog extends Dialog {
 		GridData gridLabel = new GridData(GridData.FILL_BOTH);
 		gridLabel.verticalSpan = 1;
 		gridLabel.horizontalSpan = 1;
+		gridLabel.widthHint = 250;
+		gridLabel.heightHint = 20;
 		
 		GridData gridText = new GridData(GridData.FILL_BOTH);
 		gridText.verticalSpan = 1;
 		gridText.horizontalSpan = 2;
+		gridText.widthHint = 150;
+		gridText.heightHint = 20;
 		
 		parent.getShell().setLayout(layout);
 		parent.getShell().setText("Messagebox View Options");
-		parent.setSize(350, 120);
 		
 		Label lblRefreshTime = new Label(parent, SWT.NONE);
 		lblRefreshTime.setText("Refresh Time (ms):");
@@ -106,13 +111,37 @@ public class MessageboxViewOptionsDialog extends Dialog {
 		txtNMsg.setText(String.format("%d", getNumberOfMessages()));
 		txtNMsg.setLayoutData(gridText);
 		
-		GridData gridAll = new GridData(GridData.FILL_BOTH);
-		gridAll.verticalSpan = 1;
-		gridAll.horizontalSpan = 3;
+		// we need to create a special grid data object for the check-box 
+		// without width-hint as otherwise the check-box will not be displayed 
+		// in *nix ...
+		GridData gridNoWidthHint = new GridData();
+		gridNoWidthHint.horizontalSpan = 3;
 		
-		final Label lblHint = new Label(parent, SWT.NONE);
-		lblHint.setText("Hint: set -1 to display all the Messages.");
-		lblHint.setLayoutData(gridAll);
+		final Button allMsg = new Button(parent, SWT.CHECK);
+		allMsg.setText("display all messages");
+		allMsg.setLayoutData(gridNoWidthHint);
+		allMsg.setSelection(false);
+		if (Repository.RETRIEVE_ALL == getNumberOfMessages()) {
+			allMsg.setSelection(true);
+		}
+		// add a selection listener that changes the value of the 
+		// number of messages field whenever the selection is changed.
+		allMsg.addSelectionListener(new SelectionListener() {
+			public void widgetDefaultSelected(SelectionEvent arg0) {
+				// ignore ...
+			}
+
+			public void widgetSelected(SelectionEvent arg0) {
+				if (allMsg.getSelection()) {
+					txtNMsg.setText(String.format("%d", 
+							Repository.RETRIEVE_ALL));
+				} else {
+					txtNMsg.setText(String.format("%d", 
+							ResourceCenter.GET_MAX_MESSAGES));
+				}
+			}
+			
+		});		
 		
 		final Button btnOK = new Button(parent, SWT.PUSH);
 		btnOK.setText("OK");
@@ -150,6 +179,11 @@ public class MessageboxViewOptionsDialog extends Dialog {
 					final int n = (new Integer(txtNMsg.getText())).intValue();
 					btnOK.setEnabled(true);
 					setNumberOfMessages(n);
+					if (Repository.RETRIEVE_ALL != n) {
+						allMsg.setSelection(false);
+					} else {
+						allMsg.setSelection(true);
+					}
 				} catch (Exception e) {
 					btnOK.setEnabled(false);
 				}
@@ -168,6 +202,7 @@ public class MessageboxViewOptionsDialog extends Dialog {
 		      }
 		    });
 		
+		parent.pack();
 		return parent;
 	}
 

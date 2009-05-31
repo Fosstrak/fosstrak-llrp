@@ -24,6 +24,7 @@ import org.eclipse.jface.window.Window;
 import org.eclipse.swt.SWT;
 import org.eclipse.swt.events.SelectionAdapter;
 import org.eclipse.swt.events.SelectionEvent;
+import org.eclipse.swt.layout.GridData;
 import org.eclipse.swt.widgets.Button;
 import org.eclipse.swt.widgets.Composite;
 import org.eclipse.swt.widgets.Control;
@@ -107,15 +108,7 @@ public class AddReaderDialog extends ConnectDialog {
 		    	  close();
 		      }
 		    });
-		/*
-		// add the selection listeners.
-		for (int i=0; i<DEFAULTS.length; i++) {
-			Listener listener = getListener(txts[i], i, btnOK);
-			if (null != listener) {
-				// add a listener
-				txts[i].addListener(SWT.Modify, listener);
-			}
-		}*/
+		
 		registerTextFieldListeners(btnOK);
 	}
 	
@@ -127,14 +120,20 @@ public class AddReaderDialog extends ConnectDialog {
 		
 		addTextFields(parent);
 		
+		// we need to create a special grid data object for the check-box 
+		// without width-hint as otherwise the check-box will not be displayed 
+		// in *nix ...
+		GridData gridNoWidthHint = new GridData();
+		gridNoWidthHint.horizontalSpan = 3;
+		
 		conImmed = new Button(parent, SWT.CHECK);
 		conImmed.setText("Connect immediately");
-		conImmed.setLayoutData(gridAll);
+		conImmed.setLayoutData(gridNoWidthHint);
 		conImmed.setSelection(true);
 		
 		cICon = new Button(parent, SWT.CHECK);
 		cICon.setText("Connector mode (initiate connection to the reader)");
-		cICon.setLayoutData(gridAll);
+		cICon.setLayoutData(gridNoWidthHint);
 		cICon.setSelection(true);
 		
 		addInvisibleButton(parent);
