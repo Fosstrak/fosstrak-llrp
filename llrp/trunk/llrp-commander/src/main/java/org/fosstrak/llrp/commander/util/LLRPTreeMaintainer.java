@@ -62,7 +62,7 @@ public class LLRPTreeMaintainer extends Observable {
 	/**
 	 * Returns the llrp message associated with this <code>LLRPTreeMaintainer</code>.
 	 * 
-	 * @return
+	 * @return the llrp message associated with this <code>LLRPTreeMaintainer</code>.
 	 */
 	public LLRPMessage getRoot() {
 		return root;
@@ -127,8 +127,8 @@ public class LLRPTreeMaintainer extends Observable {
      * Returns the child with the given name of the given message/parameter.
      * 
      * @param messageOrParameter either a <code>LLRPMessage</code> or a <code>LLRPParameter</code>
-     * @param childName
-     * @return
+     * @param childName the name of the child.
+     * @return the child to the given name, null if not existing.
      */
     public Object getChild(Object messageOrParameter, String childName){
     	Object child = null;
@@ -149,7 +149,7 @@ public class LLRPTreeMaintainer extends Observable {
 	 * 
 	 * @param treeElement either a <code>LLRPMessage</code> or a <code>LLRPParameter</code> 
 	 * 		or a <code>List&lt;LLRPParameter&gt;</code>
-	 * @return
+	 * @return a list of children to a given tree element.
 	 */
 	public List<Object> getNonNullChildren(Object treeElement){
 		List<Object> children = new LinkedList<Object>();
@@ -181,7 +181,7 @@ public class LLRPTreeMaintainer extends Observable {
 	 * 
 	 * @param treeElement either a <code>LLRPMessage</code> or a <code>LLRPParameter</code> 
 	 * 		or a <code>List&lt;LLRPParameter&gt;</code>
-	 * @return
+	 * @return the parent of a given element in the tree, null if it is the root.
 	 */
 	public Object getParent(Object treeElement){
 		return findParent(root, treeElement);
@@ -221,7 +221,7 @@ public class LLRPTreeMaintainer extends Observable {
 	 * 
 	 * @param messageOrParameter either a <code>LLRPMessage</code> or a <code>LLRPParameter</code>
 	 * @param fieldName
-	 * @return
+	 * @return the field with the given name of the given message/parameter.
 	 */
 	public LLRPType getField(Object messageOrParameter, String fieldName) {
 		String methodName = "get" + fieldName;
@@ -263,7 +263,7 @@ public class LLRPTreeMaintainer extends Observable {
 	 * Returns all fields of the given message/parameter.
 	 * 
 	 * @param messageOrParameter either a <code>LLRPMessage</code> or a <code>LLRPParameter</code>
-	 * @return
+	 * @return a list of llrp fields to a given parameter or message.
 	 */
 	public List<LLRPType> getFields(Object messageOrParameter){
 		LinkedList<LLRPType> fields = new LinkedList<LLRPType>();
@@ -281,7 +281,7 @@ public class LLRPTreeMaintainer extends Observable {
 	 * 
 	 * @param treeElement either a <code>LLRPMessage</code> or a <code>LLRPParameter</code> 
 	 * 		or a <code>List&lt;LLRPParameter&gt;</code>
-	 * @return
+	 * @return true if the given tree element is valid, false otherwise.
 	 */
 	public boolean isValid(Object treeElement){		
 		boolean result = isNonRecursivelyValid(treeElement);
@@ -298,7 +298,7 @@ public class LLRPTreeMaintainer extends Observable {
 	 * 
 	 * @param treeElement either a <code>LLRPMessage</code> or a <code>LLRPParameter</code> 
 	 * 		or a <code>List&lt;LLRPParameter&gt;</code>
-	 * @return
+	 * @return true if the given tree element is valid, false otherwise.
 	 */
 	public boolean isNonRecursivelyValid(Object treeElement){
 		if (treeElement instanceof LLRPMessage || treeElement instanceof LLRPParameter){
@@ -494,7 +494,7 @@ public class LLRPTreeMaintainer extends Observable {
 	 * 
 	 * @param treeElement either a <code>LLRPMessage</code> or a <code>LLRPParameter</code> 
 	 * 		or a <code>List&lt;LLRPParameter&gt;</code>
-	 * @return
+	 * @return the name of a given tree element.
 	 */
 	public String getName(Object treeElement) {
 		String name = EMPTY_STRING;

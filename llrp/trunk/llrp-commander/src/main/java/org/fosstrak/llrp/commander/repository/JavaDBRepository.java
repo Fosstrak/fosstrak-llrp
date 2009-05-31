@@ -194,9 +194,7 @@ public class JavaDBRepository implements Repository {
     
     /**
      * Load the Derby driver.
-     * And create the table in first time.
-     * 
-     * @Overrides
+     * And create the table in first time.\
      */
 	public void open() {
   	
@@ -284,8 +282,6 @@ public class JavaDBRepository implements Repository {
 	
 	/**
 	 * Close the database connection.
-	 * 
-	 * @Overrides
 	 */
 	public void close() {
 		try {

@@ -281,7 +281,7 @@ public class LLRPConstraints {
 	 * @param messageOrParameter 
 	 * @param fieldName 
 	 * @param treeMaintainer
-	 * @return
+	 * @return a range constraint for a given field if exists, null otherwise.
 	 */
 	public static LLRPRangeConstraint getRangeConstraint(Object messageOrParameter, String fieldName, LLRPTreeMaintainer treeMaintainer){
 		for (int i = 0; i < rangeConstraints.length; i++){
@@ -309,7 +309,7 @@ public class LLRPConstraints {
 	 * @param messageOrParameter 
 	 * @param fieldName 
 	 * @param treeMaintainer
-	 * @return
+	 * @return llrp constraint if there is a constraint, null otherwise.
 	 */
 	public static LLRPArrayConstraint getArrayConstraint(Object messageOrParameter, String fieldName, LLRPTreeMaintainer treeMaintainer){
 		for (int i = 0; i < arrayConstraints.length; i++){

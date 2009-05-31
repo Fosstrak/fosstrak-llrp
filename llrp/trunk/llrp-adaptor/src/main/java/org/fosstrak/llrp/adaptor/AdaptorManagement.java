@@ -202,7 +202,7 @@ public class AdaptorManagement {
 	 * @param commitChanges if storeConfig is set and commitChanges is true then all 
 	 * the changes to the AdaptorManagement are committed to storeConfig.
 	 * @param exceptionHandler the exception handler from the GUI.
-	 * @param handlerhandler a handler to dispatch the LLRP messages (can be set to null).
+	 * @param handler a handler to dispatch the LLRP messages (can be set to null).
 	 * @param export if the first local adaptor is to be exported by RMI or not.
 	 * @throws LLRPRuntimeException whenever the AdaptorManagement could not be loaded.
 	 * @return returns 

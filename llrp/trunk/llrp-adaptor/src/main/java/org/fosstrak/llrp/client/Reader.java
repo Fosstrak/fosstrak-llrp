@@ -134,7 +134,7 @@ public class Reader {
 	 *  
 	 * @param aAdapterName Adapter Logical Name
 	 * @param aReaderName Reader Logical Name
-	 * @return
+	 * @return a string holding a unique reader name.
 	 */
 	public static String getUniqueReaderId(String aAdapterName, String aReaderName) {
 		return aAdapterName + "-" + aReaderName;

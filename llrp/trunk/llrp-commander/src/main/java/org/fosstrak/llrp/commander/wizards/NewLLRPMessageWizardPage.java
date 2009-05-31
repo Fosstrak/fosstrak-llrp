@@ -92,7 +92,7 @@ public class NewLLRPMessageWizardPage extends WizardPage {
 	/**
 	 * Constructor for NewLLRPMessageWizardPage.
 	 * 
-	 * @param pageName
+	 * @param selection a selection page.
 	 */
 	public NewLLRPMessageWizardPage(ISelection selection) {
 		super("wizardPage");
