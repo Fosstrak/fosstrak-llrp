@@ -68,11 +68,13 @@ public class ReaderSettingsDialog extends Dialog {
 		gridLabel.verticalSpan = 1;
 		gridLabel.horizontalSpan = 1;
 		gridLabel.heightHint=20;
+		gridLabel.widthHint = 250;
 		
 		GridData gridText = new GridData(GridData.FILL_BOTH);
 		gridText.verticalSpan = 1;
 		gridText.horizontalSpan = 2;
 		gridText.heightHint=20;
+		gridText.widthHint = 150;
 		
 		parent.getShell().setLayout(layout);
 		parent.getShell().setText("Messagebox View Options");
@@ -85,7 +87,13 @@ public class ReaderSettingsDialog extends Dialog {
 			
 		final Button logKAMsg = new Button(parent, SWT.CHECK);
 		logKAMsg.setText("Log Keep-Alive Messages");
-		logKAMsg.setLayoutData(gridAll);
+		// we need to create a special grid data object for the check-box 
+		// without width-hint as otherwise the check-box will not be displayed 
+		// in *nix ...
+		GridData gridDataKAMsg = new GridData();
+		gridDataKAMsg.horizontalSpan = 3;
+		logKAMsg.setLayoutData(gridDataKAMsg);
+		
 		try {
 			logKAMsg.setSelection(
 					AdaptorManagement.getInstance().getAdaptor(adaptor).

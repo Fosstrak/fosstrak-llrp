@@ -515,6 +515,13 @@ public class MessageboxView extends TableViewPart implements ISelectionListener 
 				if (list.size() > 0) {
 					getViewer().add(list.toArray());
 					ResourceCenter.getInstance().clearMessageMetadataList();
+					
+					//bound the number of displayed messages.
+					if (0 < displayNumMessages) {
+						getViewer().setItemCount(Math.min(
+							getViewer().getTable().getItemCount(), 
+							getDisplayNumMessages()));
+					} 
 				}
 			}
 			
