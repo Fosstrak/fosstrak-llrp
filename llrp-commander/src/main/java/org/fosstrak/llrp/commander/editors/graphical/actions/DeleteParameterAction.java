@@ -44,7 +44,6 @@ import org.llrp.ltk.types.*;
  */
 public class DeleteParameterAction extends Action implements ISelectionChangedListener, IWorkbenchAction {
 	
-	private final IWorkbenchWindow window;
 	public final static String ID = "org.eclipse.ui.forms.article.deleteParameter";
 	private IStructuredSelection selection;
 	private TreeViewer viewer;
@@ -52,7 +51,6 @@ public class DeleteParameterAction extends Action implements ISelectionChangedLi
 	private LLRPMasterDetailsBlock block;
 	
 	public DeleteParameterAction(IWorkbenchWindow window, TreeViewer viewer, LLRPTreeMaintainer treeMaintainer, LLRPMasterDetailsBlock block){
-		this.window = window;
 		setId(ID);
 		setText("&Delete");
 		setToolTipText("Delete this llrp parameter.");
