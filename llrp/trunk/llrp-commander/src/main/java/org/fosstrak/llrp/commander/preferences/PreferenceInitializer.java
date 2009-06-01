@@ -43,14 +43,8 @@ public class PreferenceInitializer extends AbstractPreferenceInitializer {
 		
 		store.setDefault(PreferenceConstants.P_READER_FROM, "fromXML");
 		store.setDefault(PreferenceConstants.P_PROJECT, ResourceCenter.DEFAULT_ECLIPSE_PROJECT);
-//		store.setDefault(PreferenceConstants.P_MAX_MSGS_LOAD, 500);
-		store.setDefault(PreferenceConstants.P_STRING, "Default value");
-		
-//		store.setDefault(PreferenceConstants.P_READERS_DEF_XML, ResourceCenter.DEFAULT_READER_DEF_FILENAME);
-//		store.setDefault(PreferenceConstants.P_ENABLE_MONITOR, true);
-		
+		store.setDefault(PreferenceConstants.P_STRING, "Default value");		
 		store.setDefault(PreferenceConstants.P_DEFAULT_EDITOR, PreferenceConstants.P_DEFAULT_EDITOR_GRAPHICAL);
-		
 	}
 
 }

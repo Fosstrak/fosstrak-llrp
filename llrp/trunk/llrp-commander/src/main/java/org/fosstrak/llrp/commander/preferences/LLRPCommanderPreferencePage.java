@@ -31,7 +31,7 @@ import org.fosstrak.llrp.commander.LLRPPlugin;
 /**
  * This class represents a preference page that
  * is contributed to the Preferences dialog. By 
- * subclassing <samp>FieldEditorPreferencePage</samp>, we
+ * sub-classing <samp>FieldEditorPreferencePage</samp>, we
  * can use the field support built into JFace that allows
  * us to create a page that is small and knows how to 
  * save, restore and apply itself.
@@ -42,6 +42,7 @@ import org.fosstrak.llrp.commander.LLRPPlugin;
  * be accessed directly via the preference store.
  * 
  * @author Haoning Zhang
+ * @author sawielan
  * @version 1.0
  */
 public class LLRPCommanderPreferencePage
@@ -64,19 +65,9 @@ public class LLRPCommanderPreferencePage
 	 */
 	public void createFieldEditors() {
 		
-//		addField(
-//				new BooleanFieldEditor(
-//					PreferenceConstants.P_ENABLE_MONITOR,
-//					"Enable Message Monitoring Database",
-//					getFieldEditorParent()));
-		
-//		addField(new IntegerFieldEditor(PreferenceConstants.P_MAX_MSGS_LOAD, "Maxium Messages Loaded", getFieldEditorParent()));
-
-		
-//		addField(new FileFieldEditor(PreferenceConstants.P_READERS_DEF_XML, 
-//				"Reader Definition XML:", getFieldEditorParent()));
-		
-		addField(new StringFieldEditor(PreferenceConstants.P_PROJECT, "Eclipse Project Name:", getFieldEditorParent()));
+		addField(new StringFieldEditor(
+				PreferenceConstants.P_PROJECT, 
+				"Eclipse Project Name:", getFieldEditorParent()));
 
 		addField(new RadioGroupFieldEditor(
 				PreferenceConstants.P_DEFAULT_EDITOR, 
@@ -92,7 +83,9 @@ public class LLRPCommanderPreferencePage
 		);
 		
 		addField(
-				new BooleanFieldEditor(PreferenceConstants.P_WIPE_DB_ON_STARTUP, "Wipe DB on startup", getFieldEditorParent())
+				new BooleanFieldEditor(
+						PreferenceConstants.P_WIPE_DB_ON_STARTUP, 
+						"Wipe DB on startup", getFieldEditorParent())
 				);
 	}
 

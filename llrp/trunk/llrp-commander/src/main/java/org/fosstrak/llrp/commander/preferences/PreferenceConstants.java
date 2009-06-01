@@ -24,28 +24,33 @@ package org.fosstrak.llrp.commander.preferences;
  * Constant definitions for plug-in preferences
  *
  * @author Haoning Zhang
+ * @author sawielan
  * @version 1.0
  */
 public class PreferenceConstants {
 
+	/** the name of the eclipse project. */
 	public static final String P_PROJECT = "eclipseProject";
-	
-//	public static final String P_READERS_DEF_XML = "readerXMLPreference";
 
-//	public static final String P_ENABLE_MONITOR = "enableMonitorPreference";
-	
-//	public static final String P_MAX_MSGS_LOAD = "maxMessageToLoad";
-
+	/** the name of the choice preference property. */
 	public static final String P_READER_FROM = "choicePreference";
 
+	/** the name of the string preference property. */
 	public static final String P_STRING = "stringPreference";
 	
+	/** the name of the default editor property. */
 	public static final String P_DEFAULT_EDITOR = "defaultEditor";
+	
+	/** the name of the graphical editor property. */
 	public static final String P_DEFAULT_EDITOR_GRAPHICAL = "graphical_editor";
+	
+	/** the name of the XML editor property. */
 	public static final String P_DEFAULT_EDITOR_XML = "xml_editor";
+	
+	/** the name of the binary viewer property. */
 	public static final String P_DEFAULT_EDITOR_BINARY = "binary_viewer";
 	
-	/** name of the preference field for the configuration of the db-wipe. */
+	/** name of the preference field for the configuration of the DB-wipe. */
 	public static final String P_WIPE_DB_ON_STARTUP = "wipeDBOnStartup";
 	
 }
