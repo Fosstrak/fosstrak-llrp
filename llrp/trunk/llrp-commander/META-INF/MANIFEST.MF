@@ -1,6 +1,6 @@
 Manifest-Version: 1.0
 Bundle-ManifestVersion: 2
-Bundle-Version: 1.0.0.SNAPSHOT
+Bundle-Version: 0.9.1.SNAPSHOT
 Bundle-Activator: org.fosstrak.llrp.commander.LLRPPlugin
 Bundle-Name: llrp_commander
 Bundle-SymbolicName: llrp_commander;singleton:=true
