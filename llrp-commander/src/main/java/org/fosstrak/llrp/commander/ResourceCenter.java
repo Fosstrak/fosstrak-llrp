@@ -20,45 +20,54 @@
 
 package org.fosstrak.llrp.commander;
 
-import java.io.*;
+import java.io.BufferedReader;
+import java.io.ByteArrayInputStream;
+import java.io.File;
+import java.io.FileInputStream;
+import java.io.InputStream;
+import java.io.InputStreamReader;
+import java.io.StringBufferInputStream;
+import java.io.StringReader;
 import java.lang.reflect.Method;
-import java.util.*;
+import java.util.ArrayList;
+import java.util.HashMap;
+import java.util.Map;
 
-import org.fosstrak.llrp.client.LLRPExceptionHandlerTypeMap;
-import org.fosstrak.llrp.client.LLRPMessageItem;
-import org.fosstrak.llrp.client.MessageHandler;
-import org.fosstrak.llrp.client.Repository;
-import org.fosstrak.llrp.adaptor.exception.*;
-import org.fosstrak.llrp.adaptor.AdaptorManagement;
 import org.apache.log4j.Logger;
-import org.eclipse.core.runtime.CoreException;
 import org.eclipse.core.resources.IFile;
 import org.eclipse.core.resources.IFolder;
 import org.eclipse.core.resources.IProject;
 import org.eclipse.core.resources.IResource;
 import org.eclipse.core.resources.IWorkspaceRoot;
 import org.eclipse.core.resources.ResourcesPlugin;
+import org.eclipse.core.runtime.CoreException;
 import org.eclipse.jface.preference.IPreferenceStore;
 import org.eclipse.jface.resource.ImageDescriptor;
+import org.eclipse.swt.graphics.Image;
 import org.eclipse.ui.IFileEditorInput;
 import org.eclipse.ui.IWorkbench;
 import org.eclipse.ui.IWorkbenchPage;
 import org.eclipse.ui.PlatformUI;
 import org.eclipse.ui.ide.IDE;
-import org.eclipse.swt.graphics.Image;
+import org.fosstrak.llrp.adaptor.AdaptorManagement;
+import org.fosstrak.llrp.adaptor.exception.LLRPRuntimeException;
+import org.fosstrak.llrp.client.LLRPExceptionHandlerTypeMap;
+import org.fosstrak.llrp.client.LLRPMessageItem;
+import org.fosstrak.llrp.client.MessageHandler;
+import org.fosstrak.llrp.client.Repository;
 import org.fosstrak.llrp.commander.preferences.PreferenceConstants;
-import org.fosstrak.llrp.commander.repository.*;
+import org.fosstrak.llrp.commander.repository.JavaDBRepository;
+import org.fosstrak.llrp.commander.repository.MessageModel;
 import org.fosstrak.llrp.commander.util.LLRP;
 import org.fosstrak.llrp.commander.util.MessageBoxRefresh;
 import org.fosstrak.llrp.commander.util.Utility;
 import org.fosstrak.llrp.commander.views.MessageboxView;
 import org.fosstrak.llrp.commander.views.ReaderExplorerView;
 import org.jdom.Document;
+import org.llrp.ltk.exceptions.InvalidLLRPMessageException;
 import org.llrp.ltk.generated.LLRPMessageFactory;
-import org.llrp.ltk.generated.messages.KEEPALIVE;
 import org.llrp.ltk.generated.parameters.LLRPStatus;
 import org.llrp.ltk.types.LLRPMessage;
-import org.llrp.ltk.exceptions.InvalidLLRPMessageException;
 
 /**
  * This single access point for lower level resources, like Reader and Messages, from
@@ -125,8 +134,6 @@ public class ResourceCenter {
 	private HashMap<String, String> readerConfigMap;
 	
 	private HashMap<String, String> readerROSpecMap;
-	
-	private MessageboxView messageboxView;
 	
 	private ReaderExplorerView readerExplorerView;
 	
@@ -223,8 +230,6 @@ public class ResourceCenter {
 				item.setAdapter(adapter);
 				item.setReader(reader);
 				
-				// set the message type
-				Integer typeNum = msg.getTypeNum().toInteger();
 				String msgName = msg.getName();
 				item.setMessageType(msgName);
 				
@@ -510,7 +515,6 @@ public class ResourceCenter {
 	 */
 	public void sendMessage(String aAdapterName, String aReaderName, LLRPMessage aMessage, String aComment) {
 		try {
-			Integer typeNum = aMessage.getTypeNum().toInteger();
 			String msgName = aMessage.getName();
 			
 			LLRPMessageItem  item = new LLRPMessageItem();
@@ -599,8 +603,14 @@ public class ResourceCenter {
 		
 	}
 	
+	/**
+	 * set the message box view in the message box refresh thread. If the 
+	 * refresh thread is not started yet, a new instance is generated and the 
+	 * thread is started, otherwise the new message box view is registered on 
+	 * the running thread.
+	 * @param aMessagebox the message box to be set.
+	 */
 	public void setMessageboxView(MessageboxView aMessagebox) {
-		messageboxView = aMessagebox;
 		if (messageBoxRefresh == null) {
 			messageBoxRefresh = new MessageBoxRefresh(aMessagebox);
 			new Thread(messageBoxRefresh).start();
@@ -683,9 +693,9 @@ public class ResourceCenter {
 				IFile msgFile = repoFolder.getFile(aMsgId + ".llrp");
 				
 				if (!msgFile.exists()) {
-					StringBufferInputStream stream = new StringBufferInputStream(
-							content);
-					msgFile.create(stream, false, null);
+					InputStream is = 
+						new ByteArrayInputStream(content.getBytes());
+					msgFile.create(is, false, null);
 				}
 			
 				// Open new file in editor
