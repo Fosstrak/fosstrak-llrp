@@ -20,26 +20,28 @@
 
 package org.fosstrak.llrp.commander.editors;
 
-import org.eclipse.ui.forms.editor.FormEditor;
-import org.eclipse.core.runtime.*;
-import org.eclipse.swt.*;
-import org.eclipse.swt.widgets.*;
-import org.eclipse.ui.*;
-import org.eclipse.jface.viewers.*;
+import org.apache.log4j.Logger;
+import org.eclipse.core.runtime.IProgressMonitor;
 import org.eclipse.jface.action.Action;
 import org.eclipse.jface.action.IMenuListener;
 import org.eclipse.jface.action.IMenuManager;
 import org.eclipse.jface.action.MenuManager;
 import org.eclipse.jface.dialogs.MessageDialog;
 import org.eclipse.jface.preference.IPreferenceStore;
-import org.eclipse.jface.resource.ImageDescriptor;
+import org.eclipse.jface.viewers.TreeViewer;
+import org.eclipse.swt.SWT;
+import org.eclipse.swt.widgets.Menu;
+import org.eclipse.swt.widgets.Tree;
+import org.eclipse.swt.widgets.TreeColumn;
+import org.eclipse.ui.IEditorInput;
+import org.eclipse.ui.PartInitException;
+import org.eclipse.ui.PlatformUI;
+import org.eclipse.ui.forms.editor.FormEditor;
 import org.fosstrak.llrp.commander.LLRPPlugin;
 import org.fosstrak.llrp.commander.ResourceCenter;
 import org.fosstrak.llrp.commander.dialogs.SendMessageDialog;
 import org.fosstrak.llrp.commander.editors.graphical.GraphicalEditorPage;
 import org.fosstrak.llrp.commander.preferences.PreferenceConstants;
-import org.apache.log4j.Logger;
-
 import org.llrp.ltk.exceptions.InvalidLLRPMessageException;
 import org.llrp.ltk.types.LLRPMessage;
 
@@ -76,7 +78,7 @@ public class LLRPEditor extends FormEditor {
 	private final static String BINARY_PAGE_TITLE = "Binary Viewer";
 
 	private TreeViewer treeViewer;
-	private TreeColumn keyColumn, valueColumn, descColumn;
+	private TreeColumn keyColumn, valueColumn;
 	private XMLEditor textEditor;
 	private LLRPBinaryContentProvider provider;
 	
@@ -141,10 +143,6 @@ public class LLRPEditor extends FormEditor {
 	 * Create related Eclipse action classes.
 	 */
 	private void createActions() {
-		ImageDescriptor sendMessage = PlatformUI.getWorkbench()
-				.getSharedImages().getImageDescriptor(
-						ISharedImages.IMG_TOOL_FORWARD);
-		
 		actionSend = new Action() {
 			public void run() {
 				SendMessageDialog.getInstance(PlatformUI.getWorkbench().getActiveWorkbenchWindow().getShell()).open();
@@ -273,7 +271,12 @@ public class LLRPEditor extends FormEditor {
 
 	private void updateTitle() {
 		IEditorInput input = getEditorInput();
-		setTitle(input.getName());
+		// use setPartName instead of old setTitle
+		setPartName(input.getName());
+		
+		// we could use setContentDescription(String) to set a nice 
+		// description on top of the pane...
+		
 		setTitleToolTip(input.getToolTipText());
 	}
 
