@@ -214,6 +214,8 @@ public class ReaderSettingsDialog extends Dialog {
 		final Button btnOK = new Button(parent, SWT.PUSH);
 		btnOK.setText("OK");
 		btnOK.setLayoutData(gridLabel);
+		// set the keyboard focus
+		btnOK.setFocus();
 		
 		btnOK.addSelectionListener(new SelectionAdapter() {
 		      public void widgetSelected(SelectionEvent e) {
