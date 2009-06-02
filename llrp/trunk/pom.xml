@@ -169,17 +169,19 @@
     <developerConnection>scm:svn:https://svn.fosstrak.org/repos/llrp</developerConnection>
     <url></url>
   </scm>
-  <distributionManagement>
-    <site>
-      <id>fosstrak-website</id>
-      <name>Accada website</name>
-      <url>sftp://www.fosstrak.org/local/home/fosstrakweb/public_html/llrp</url>
-    </site>
-  </distributionManagement>
   <issueManagement>
     <system>Sourceforge</system>
-    <url>http://sourceforge.net/tracker/?group_id=171114</url>
+    <url>http://sourceforge.net/tracker/?group_id=XXXXXX</url>
   </issueManagement>
+  <mailingLists>
+    <mailingList>
+      <name>LLRP commander user mailing list</name>
+      <subscribe>https://lists.sourceforge.net/lists/listinfo/fosstrak-commander-user</subscribe>
+      <unsubscribe>https://lists.sourceforge.net/lists/listinfo/fosstrak-commander-user</unsubscribe>
+      <post>fosstrak-commander-user@lists.sourceforge.net</post>
+      <archive>http://sourceforge.net/mailarchive/forum.php?forum_name=fosstrak-commander-user</archive>
+    </mailingList>
+  </mailingLists>
 
   <!-- =========================================================== -->
   <!-- Reporting                                                   -->
