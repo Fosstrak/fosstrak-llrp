@@ -18,11 +18,10 @@
 
   <body>
     <links>
-      <item name="EPCIS Repository" href="../reader/index.html"/>
-	  <item name="TDT Engine" href="index.html"/>
+      <item name="EPCIS Repository" href="../epcis/index.html"/>
+	  <item name="TDT Engine" href="../tdt/index.html"/>
       <item name="ALE Middleware" href="../fc/index.html"/>
-      <item name="LLRP Toolkit Java" href="../tdt/index.html"/>
-	  <item name="LLRP Commander" href="../tdt/index.html"/>
+	  <item name="LLRP Commander" href="index.html"/>
     </links>
 
 
