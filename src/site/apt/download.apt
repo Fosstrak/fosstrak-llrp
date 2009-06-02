@@ -1,21 +1,26 @@
               -------------------
               LLRP Commander
               -------------------
-              Christof Roduner
               -------------------
-              10/26/2008
               -------------------
 
 
-Status
+Requirements
 
-  The LLRP Commander binary is available as pre-release
-  software. It is licensed under the GNU Lesser General Public License (LGPL).
-	
-  The source code will be available for download within the next two
-  weeks (as part of the upcoming release of the LLRP Commander).
+  To use the Fosstrak LLRP Commander, you need {{{http://http://www.eclipse.org/downloads/}Eclipse}} 3.3 or later and JRE/JDK1.5 or later.
+  
+Installation
 
-Download
+  We provide an update site that allows you to automatically install the LLRP Commander into Eclipse and also query and install updates. 
 
-  {{{http://maven-repository.fosstrak.org/snapshots/org/fosstrak/llrp-commander/llrp_commander.zip}llrp_commander.zip}}
+  Fosstrak Eclipse update site URL:
 
+  http://maven-repository.fosstrak.org/llrp/XXXXXXXXXXXXXXXXX
+
+  To install the plugin in Eclipse, choose Help -> Software Updates .... 
+ 
+[images/snap0.png]  
+ 
+Using the Plugin
+
+  See the {{{docs/user-index.html}User Guide}} for more details  
