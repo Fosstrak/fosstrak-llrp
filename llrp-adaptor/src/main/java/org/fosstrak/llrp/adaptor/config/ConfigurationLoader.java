@@ -30,7 +30,9 @@ import java.util.List;
 import java.util.Properties;
 
 import org.apache.log4j.Logger;
+import org.fosstrak.llrp.adaptor.AdaptorManagement;
 import org.fosstrak.llrp.adaptor.exception.LLRPRuntimeException;
+import org.fosstrak.llrp.adaptor.util.SortedProperties;
 
 /**
  * The {@link ConfigurationLoader} acts as a gateway to the configuration file. it 
@@ -159,7 +161,7 @@ public class ConfigurationLoader {
 	public void writeConfiguration(List<AdaptorConfiguration> configurations, 
 			String propertiesFile) throws LLRPRuntimeException {
 		
-		Properties props = new Properties();
+		Properties props = new SortedProperties();
 
 		log.info("storing adaptors to configuration file " + propertiesFile);
 		
@@ -169,80 +171,99 @@ public class ConfigurationLoader {
 				configurations.size()));
 		props.setProperty(CFG_NBR_ADAPTORS, String.format("%s", configurations.size()));
 		
-		int i=0;
+		// the first adapter we write is the default adapter
+		int defaultIndex = 0;
+		for (AdaptorConfiguration cfg : configurations) {
+			if (AdaptorManagement.DEFAULT_ADAPTOR_NAME.equals(cfg.getAdaptorName())) {
+				break;
+			}
+			defaultIndex ++;
+		}
+		AdaptorConfiguration defaultCfg = configurations.remove(defaultIndex);
+		writeAdapter(defaultCfg, props, 0);
+		int i=1;
 		for (AdaptorConfiguration adaptor : configurations) {
-			String adaptorPrefix = CFG_ADAPTOR_PREFIX + i + CFG_SEPARATOR;
+			writeAdapter(adaptor, props, i);
 			i++;		
-			
-			// write the adaptor name
-			log.debug(String.format("writing property/value (%s,%s)", 
-						adaptorPrefix + CFG_ADAPTOR_NAME,
-						adaptor.getAdaptorName()));
-			props.setProperty(adaptorPrefix + CFG_ADAPTOR_NAME, adaptor.getAdaptorName());
-			
-			boolean isLocal = false;
-			if (adaptor.isLocal()) {
-				isLocal = true;
-			} else {
-				log.debug(String.format("writing property/value (%s,%s)",
-						adaptorPrefix + CFG_ADAPTOR_IP,
-						adaptor.getIp()));
-				props.setProperty(adaptorPrefix + CFG_ADAPTOR_IP, adaptor.getIp());
-			}
-			log.debug(String.format("writing property/value (%s,%b)",
-					adaptorPrefix + CFG_ADAPTOR_MODE,
-					isLocal));
-			props.setProperty(adaptorPrefix + CFG_ADAPTOR_MODE, String.format("%b", isLocal));
-			
-			// now store the reader part
-			if (isLocal) {
-				// store the number of readers to create
-				log.debug(String.format("writing property/value (%s,%s)",
-						adaptorPrefix + CFG_NBR_READERS,
-						adaptor.getReaderPrototypes().size()));
-				props.setProperty(adaptorPrefix + CFG_NBR_READERS, String.format("%d", adaptor.getReaderPrototypes().size()));
-				int j=0;
-				for (ReaderConfiguration reader : adaptor.getReaderPrototypes()) {
-					
-					String readerPrefix = adaptorPrefix + CFG_READER_PREFIX + j + CFG_SEPARATOR;
-					j++;
-					
-					log.debug(String.format("writing property/value (%s,%s)",
-							readerPrefix + CFG_READER_NAME,
-							reader.getReaderName()));
-					props.setProperty(readerPrefix + CFG_READER_NAME, reader.getReaderName());
-					
-					log.debug(String.format("writing property/value (%s,%s)",
-							readerPrefix + CFG_READER_IP,
-							reader.getReaderIp()));
-					props.setProperty(readerPrefix + CFG_READER_IP, reader.getReaderIp());
-					
-					log.debug(String.format("writing property/value (%s,%d)",
-							readerPrefix + CFG_READER_PORT,
-							reader.getReaderPort()));
-					props.setProperty(readerPrefix + CFG_READER_PORT, String.format("%d", reader.getReaderPort()));
-					
-					log.debug(String.format("writing property/value (%s,%b)",
-							readerPrefix + CFG_READER_INITIATION,
-							reader.isReaderClientInitiated()));
-					props.setProperty(readerPrefix + CFG_READER_INITIATION, String.format("%b", reader.isReaderClientInitiated()));
-					
-					log.debug(String.format("writing property/value (%s,%b)",
-							readerPrefix + CFG_READER_CONNECT_IMMEDIATELY,
-							true));
-					props.setProperty(readerPrefix + CFG_READER_CONNECT_IMMEDIATELY, String.format("%b", reader.isConnectImmediately()));
-				}
-			}
+		}
 		
+		try {
+			props.store(new FileOutputStream(new File(propertiesFile)), null);
+		} catch (FileNotFoundException e) {
+			log.error("The configuration file " + propertiesFile + " could not be written.");
+			throw new LLRPRuntimeException(e.getMessage());
+		} catch (IOException e) {
+			log.error("There has been an IO Exception when writing the configuration file " + propertiesFile);
+			throw new LLRPRuntimeException(e.getMessage());
+		}
+	}
+
+	/**
+	 * writes the configuration of one adapter into the properties file.
+	 * @param adaptor the adapter configuration to be written.
+	 * @param props the properties file.
+	 * @param i the index to use.
+	 */
+	private void writeAdapter(AdaptorConfiguration adaptor, Properties props, int i) {
+		String adaptorPrefix = CFG_ADAPTOR_PREFIX + i + CFG_SEPARATOR;
 		
-			try {
-				props.store(new FileOutputStream(new File(propertiesFile)), null);
-			} catch (FileNotFoundException e) {
-				log.error("The configuration file " + propertiesFile + " could not be written.");
-				throw new LLRPRuntimeException(e.getMessage());
-			} catch (IOException e) {
-				log.error("There has been an IO Exception when writing the configuration file " + propertiesFile);
-				throw new LLRPRuntimeException(e.getMessage());
+		// write the adaptor name
+		log.debug(String.format("writing property/value (%s,%s)", 
+					adaptorPrefix + CFG_ADAPTOR_NAME,
+					adaptor.getAdaptorName()));
+		props.setProperty(adaptorPrefix + CFG_ADAPTOR_NAME, adaptor.getAdaptorName());
+		
+		boolean isLocal = false;
+		if (adaptor.isLocal()) {
+			isLocal = true;
+		} else {
+			log.debug(String.format("writing property/value (%s,%s)",
+					adaptorPrefix + CFG_ADAPTOR_IP,
+					adaptor.getIp()));
+			props.setProperty(adaptorPrefix + CFG_ADAPTOR_IP, adaptor.getIp());
+		}
+		log.debug(String.format("writing property/value (%s,%b)",
+				adaptorPrefix + CFG_ADAPTOR_MODE,
+				isLocal));
+		props.setProperty(adaptorPrefix + CFG_ADAPTOR_MODE, String.format("%b", isLocal));
+		
+		// now store the reader part
+		if (isLocal) {
+			// store the number of readers to create
+			log.debug(String.format("writing property/value (%s,%s)",
+					adaptorPrefix + CFG_NBR_READERS,
+					adaptor.getReaderPrototypes().size()));
+			props.setProperty(adaptorPrefix + CFG_NBR_READERS, String.format("%d", adaptor.getReaderPrototypes().size()));
+			int j=0;
+			for (ReaderConfiguration reader : adaptor.getReaderPrototypes()) {
+				
+				String readerPrefix = adaptorPrefix + CFG_READER_PREFIX + j + CFG_SEPARATOR;
+				j++;
+				
+				log.debug(String.format("writing property/value (%s,%s)",
+						readerPrefix + CFG_READER_NAME,
+						reader.getReaderName()));
+				props.setProperty(readerPrefix + CFG_READER_NAME, reader.getReaderName());
+				
+				log.debug(String.format("writing property/value (%s,%s)",
+						readerPrefix + CFG_READER_IP,
+						reader.getReaderIp()));
+				props.setProperty(readerPrefix + CFG_READER_IP, reader.getReaderIp());
+				
+				log.debug(String.format("writing property/value (%s,%d)",
+						readerPrefix + CFG_READER_PORT,
+						reader.getReaderPort()));
+				props.setProperty(readerPrefix + CFG_READER_PORT, String.format("%d", reader.getReaderPort()));
+				
+				log.debug(String.format("writing property/value (%s,%b)",
+						readerPrefix + CFG_READER_INITIATION,
+						reader.isReaderClientInitiated()));
+				props.setProperty(readerPrefix + CFG_READER_INITIATION, String.format("%b", reader.isReaderClientInitiated()));
+				
+				log.debug(String.format("writing property/value (%s,%b)",
+						readerPrefix + CFG_READER_CONNECT_IMMEDIATELY,
+						true));
+				props.setProperty(readerPrefix + CFG_READER_CONNECT_IMMEDIATELY, String.format("%b", reader.isConnectImmediately()));
 			}
 		}
 	}
