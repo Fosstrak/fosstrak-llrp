@@ -13,15 +13,16 @@
   <poweredBy>
     <logo img="images/logos/supportedByAutoid4.png" name="Auto-ID" href="http://www.autoidlabs.org/" />
   </poweredBy>
-  <publishDate position="left" format="MMM d, yyyy HH:mm:ss z"/>
+  <publishDate position="none"/>
+
 
   <body>
     <links>
-      <item name="Fosstrak" href="../index.html" />
-      <item name="EPCIS" href="../epcis/index.html"/>
-      <item name="ALE" href="../fc/index.html"/>
-      <item name="TDT" href="../tdt/index.html"/>
-      <item name="LLRP" href="index.html"/>
+      <item name="EPCIS Repository" href="../reader/index.html"/>
+	  <item name="TDT Engine" href="index.html"/>
+      <item name="ALE Middleware" href="../fc/index.html"/>
+      <item name="LLRP Toolkit Java" href="../tdt/index.html"/>
+	  <item name="LLRP Commander" href="../tdt/index.html"/>
     </links>
 
 
@@ -34,10 +35,12 @@
 	</menu>
 	
 	<menu name="LLRP Commander" inherit="top">
-		<!--<item name="JavaDoc" href="apidocs/index.html"/>-->
-		<item name="About"  href="index.html"/>
+		<item name="Overview"  href="index.html"/>
+		<item name="Install" href="download.html"/>
 		<item name="Background"  href="background.html"/>
-		<item name="Download" href="download.html"/>
+		<item name="License" href="license.html"/>
+		<item name="Mailing Lists" href="mail-lists.html"/>
+        <item name="Issue Tracking" href="issue-tracking.html"/>
 	</menu>
 	
 	<menu name="Guides and Documentation" inherit="top">
@@ -74,7 +77,7 @@
 	
     <breadcrumbs>
       <item href="../index.html" name="Fosstrak" />
-      <item name="LLRP"/> <!-- href is derived from project.url -->
+      <item name="LLRP Commander"/> <!-- href is derived from project.url -->
     </breadcrumbs>
   
   </body>

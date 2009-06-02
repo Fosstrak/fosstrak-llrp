@@ -4,37 +4,12 @@
                                     ------
 
 
+Fosstrak LLRP Commander: Configure and Manage LLRP compliant RFID readers 
 
-Welcome to the Fosstrak LLRP Commander Project
-
-
-* Objective
-	
-	The objective of the <<LLRP Commander>> Project is to provide  
-	a graphical user interface that facilitates control of RFID readers that support the LLRP protocol. <<LLRP Commander>> allows users to assemble, send and receive 
-	LLRP messages without writing code and to simultaneously control several LLRP readers.
-	
-
-	As a long-term goal, the LLRP Commander is intended to become a universal reader control GUI replacing the 
-	proprietary GUI tools in use today. 
-	
 	
 [images/Screenshot.PNG]
 	
 
-* Status
 
-	There is a binary pre-release available for download that implements the following features:
-	
-	* LLRP Message Editor (XML and Graphical Editor)
-	
-	* Binary LLRP Message Viewer
-	
-	* Reader Navigator allowing LLRP communication with RFID readers connected
-	
-	* Message Repository storing incoming and outgoing LLRP Messages
-	
-	
-	The release of the source package will follow in the next two weeks.
 	
 	
