@@ -145,6 +145,7 @@ public class MessageboxViewOptionsDialog extends Dialog {
 		
 		final Button btnOK = new Button(parent, SWT.PUSH);
 		btnOK.setText("OK");
+		btnOK.setFocus();
 		btnOK.setLayoutData(gridLabel);
 		
 		btnOK.addSelectionListener(new SelectionAdapter() {

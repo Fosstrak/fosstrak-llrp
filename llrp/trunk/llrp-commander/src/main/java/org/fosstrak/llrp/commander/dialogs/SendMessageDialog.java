@@ -216,12 +216,7 @@ public class SendMessageDialog extends org.eclipse.jface.dialogs.Dialog {
 		    	  btnOK.setEnabled(true);
 		      }
 		    });
-		if (tblReaders.getSelectionIndices().length == 0) {
-			btnOK.setEnabled(false);
-		} else {
-			btnOK.setEnabled(true);
-			selectedList = tblReaders.getSelectionIndices();
-		}
+		
 		
 		final Button btnCancel = new Button(parent, SWT.PUSH);
 		btnCancel.setText("Close");
@@ -231,6 +226,15 @@ public class SendMessageDialog extends org.eclipse.jface.dialogs.Dialog {
 		    	  close();
 		      }
 		    });
+		
+		if (tblReaders.getSelectionIndices().length == 0) {
+			btnOK.setEnabled(false);
+			btnCancel.setFocus();
+		} else {
+			btnOK.setEnabled(true);
+			btnOK.setFocus();
+			selectedList = tblReaders.getSelectionIndices();
+		}
 		
 		tblReaders.addListener(SWT.Selection, new Listener () {
 			public void handleEvent (Event e) {
