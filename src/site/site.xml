@@ -28,10 +28,6 @@
     <!-- =========================================================== -->
     <!-- Navigation Menu                                             -->
     <!-- =========================================================== -->
-
-	<menu name="Fosstrak" inherit="top">
-		<item name="Home" href="../index.html"/>
-	</menu>
 	
 	<menu name="LLRP Commander" inherit="top">
 		<item name="Overview"  href="index.html"/>
