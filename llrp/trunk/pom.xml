@@ -171,7 +171,7 @@
   </scm>
   <issueManagement>
     <system>Sourceforge</system>
-    <url>http://sourceforge.net/tracker/?group_id=XXXXXX</url>
+    <url>https://sourceforge.net/tracker/?group_id=264338&amp;atid=1127708</url>
   </issueManagement>
   <mailingLists>
     <mailingList>
@@ -296,8 +296,8 @@
   <url>http://www.fosstrak.org/llrp</url>
   <licenses>
     <license>
-      <name>GNU Lesser General Public License (LGPL)</name>
-      <url>http://www.gnu.org/licenses/lgpl.txt</url>
+      <name>GNU General Public License (GPL)</name>
+      <url>http://www.gnu.org/copyleft/gpl.html</url>
     </license>
   </licenses>
 
