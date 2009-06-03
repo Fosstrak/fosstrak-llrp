@@ -35,6 +35,7 @@
 	
 	<menu name="LLRP Commander" inherit="top">
 		<item name="Overview"  href="index.html"/>
+		<item name="Features"  href="features.html"/>
 		<item name="Install" href="download.html"/>
 		<item name="Background"  href="background.html"/>
 		<item name="License" href="license.html"/>
