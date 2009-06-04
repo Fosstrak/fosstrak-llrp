@@ -3,17 +3,19 @@
       id="org.fosstrak.llrp.llrp_commander_feature"
       label="llrp_commander_feature"
       version="0.9.2.SNAPSHOT"
-      provider-name="Fosstrak - Free Open Source Software for Track and Trace">
+      provider-name="Fosstrak">
 
    <description url="http://www.fosstrak.org">
-      The objective of the LLRP Commander Project is to provide a graphical user interface that facilitates control of RFID readers that support the LLRP protocol. LLRP Commander allows users to assemble, send and receive LLRP messages without writing code and to simultaneously control several LLRP readers.
+      The Fosstrak LLRP Commander provides a graphical user interface to
+      control RFID readers that support the LLRP protocol. The Fosstrak LLRP Commander 
+      allows users to assemble, send and receive LLRP messages without writing code.
    </description>
 
-   <copyright url="http://www.example.com/copyright">
-      [Enter Copyright Description here.]
+   <copyright url="http://www.fosstrak.org/llrp">
+      Copyright (C) 2008 ETH Zurich
    </copyright>
 
-   <license url="http://www.example.com/license">
+   <license url="http://www.gnu.org/licenses/gpl-3.0.txt">
                           GNU GENERAL PUBLIC LICENSE
                              Version 3, 29 June 2007
       
