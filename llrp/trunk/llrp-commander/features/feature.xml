@@ -2,7 +2,7 @@
 <feature
       id="org.fosstrak.llrp.llrp_commander_feature"
       label="llrp_commander_feature"
-      version="0.9.2.SNAPSHOT"
+      version="1.0.0.RC2"
       provider-name="Fosstrak">
 
    <description url="http://www.fosstrak.org">
@@ -19,7 +19,7 @@
                           GNU GENERAL PUBLIC LICENSE
                              Version 3, 29 June 2007
       
-       Copyright (C) 2007 Free Software Foundation, Inc. <http://fsf.org/>
+       Copyright (C) 2007 Free Software Foundation, Inc. &lt;http://fsf.org/&gt;
        Everyone is permitted to copy and distribute verbatim copies
        of this license document, but changing it is not allowed.
       
