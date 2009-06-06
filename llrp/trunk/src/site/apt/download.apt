@@ -28,20 +28,19 @@ Installation
 
 	Please follow these installation instructions step by step to install the LLRP Commander via the Eclipse Update Manager.
 	
-	[[]] Run the Eclipse Update Manager
+	<<1.>> Run the Eclipse Update Manager
 	
 [images/updateManager/softwareUpdate.png]
 
-
-	[[]] Add the Fosstrak LLRP Commander update site.
+	<<2.>> Add the Fosstrak LLRP Commander update site.
 	
 [images/updateManager/addUpdateSite.png]
 
-	[[]] Select the LLRP Commander and press <<<Install>>>
+	<<3.>> Select the LLRP Commander and press <<<Install>>>
 
 [images/updateManager/installCommander.png]
 
-	[[]] Follow the installation instructions (might take some time) and restart eclipse when the Update Manager asks you to do so.
+	<<4.>> Follow the installation instructions (might take some time) and restart eclipse when the Update Manager asks you to do so.
 	
 	
 
@@ -50,24 +49,28 @@ Installation
 
 	To install the LLRP Commander without Eclipse Update Manager perform the following steps:
 	
-	[[]] Obtain a copy of the LLRP Commander from the Fosstrak maven repository: {{{http://maven-repository.fosstrak.org/releases/org/llrp/llrp_commander/}http://maven-repository.fosstrak.org}}.
+	<<1.>> Obtain a copy of the LLRP Commander from the Fosstrak maven repository: {{{http://maven-repository.fosstrak.org/releases/org/llrp/llrp_commander/}http://maven-repository.fosstrak.org}}.
 	
-	[[]] Unpack the archive llrp_commander-<<<VERSION>>>.zip into the <<plugins>> directory of your eclipse installation. 
+	<<2.>> Unpack the archive llrp_commander-<<<VERSION>>>.zip into the <<plugins>> directory of your eclipse installation. 
 	
-	[[]] Start eclipse.
+	<<3.>> Start eclipse.
 	
 
 * {Activate} the Plugin
 
-	[[]] To activate the Plugin, you need to select the LLRP Commander Perspective:
+	<<1.>> To activate the Plugin, you need to select the LLRP Commander Perspective:
 	
 [images/updateManager/openPerspective-1.png]
 
+	[]
+
 [images/updateManager/openPerspective-2.png]
 
-	[[]] Sometimes it happens, that the perspective does not load all the views. Then run:
+	<<2.>> Sometimes it happens, that the perspective does not load all the views. Then run:
 	
 [images/updateManager/showView-1.png]
+
+	[]
 
 [images/updateManager/showView-2.png]	
 
