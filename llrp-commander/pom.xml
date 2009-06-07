@@ -7,11 +7,11 @@
 
   <groupId>org.fosstrak.llrp</groupId>
   <artifactId>llrp_commander</artifactId>
-  <version>1.0.0-RC1</version>
+  <version>1.0.0-SNAPSHOT</version>
   <parent>
     <artifactId>llrp</artifactId>
     <groupId>org.fosstrak.llrp</groupId>
-    <version>1.0.0-RC1</version>
+    <version>1.0.0-SNAPSHOT</version>
   </parent>
   <packaging>zip</packaging>
   <modelVersion>4.0.0</modelVersion>
@@ -159,7 +159,7 @@
           <Bundle-SymbolicName>llrp_commander</Bundle-SymbolicName>
 	  <!-- <eclipseInstall>/opt/eclipse</eclipseInstall> -->
 	  <!-- 	<eclipseInstall>C:\Programme\eclipse</eclipseInstall>	-->
-          <eclipseInstall>C:\eclipse</eclipseInstall>
+          <eclipseInstall>C:\accada\eclipse34</eclipseInstall>
           <buildProperties>
             <javacSource>1.5</javacSource>
             <javacTarget>1.5</javacTarget>
