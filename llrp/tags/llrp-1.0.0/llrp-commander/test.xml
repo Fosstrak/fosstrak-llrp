@@ -1,0 +1,28 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<project name="testbench" basedir="." default="main">
+	<property name="build.dir"   value="target"/>
+	<property name="src.dir"   value="src/main/java"/>
+	<property name="test.dir" value="${src.dir}/org/fosstrak/llrp/commander/test/"/>
+	<property name="classes.dir" value="${build.dir}/classes"/>
+	<property name="lib.dir"     value="."/>
+
+    <path id="classpath">
+        <fileset dir="${lib.dir}" includes="**/*.jar"/>
+    </path>
+
+	<target name="main" depends="">
+	    <junit printsummary="yes">
+	        <classpath>
+	        	<path refid="classpath"/>
+            	<path location="${classes.dir}"/>
+	        </classpath>
+	        
+	        <batchtest fork="yes">
+	            <fileset dir="${test.dir}" includes="*Test.java"/>
+	        </batchtest>
+	    </junit>
+	</target>
+
+
+
+</project>
