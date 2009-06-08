@@ -171,6 +171,23 @@
     <developerConnection>scm:svn:https://svn.fosstrak.org/repos/llrp</developerConnection>
     <url></url>
   </scm>
+  <distributionManagement>
+    <repository>
+      <id>fosstrak-repository</id>
+      <name>Fosstrak repository</name>
+      <url>sftp://maven-repository.fosstrak.org/local/home/fosstrakrep/public_html/releases</url>
+    </repository>
+    <snapshotRepository>
+      <id>fosstrak-repository</id>
+      <name>Fosstrak repository</name>
+      <url>sftp://maven-repository.fosstrak.org/local/home/fosstrakrep/public_html/snapshots</url>
+    </snapshotRepository>
+    <site>
+      <id>fosstrak-website</id>
+      <name>Fosstrak website</name>
+      <url>sftp://www.fosstrak.org/local/home/fosstrakweb/public_html/llrp</url>
+    </site>
+  </distributionManagement>
   <issueManagement>
     <system>Sourceforge</system>
     <url>https://sourceforge.net/tracker/?group_id=264338&amp;atid=1127708</url>
