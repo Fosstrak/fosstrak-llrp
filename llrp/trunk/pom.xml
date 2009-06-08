@@ -165,11 +165,10 @@
   <!-- =========================================================== -->
   <!-- Infrastructure                                              -->
   <!-- =========================================================== -->
-
   <scm>
     <!-- keep empty tags here to avoid release:prepare crashes -->
     <connection></connection>
-    <developerConnection>scm:svn:https://svn.fosstrak.org/repos/llrp/trunk</developerConnection>
+    <developerConnection>scm:svn:https://svn.fosstrak.org/repos/llrp</developerConnection>
     <url></url>
   </scm>
   <distributionManagement>
