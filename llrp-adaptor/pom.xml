@@ -7,7 +7,7 @@
 
   <groupId>org.fosstrak.llrp</groupId>
   <artifactId>llrp-adaptor</artifactId>
-  <version>1.0.0</version>
+  <version>1.0.1-SNAPSHOT</version>
   <parent>
     <artifactId>llrp</artifactId>
     <groupId>org.fosstrak.llrp</groupId>
@@ -64,10 +64,4 @@
       </plugin>
     </plugins>
   </build>
-
-
-
-  <scm>
-    <developerConnection>scm:svn:https://svn.fosstrak.org/repos/llrp/tags/llrp-adaptor-1.0.0</developerConnection>
-  </scm>
 </project>
