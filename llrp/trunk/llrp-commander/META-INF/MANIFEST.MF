@@ -1,6 +1,6 @@
 Manifest-Version: 1.0
 Bundle-ManifestVersion: 2
-Bundle-Version: 1.0.0
+Bundle-Version: 1.0.1.SNAPSHOT
 Bundle-Activator: org.fosstrak.llrp.commander.LLRPPlugin
 Bundle-Name: llrp_commander
 Bundle-SymbolicName: llrp_commander;singleton:=true
@@ -40,7 +40,7 @@ Bundle-ClassPath: .,
  velocity-dep-1.4.jar,
  xercesImpl-2.4.0.jar,
  commons-lang-2.4.jar,
- llrp-adaptor-1.0.0.jar,
+ llrp-adaptor-1.0.1-SNAPSHOT.jar,
  log4j-1.2.12.jar,
  slf4j-api-1.5.0.jar,
  slf4j-log4j12-1.5.0.jar,
