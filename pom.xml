@@ -7,7 +7,7 @@
 	
   <groupId>org.fosstrak.llrp</groupId>
   <artifactId>llrp</artifactId>
-  <version>1.0.1-SNAPSHOT</version>
+  <version>1.0.0-SNAPSHOT</version>
   <packaging>pom</packaging>
   <modelVersion>4.0.0</modelVersion>
 
@@ -168,7 +168,7 @@
   <scm>
     <!-- keep empty tags here to avoid release:prepare crashes -->
     <connection></connection>
-    <developerConnection>scm:svn:https://svn.fosstrak.org/repos/llrp/trunk</developerConnection>
+    <developerConnection>scm:svn:https://svn.fosstrak.org/repos/llrp</developerConnection>
     <url>https://svn.fosstrak.org/repos/llrp/</url>
   </scm>
   <distributionManagement>
@@ -190,15 +190,15 @@
   </distributionManagement>
   <issueManagement>
     <system>Sourceforge</system>
-    <url>https://sourceforge.net/tracker/?group_id=264907&amp;atid=1127980</url>
+    <url>https://sourceforge.net/tracker/?group_id=264338&amp;atid=1127708</url>
   </issueManagement>
   <mailingLists>
     <mailingList>
       <name>LLRP commander user mailing list</name>
-      <subscribe>https://lists.sourceforge.net/lists/listinfo/fosstrak-cmdr-user</subscribe>
-      <unsubscribe>https://lists.sourceforge.net/lists/listinfo/fosstrak-cmdr-user</unsubscribe>
-      <post>fosstrak-cmdr-user@lists.sourceforge.net</post>
-      <archive>http://sourceforge.net/mailarchive/forum.php?forum_name=fosstrak-cmdr-user</archive>
+      <subscribe>https://lists.sourceforge.net/lists/listinfo/fosstrak-commander-user</subscribe>
+      <unsubscribe>https://lists.sourceforge.net/lists/listinfo/fosstrak-commander-user</unsubscribe>
+      <post>fosstrak-commander-user@lists.sourceforge.net</post>
+      <archive>http://sourceforge.net/mailarchive/forum.php?forum_name=fosstrak-commander-user</archive>
     </mailingList>
   </mailingLists>
 
