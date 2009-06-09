@@ -58,7 +58,7 @@ Background and Motivation
 	tree displaying all the parameters as leaves). It is even 
 	possible to correct erroneous parameters on the fly.
 	
-	[[3]] Many different RFID readers with proprietary interfaces <<but>> 
+	[[3]] Many different RFID readers with proprietary interfaces <but> 
 		with a standardized LLRP protocol
 	
 	As there are many different RFID readers from different 

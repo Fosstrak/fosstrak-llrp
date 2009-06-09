@@ -6,10 +6,12 @@
 
 Installation
 	      
-	The LLRP Commander is an Eclipse plugin which is installed via the Eclipse Update Mechanism. 
+	The LLRP Commander is an Eclipse plugin which is installed via the Eclipse Update mechanism. 
 
-	<<Eclipse Update Site URL:>> http://www.fosstrak.org/llrp/llrp_commander/update/
-		  
+	<<Eclipse Update Site URL:>>
+	+-----------------
+	http://www.fosstrak.org/llrp/llrp_commander/update/
+	+-----------------	  
 		  
 		  
 		  
@@ -47,25 +49,25 @@ Installation
 
 [images/updateManager/installCommander.png]
 
-	<<4.>> Follow the installation instructions (might take some time) and restart eclipse when the Update Manager asks you to do so.
+	<<4.>> Follow the installation instructions (this may take some time) and restart Eclipse when the Update Manager asks you to do so.
 	
 	
 
 
 * {Manual} Installation
 
-	To install the LLRP Commander without Eclipse Update Manager perform the following steps:
+	To install the LLRP Commander without Eclipse Update Manager, perform the following steps:
 	
-	<<1.>> Obtain a copy of the LLRP Commander from the Fosstrak maven repository: {{{http://maven-repository.fosstrak.org/releases/org/fosstrak/llrp/llrp_commander/}http://maven-repository.fosstrak.org/releases/org/fosstrak/llrp/llrp_commander/}}.
+	<<1.>> Obtain a copy of the LLRP Commander from Fosstrak's Maven repository: {{{http://maven-repository.fosstrak.org/releases/org/fosstrak/llrp/llrp_commander/}http://maven-repository.fosstrak.org/releases/org/fosstrak/llrp/llrp_commander/}}.
 	
-	<<2.>> Unpack the archive llrp_commander-<<<VERSION>>>.zip into the <<plugins>> directory of your eclipse installation. 
+	<<2.>> Unpack the archive <llrp_commander-<<<VERSION>>>.zip> into the <plugins> directory of your Eclipse installation. 
 	
-	<<3.>> Start eclipse.
+	<<3.>> Start Eclipse.
 	
 
 * {Activate} the Plugin
 
-	<<1.>> To activate the Plugin, you need to select the LLRP Commander Perspective:
+	<<1.>> To activate the plugin, you need to select the LLRP Commander perspective:
 	
 [images/updateManager/openPerspective-1.png]
 
@@ -73,7 +75,9 @@ Installation
 
 [images/updateManager/openPerspective-2.png]
 
-	<<2.>> Sometimes it happens, that the perspective does not load all the views. Then run:
+	<<2.>> Sometimes the perspective fails to load all views. In this case,
+	choose <Window - Show View - Other> and select the LLRP Commander views
+	as shown below.
 	
 [images/updateManager/showView-1.png]
 
@@ -84,4 +88,4 @@ Installation
 
 * {Using} the Plugin
 
-  See the {{{docs/user-index.html}User Guide}} for more details  
+  See the {{{docs/user-index.html}user guide}} for details.  
