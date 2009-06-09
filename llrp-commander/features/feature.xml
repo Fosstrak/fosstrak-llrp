@@ -2,7 +2,7 @@
 <feature
       id="org.fosstrak.llrp.llrp_commander_feature"
       label="llrp_commander_feature"
-      version="1.0.0.RC1"
+      version="1.0.1"
       provider-name="Fosstrak">
 
    <description url="http://www.fosstrak.org">
