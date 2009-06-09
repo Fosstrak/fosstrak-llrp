@@ -8,10 +8,11 @@ Installation
 	      
 	The LLRP Commander is an Eclipse plugin which is installed via the Eclipse Update mechanism. 
 
-	<<Eclipse Update Site URL:>>
-	+-----------------
-	http://www.fosstrak.org/llrp/llrp_commander/update/
-	+-----------------	  
+	Eclipse Update Site URL:
+
++-----------------+
+http://www.fosstrak.org/llrp/llrp_commander/update/
++-----------------+  
 		  
 		  
 		  
