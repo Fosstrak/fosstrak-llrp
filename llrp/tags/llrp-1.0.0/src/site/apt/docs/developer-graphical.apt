@@ -1,0 +1,152 @@
+       ------
+                                    Developers guide - Graphical Editor
+                                    ------
+                                    ------
+
+
+Developers guide - Graphical Editor
+
+* Content
+	
+	[[1]] {{{#Overview}Overview}}	
+	
+	[[2]] {{{#GUI Classes}GUI Classes}}
+	
+	[[3]] {{{#Utility Classes}Utility Classes}}
+	
+	[[4]] {{{#References}References}}
+	
+	
+
+* {Overview}
+
+	This chapter speaks about the design of the graphical editor. The following diagram gives you an 
+	overview of its architecture:
+	
+[../images/developer/graphical_editor_architecture.png]
+
+* {GUI Classes}
+
+	The graphical editor is realized using {{{http://www.eclipse.org/articles/Article-Forms/article.html}Eclipse Forms}}. 
+	It implements the "master/details" user interface design pattern.
+	The "master" part consists of a tree that shows the structure of the message. The "details" part displays the fields and
+	sub-parameters of the parameter that is currently selected in the master part.
+	
+	For detailed information have a look at the following classes:
+	
+		* <<<org.fosstrak.llrp.commander.editors.graphical.GraphicalEditorPage>>>
+	
+		* <<<org.fosstrak.llrp.commander.editors.graphical.LLRPMasterDetailsBlock>>>
+	
+		* <<<org.fosstrak.llrp.commander.editors.graphical.LLRPDetailsPage>>>
+	
+		* <<<org.fosstrak.llrp.commander.editors.graphical.LLRPTreeContentProvider>>>
+
+		* <<<org.fosstrak.llrp.commander.editors.graphical.LLRPTreeLabelProvider>>>
+		
+		* <<<org.fosstrak.llrp.commander.editors.graphical.actions.AddParameterAction>>>
+		
+		* <<<org.fosstrak.llrp.commander.editors.graphical.actions.DeleteParameterAction>>>
+
+* {Utility Classes}
+
+	The classes described in this section are all used by the graphical editor, but in principle 
+	they are independent of the GUI classes and can be used irrespective of them (The class
+	<<<LLRPFactory>>>, for example, is also used by the New Message Wizard). We are talking about:
+	
+		* <<<org.fosstrak.llrp.commander.util.LLRPTreeMaintainer>>>
+	
+		* <<<org.fosstrak.llrp.commander.util.LLRP>>>
+	
+		* <<<org.fosstrak.llrp.commander.util.LLRPFactory>>>
+	
+		* <<<org.fosstrak.llrp.commander.util.LLRPConstraints>>>
+	
+		* <<<org.fosstrak.llrp.commander.util.LLRPPresenceConstraint>>>
+	
+		* <<<org.fosstrak.llrp.commander.util.LLRPRangeConstraint>>>
+	
+		* <<<org.fosstrak.llrp.commander.util.Range>>>
+
+** Underlying model
+	
+	As model classes for the graphical editor the classes of LTKJava are used (<<<LLRPMessage>>>, <<<LLRPParameter>>>, etc.).
+	This is, the graphical editor works on a tree of LTKJava objects. The root of the tree is an object of type 
+	<<<LLRPMessage>>>, and has <<<LLRPParameter>>>s and lists of <<<LLRPParameter>>>s as children. As an example, consider
+	the following picture that shows the (slightly simplified) object graph for a typical <<<ADD_ROSPEC>>> message:
+	
+[../images/developer/add_rospec_object_graph.png]
+	
+	We call the nodes of this graph <<tree elements>>. A tree element is either of type 
+	<<<LLRPMessage>>>, <<<LLRPParameter>>> or <<<List\<LLRPParameter\>>>>. 
+	Moreover, every tree element has 0 or more <<fields>>, 0 or more <<children>> (which can be null), 
+	and exactly 1 <<parent>> (the parent of the root is null). 
+	The tree element <<<ROSpec>>> (which is of type <<<LLRPParameter>>>), for instance, has 3 fields 
+	(<<<ROSpecID>>>, <<<Priority>>>, <<<CurrentState>>>), 
+	3 children (<<<ROBoundarySpec>>>, <<<SpecParameter>>>, <<<ROReportSpec>>> (null)) 
+	and the tree element <<<ADD_ROSPEC>>> as parent.
+	
+	Because LTKJava does not provide a method to get all children of a tree element, the children are retrieved indirectly
+	by using information from <<<llrpdef.xml>>> \[1\], and <<reflection>>. 
+	For example, to get the children of the <<<ROSpec>>> parameter, 
+	the names of the children (ROBoundarySpec, SpecParameter, ROReportSpec) are learned by querying <<<llrpdef.xml>>>, 
+	and then the corresponding getter-methods of <<<ROSpec>>> 
+	(<<<getROBoundarySpec()>>>, <<<getSpecParameterList()>>>, <<<getROReportSpec()>>>) 
+	are called using reflection.
+	
+	All functionality to navigate and modify the LTKJava object graph is encapsulated in the class 
+	<<<LLRPTreeMaintainer>>>.
+	
+	The code to query the <<<llrpdef.xml>>> is contained in the class <<<LLRP>>> 
+	(to be precise: the class <<<LLRP>>> does not directly access <<<llrpdef.xml>>>, 
+	but uses helper classes of the <<<LTKGenerator>>> \[2\]).
+	
+	\[1\] <<<llrpdef.xml>>> is the LLRP description in XML, 
+	see {{{http://llrp-toolkit.wiki.sourceforge.net/LLRP+Protocol+Definition+(llrpdef.xml)}
+	http://llrp-toolkit.wiki.sourceforge.net/LLRP+Protocol+Definition+(llrpdef.xml)}}.
+	
+	\[2\] The LTKGenerator is the module that generates the LTKJava classes from <<<llrpdef.xml>>>.
+	
+** Validation functionality
+
+	When a user edits a message in the graphical editor, he gets immediate feedback 
+	about the correctness of the message in form of error flags and error messages. 
+	This functionality is enabled by methods in the class <<<LLRPTreeMaintainer>>> 
+	that allow to validate fields and parameters 
+	(e.g. <<<validateField(...)>>> and <<<validateChildPresence(...)>>>).
+
+** Additional LLRP constraints not modeled in llrpdef.xml
+
+	The LLRP specification defines some constraints on fields and parameters which 
+	are not (yet) modeled in <<<llrpdef.xml>>>. For instance, it specifies that the field 
+	<<<Priority>>> of the <<<ROSpec>>> parameter must have a value between 0 and 7 (<<Range Constraint>>). 
+	Another example is that the sub-parameter <<<PeriodicTriggerValue>>> of <<<ROSpecStartTrigger>>>
+	must be present when the field <<<ROSpecStartTriggerType>>> is set to <<<Periodic>>> (<<Presence Constraint>>).
+	Because these constraints will probably get integrated into <<<llrpdef.xml>>> in the long term, it
+	was not worth the effort to come up with our own data format to define these rules. To still provide the
+	user as much help as possible to edit messages in the graphical editor, we currently just hard-coded
+	these constraints in the Java code. For examples of how to specify such constraints have a look
+	at the classes <<<LLRPConstraint>>>, <<<LLRPRangeConstraint>>> and <<<LLRPPresenceConstraint>>>.
+	
+** Information on messages and parameters
+	
+	In the graphical editor, the user can get a description of the currently selected 
+	parameter by clicking on the information icon. This functionality is realized by reading 
+	these descriptions from <<<llrpdef.xml>>> (see method <<<getDescription(...)>>> in class <<<LLRP>>>) 
+	and using the SWT browser widget to show the HTML content nicely formated to the user 
+	(see method <<<createDescriptionAction()>>> in class <<<LLRPDetailsPage>>>).
+		
+	
+	
+
+* {References}
+
+	* {{{http://www.eclipse.org/articles/Article-Forms/article.html}Eclipse Forms: Rich UI for the Rich Client}} 
+		- Good article about Eclipse Forms.
+
+	* {{{http://www.eclipse.org/articles/article.php?file=Article-Forms33/index.html}Eclipse Forms: New in 3.3}} 
+		- Article about new Eclipse Forms features in Eclipse 3.3.
+		
+	* {{{http://www.eclipse.org/articles/Article-TreeViewer/TreeViewerArticle.htm}How to use the JFace Tree Viewer}}.
+		
+	* {{{http://wiki.eclipse.org/JFaceSnippets}JFaceSnippets}}.
