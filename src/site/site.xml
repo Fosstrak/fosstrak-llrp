@@ -66,9 +66,6 @@
 		<item name="LLRP Adaptor" href="llrp-adaptor/project-reports.html" collapse="true">
 			<item name="dummy"/>
 		</item>
-		<item name="LLRP Commander" href="llrp_commander/project-reports.html" collapse="true">
-			<item name="dummy"/>
-		</item>
 	</menu>
 	
     <breadcrumbs>

@@ -195,10 +195,10 @@
   <mailingLists>
     <mailingList>
       <name>LLRP commander user mailing list</name>
-      <subscribe>https://lists.sourceforge.net/lists/listinfo/fosstrak-commander-user</subscribe>
-      <unsubscribe>https://lists.sourceforge.net/lists/listinfo/fosstrak-commander-user</unsubscribe>
-      <post>fosstrak-commander-user@lists.sourceforge.net</post>
-      <archive>http://sourceforge.net/mailarchive/forum.php?forum_name=fosstrak-commander-user</archive>
+      <subscribe>https://lists.sourceforge.net/lists/listinfo/fosstrak-cmdr-user</subscribe>
+      <unsubscribe>https://lists.sourceforge.net/lists/listinfo/fosstrak-cmdr-user</unsubscribe>
+      <post>fosstrak-cmdr-user@lists.sourceforge.net</post>
+      <archive>http://sourceforge.net/mailarchive/forum.php?forum_name=fosstrak-cmdr-user</archive>
     </mailingList>
   </mailingLists>
 
