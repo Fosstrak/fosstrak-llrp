@@ -63,22 +63,6 @@ example *nix:
    /opt/eclipseBuild
 +---+
    
-  [[]] Open the project descriptor in llrp-commander/pom.xml and scroll down to 
-  the part "eclipseInstall". The directive has to point to your eclipse package.
-
-+---+
-example Windows:
-   <eclipseInstall>c:\eclipseBuild</eclipseInstall>
-
-example *nix:
-   <eclipseInstall>/opt/eclipseBuild</eclipseInstall>
-+---+
-
-   There should be several 
-   directives present. Choose the one that fits to your needs or adapt one 
-   manually. Make sure the correct directive is uncommented and that there 
-   is only one directive uncommented.
-   
    Currently we use the maven-pde-plugin from    
   {{{http://mojo.codehaus.org/pde-maven-plugin/}Codehaus}}. The eclipse 
   osgi-bundles are not stored in a public maven repository, so the 
@@ -102,7 +86,7 @@ example *nix:
    cd ~/workspace-fosstrak/llrp
 +---+
 
-  Run the command "mvn package". If you run the command for the first time 
+  Run the command "mvn package <<-Declipse.home=>><YOUR_ECLIPSE_FOLDER>". If you run the command for the first time 
   maven will have to download and install all the missing dependencies for the 
   plugin. This can take a while, so go and have a coffee-break.
   
@@ -123,13 +107,13 @@ example *nix:
  Maven can generate eclipse projects for you from the maven project descriptor.
   
 +---+
-mvn eclipse:eclipse -DM2_REPO="<PATH_TO_MAVEN_REPO>"
+mvn eclipse:eclipse -DM2_REPO="<PATH_TO_MAVEN_REPO> -Declipse.home=<YOUR_ECLIPSE_FOLDER>"
 
 example Windows:
-   mvn eclipse:eclipse -DM2_REPO="~/.m2/repositories"
+   mvn eclipse:eclipse -DM2_REPO="~/.m2/repositories" -Declipse.home=<YOUR_ECLIPSE_FOLDER>
 
 example *nix:
-   mvn eclipse:eclipse -DM2_REPO="c:\Users\example\.m2\repositories"
+   mvn eclipse:eclipse -DM2_REPO="c:\Users\example\.m2\repositories" -Declipse.home=<YOUR_ECLIPSE_FOLDER>
 +---+
  
   If you omit the directory directive you can always specify the global 
