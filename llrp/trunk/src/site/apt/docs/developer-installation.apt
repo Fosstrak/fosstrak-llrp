@@ -85,6 +85,46 @@ example *nix:
    mvn eclipse:to-maven -DeclipseDir=/tmp/eclipse -DstripQualifier=true
 +---+
    
+  Unfortunately, SWT requires a dependency to the widget library depending on your operating system. Your locally deployed eclipse installation provides this dependency. By default, we specify the windows variant in the file <llrp-commander/pom.xml>. If you install the LLRP commander on a Windows operating system, you will not have to modify anything and you can proceed with the packaging step. 
+
+  This step is only required, if you run an operating system other than Windows! Open the file <llrp-commander/pom.xml> with a text-editor of your choice. Search for the string <<org.eclipse.swt.win32>>. Comment the SWT dependency for Windows and activate the dependency for your operating system. In case your operating system is not in the examples list yet, navigate to your local maven repository and open the folder <org/eclipse/swt>. There should be another subfolder containing a pom.xml with the groupId of your SWT dependency.
+
++---+
+<!-- Extract from the llrp-commander/pom.xml -->
+<!-- 
+	please set the swt dependency to the one of you OS.
+	Notice: for the plugin runtime this dependency is not 
+	required, so the plugin will be plattform independant!
+-->
+<!-- linux 64bit -->
+<!--<dependency>
+	<groupId>org.eclipse.swt.gtk.linux</groupId>
+	<artifactId>x86_64</artifactId>
+	<version>3.4.1</version>
+</dependency>-->
+<!-- linux 32bit -->
+<!--
+<dependency>
+	<groupId>org.eclipse.swt.gtk.linux</groupId>
+	<artifactId>x86_64</artifactId>
+	<version>3.4.1</version>
+</dependency>
+-->
+<!-- os x -->
+<!-- 
+<dependency>
+	<groupId>org.eclipse.swt.carbon</groupId>
+	<artifactId>macosx</artifactId>
+	<version>3.4.1</version>
+</dependency>
+-->
+<!-- windows -->
+<dependency>
+	<groupId>org.eclipse.swt.win32.win32</groupId>
+	<artifactId>x86</artifactId>
+	<version>3.4.1</version>
+</dependency>	
++---+
   
 * {Packaging}
 
