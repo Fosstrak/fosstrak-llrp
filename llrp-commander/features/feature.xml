@@ -2,8 +2,9 @@
 <feature
       id="org.fosstrak.llrp.llrp_commander_feature"
       label="llrp_commander_feature"
-      version="1.0.1"
-      provider-name="Fosstrak">
+      version="1.0.1.SNAPSHOT"
+      provider-name="Fosstrak"
+      exclusive="true">
 
    <description url="http://www.fosstrak.org">
       The Fosstrak LLRP Commander provides a graphical user interface to

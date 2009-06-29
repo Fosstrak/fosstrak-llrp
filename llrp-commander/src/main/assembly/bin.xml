@@ -1,0 +1,67 @@
+<?xml version="1.0" encoding="utf-8"?>
+<assembly>
+  <id>bin</id>
+  <formats>
+    <format>zip</format>
+  </formats>
+  <includeBaseDirectory>false</includeBaseDirectory>
+  <fileSets>
+    <fileSet>
+      <directory>.</directory>
+      <outputDirectory>/</outputDirectory>
+      <includes>
+        <include>META-INF/**</include>
+        <include>icons/**</include>
+        <include>Definitions/**</include>
+        <include>sampleXML/**</include>
+        <include>*.properties</include>
+        <include>*.xml</include>
+      </includes>
+      <excludes>
+        <exclude>pom.xml</exclude>
+        <exclude>build.properties</exclude>
+      </excludes>
+    </fileSet>
+  </fileSets>
+  <dependencySets>
+  	<dependencySet>
+      <outputDirectory>/lib/</outputDirectory>
+      <unpack>false</unpack>
+      <!-- <scope>compile</scope>-->
+      <excludes>
+        <exclude>org.eclipse.ui:ide</exclude>
+        <exclude>org.eclipse.ui:editors</exclude>
+        <exclude>org.eclipse.ui:forms</exclude>
+        <exclude>org.eclipse.ui:workbench</exclude>
+        
+        <exclude>org.eclipse.ui.workbench:texteditor</exclude>
+        
+        <exclude>org.eclipse.core:commands</exclude>
+        <exclude>org.eclipse.core:expressions</exclude>
+        <exclude>org.eclipse.core:runtime</exclude>
+        <exclude>org.eclipse.core:databinding</exclude>
+        <exclude>org.eclipse.core:filesystem</exclude>
+        <exclude>org.eclipse.core:filebuffers</exclude>
+        <exclude>org.eclipse.core:resources</exclude>
+        <exclude>org.eclipse.core:jobs</exclude>
+        
+        <exclude>org.eclipse:ui</exclude>
+        <exclude>org.eclipse:osgi</exclude>
+        <exclude>org.eclipse:jface</exclude>        
+        <exclude>org.eclipse:help</exclude>
+        <exclude>org.eclipse:swt</exclude>
+        <exclude>org.eclipse:text</exclude>
+        
+        <exclude>org.eclipse.jface:databinding</exclude>
+       	<exclude>org.eclipse.jface:text</exclude>
+        
+        <exclude>org.eclipse.swt.gtk.linux:x86_64</exclude>        	
+        
+        <exclude>org.eclipse.equinox:preferences</exclude>
+        <exclude>org.eclipse.equinox:common</exclude>
+        <exclude>org.eclipse.equinox:registry</exclude>	
+        
+      </excludes>
+    </dependencySet>
+  </dependencySets>
+</assembly>
