@@ -1,7 +1,12 @@
 <document>
-    <properties>
-        <title>Changes llrp-Client</title>
-    </properties>
-    <body>
-    </body>
+	<properties>
+		<title>Changes llrp-Client</title>
+	</properties>
+	<body>
+		<release version="1.0.1" date="2009-06-09" description="Bugfix release">
+			<action dev="sawielan" type="add">
+				Use maven assembly descriptor to assemble instead of the pde-maven-plugin
+	    	</action>
+		</release>
+	</body>
 </document>
