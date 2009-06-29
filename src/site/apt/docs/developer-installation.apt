@@ -163,7 +163,18 @@ example *nix:
  
   If you omit the directory directive you can always specify the global classpath variable in the eclipse preferences. 
   
-  Import the generated project in eclipse project-navigator. If you want to start the plugin from within eclipse, you need to create a symbolic link from <<target/lib/>> to the folder <<lib/>> in the llrp-commander folder.
+  Import the generated project in eclipse project-navigator. If you want to start the plugin from within eclipse, you need to create a symbolic link from <<target/lib/>> to the folder <<lib/>> in the llrp-commander folder. For Windows a comprehensive guide can be found on {{{http://en.wikipedia.org/wiki/NTFS_symbolic_link}Wikipedia}}.
+
++---+
+example Windows (open command line as administrator):
+   cd c:\workspace-fosstrak\llrp\llrp-commander
+   mklink /D lib "target\lib"
+
+example *nix:
+   cd ~/workspace-fosstrak/llrp/llrp-commander
+   ln -sf target/lib .
+
++---+
   
   If you want to clean out the eclipse projects run:
 
