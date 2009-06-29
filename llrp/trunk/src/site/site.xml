@@ -59,11 +59,15 @@
 				<item name="Adaptors" href="docs/developer-adaptors.html"/>
 				<item name="Readers" href="docs/developer-readers.html"/>
 			</item>
+			<item name="JavaDoc" href="apidocs/index.html" collapse="true"/>
 		</item>
 	</menu>  
 	
 	<menu name="LLRP Commander Modules" inherit="none">
 		<item name="LLRP Adaptor" href="llrp-adaptor/project-reports.html" collapse="true">
+			<item name="dummy"/>
+		</item>
+		<item name="LLRP Commander" href="llrp_commander/project-reports.html" collapse="true">
 			<item name="dummy"/>
 		</item>
 	</menu>
