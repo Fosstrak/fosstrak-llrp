@@ -23,6 +23,7 @@ package org.fosstrak.llrp.client;
 
 import org.fosstrak.llrp.client.LLRPMessageItem;
 
+import java.sql.Connection;
 import java.util.ArrayList;
 
 /**
@@ -106,4 +107,10 @@ public interface Repository {
 	 * @param reader the name of the reader to clear.
 	 */
 	public void clearReader(String adapter, String reader);
+	
+	/**
+	 * @return a handle to the database connection. users of the repository are 
+	 * allowed to use the database for their own purposes.
+	 */
+	public Connection getDBConnection();
 }
