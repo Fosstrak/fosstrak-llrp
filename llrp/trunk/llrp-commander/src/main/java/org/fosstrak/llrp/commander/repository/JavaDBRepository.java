@@ -37,7 +37,6 @@ import org.fosstrak.llrp.adaptor.AdaptorManagement;
 import org.fosstrak.llrp.client.LLRPMessageItem;
 import org.fosstrak.llrp.client.Repository;
 import org.fosstrak.llrp.commander.ResourceCenter;
-import org.fosstrak.llrp.commander.views.ReaderExplorerView;
 import org.fosstrak.llrp.commander.views.ReaderExplorerViewContentProvider;
 
 /**
@@ -374,6 +373,10 @@ public class JavaDBRepository implements Repository {
 		return msgs;
 	}
 	
+	/**
+	 * @param aMsgSysId the message id of the item to be retrieved.
+	 * @return the LLRP message to the given message id.
+	 */
 	public LLRPMessageItem get(String aMsgSysId) {
 		
 		LLRPMessageItem msg = new LLRPMessageItem();
@@ -408,6 +411,10 @@ public class JavaDBRepository implements Repository {
 		return msg;
 	}
 	
+	/**
+	 * store an LLRP message into the repository.
+	 * @param aMessage the message to be stored.
+	 */
 	public void put(LLRPMessageItem aMessage) {
 		try {
 			psInsert = conn.prepareStatement(SQL_INSERT_MSG);
@@ -449,6 +456,9 @@ public class JavaDBRepository implements Repository {
 		}
 	}
 	
+	/**
+	 * remove all the messages from the repository.
+	 */
 	public void clearAll() {
 		try {
 			psRemoveAll = conn.prepareStatement(SQL_REMOVEALL_MSG);
@@ -459,10 +469,27 @@ public class JavaDBRepository implements Repository {
 		}
 	}
 	
+	/**
+	 * @return true if the repository is ok, false otherwise.
+	 */
 	public boolean isHealth() {
 		return isHealth;
 	}
 
+	/**
+	 * the method computes the number of messages stored in the repository 
+	 * depending on the input parameters:
+	 * <ol>
+	 * 	<li>(adaptor == null) then compute all messages in the repository.</li>
+	 *  <li>(adaptor != null) && (reader == null) then compute all the messages 
+	 *  for the adapter ignoring the name of the reader.</li>
+	 *  <li>(adaptor != null) && (reader != null) then compute all the messages 
+	 *  for the adapter where the reader name is equal to reader.</li> 
+	 * </ol>
+	 * @param adaptor the name of the adapter.
+	 * @param reader the name of the reader.
+	 * @return the number of messages stored in the repository.
+	 */
 	public int count(String adaptor, String reader) {
 				
 		int rowcount = 0;
@@ -493,6 +520,10 @@ public class JavaDBRepository implements Repository {
 		return rowcount;
 	}
 
+	/**
+	 * clear the repository from entries to a given adapter.
+	 * @param adapter the name of the adapter to clean out.
+	 */
 	public void clearAdapter(String adapter) {
 		try {
 			PreparedStatement psRemove = conn.prepareStatement(SQL_REMOVE_ADAPTER_MSG);
@@ -504,6 +535,11 @@ public class JavaDBRepository implements Repository {
 		}		
 	}
 
+	/**
+	 * clear the repository from entries to a given adapter and a given reader.
+	 * @param adapter the name of the adapter.
+	 * @param reader the name of the reader.
+	 */
 	public void clearReader(String adapter, String reader) {
 		try {
 			PreparedStatement psRemove = conn.prepareStatement(SQL_REMOVE_READER_MSG);
@@ -514,6 +550,14 @@ public class JavaDBRepository implements Repository {
 		} catch (SQLException sqle) {
             sqle.printStackTrace();
 		}	
+	}
+	
+	/**
+	 * @return a handle to the database connection. users of the repository are 
+	 * allowed to use the database for their own purposes.
+	 */
+	public Connection getDBConnection() {
+		return conn;
 	}
 }
 
