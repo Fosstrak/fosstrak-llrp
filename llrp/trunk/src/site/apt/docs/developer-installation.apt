@@ -49,7 +49,7 @@ set MAVEN_OPTS=-Xmx1024m
 
   * Subversion to checkout the project from the fosstrak website.
 
-  * A fresh copy of the eclipse framework. Currently we build against the {{{http://www.eclipse.org/downloads/packages/release/ganymede/sr2}Ganymede release SR2}}. So please retrieve a copy of Ganymede SR2 (otherwise you will have to adjust the version numbers for the eclipse dependencies). <<Download the J2EE edition (~163MB)!>>
+  * A fresh copy of the eclipse framework. Currently we build against the <<{{{http://www.eclipse.org/downloads/packages/release/ganymede/sr2}Ganymede release SR2}}>>. So please retrieve a copy of Ganymede SR2 (otherwise you will have to adjust the version numbers for the eclipse dependencies). <<Download the J2EE edition (~163MB)!>>
 
 
 
@@ -64,6 +64,8 @@ set MAVEN_OPTS=-Xmx1024m
 +---+
   
   [[]] Unpack the eclipse package to a location of your choice. 
+  
+  <<!!! NOTICE !!!>>: Currently we build against the <<{{{http://www.eclipse.org/downloads/packages/release/ganymede/sr2}Ganymede release SR2}}>>. So please retrieve a copy of Ganymede SR2 (otherwise you will have to adjust the version numbers for the eclipse dependencies). <<Download the J2EE edition (~163MB)!>>
   
 +---+
 example Windows:
