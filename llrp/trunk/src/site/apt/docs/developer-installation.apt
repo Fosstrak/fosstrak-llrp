@@ -177,6 +177,8 @@ example *nix:
    ln -sf target/lib .
 
 +---+
+
+  Alternatively, you can copy the whole <<lib>> folder from the target folder into the folder <<llrp-commander>>. Notice, that you will have to update the folder, whenever you change the dependencies!
   
   If you want to clean out the eclipse projects run:
 
