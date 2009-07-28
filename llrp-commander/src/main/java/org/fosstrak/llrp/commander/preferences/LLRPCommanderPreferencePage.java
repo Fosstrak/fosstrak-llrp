@@ -95,6 +95,13 @@ public class LLRPCommanderPreferencePage
 						"Log RO_ACCESS_REPORTS", getFieldEditorParent()
 						)
 				);
+		addField(
+				new BooleanFieldEditor(
+						PreferenceConstants.P_WIPE_RO_ACCESS_REPORTS_ON_STARTUP,
+						"Wipe RO_ACCESS_REPORTS DB on startup",
+						getFieldEditorParent()
+						)
+				);
 	}
 
 	/* (non-Javadoc)
