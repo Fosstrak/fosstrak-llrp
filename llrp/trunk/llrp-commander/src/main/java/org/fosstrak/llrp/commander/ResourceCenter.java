@@ -58,6 +58,7 @@ import org.fosstrak.llrp.client.Repository;
 import org.fosstrak.llrp.commander.preferences.PreferenceConstants;
 import org.fosstrak.llrp.commander.repository.JavaDBRepository;
 import org.fosstrak.llrp.commander.repository.MessageModel;
+import org.fosstrak.llrp.commander.repository.log.RepoROAccessReports;
 import org.fosstrak.llrp.commander.util.LLRP;
 import org.fosstrak.llrp.commander.util.MessageBoxRefresh;
 import org.fosstrak.llrp.commander.util.Utility;
@@ -66,6 +67,7 @@ import org.fosstrak.llrp.commander.views.ReaderExplorerView;
 import org.jdom.Document;
 import org.llrp.ltk.exceptions.InvalidLLRPMessageException;
 import org.llrp.ltk.generated.LLRPMessageFactory;
+import org.llrp.ltk.generated.messages.RO_ACCESS_REPORT;
 import org.llrp.ltk.generated.parameters.LLRPStatus;
 import org.llrp.ltk.types.LLRPMessage;
 
@@ -146,10 +148,16 @@ public class ResourceCenter {
 	private MessageBoxRefresh messageBoxRefresh = null;
 	
 	/** flags whether the adaptor management has been initialized or not. */
-	private boolean initialized = false;
+	private boolean adapterMgmtInitialized = false;
+	
+	// flags, whether the RO_ACCESS_REPORTS logging facility has been initialized.
+	private boolean roAccessReportsLogginInitialized = false;
 	
 	/** use an image cache in order not to recreate images over and over again.*/
 	private Map<String, Image> imageCache = new HashMap<String, Image> ();
+	
+	// database logging RO_ACCESS_REPORTS in an expanded way.
+	private RepoROAccessReports repoROAccessReports = null; 
 	
     /**
      * Private Constructor, internally called.
@@ -174,7 +182,7 @@ public class ResourceCenter {
 	 * helper to initialize the adaptor management at the right moment.
 	 */
 	public void initializeAdaptorMgmt() {
-		if (initialized) {
+		if (adapterMgmtInitialized) {
 			log.info("adaptor management already initialized");
 			return;
 		}
@@ -269,8 +277,23 @@ public class ResourceCenter {
 			e.printStackTrace();
 		}
 		
-		initialized = true;
+		adapterMgmtInitialized = true;
 	}	
+	
+	/**
+	 * initialize the RO_ACCESS_REPORTS logging facility. This initializer 
+	 * should be called once. Basically it registers the repository on the 
+	 * adapter management to be notified about new RO_ACCESS_REPORTS.
+	 */
+	public void initializeROAccessReportsLogging() {
+		if (roAccessReportsLogginInitialized) return;
+		
+		log.debug("initializing RO_ACCESS_REPORTS logging facility.");
+		// get a handle of the repository.
+		RepoROAccessReports repo = getROAccessReportsRepository();
+		AdaptorManagement.getInstance().registerPartialHandler(
+				repo, RO_ACCESS_REPORT.class);
+	}
 	
 	/**
 	 * Get the Message model
@@ -385,11 +408,30 @@ public class ResourceCenter {
 	}
 	
 	/**
+	 * @return a handle to the RO_ACCESS_REPORTS logging Repository.
+	 */
+	public RepoROAccessReports getROAccessReportsRepository() {
+		if (null == repoROAccessReports) {
+			log.debug("No RepoROAccessReports handle yet - Create a new one.");
+			repoROAccessReports = new RepoROAccessReports();
+		}
+		return repoROAccessReports;
+	}
+	
+	/**
 	 * @return wipe the repository on startup.
 	 */
 	public boolean wipeRepositoryOnStartup() {
 		IPreferenceStore store = LLRPPlugin.getDefault().getPreferenceStore();
 		return store.getBoolean(PreferenceConstants.P_WIPE_DB_ON_STARTUP);
+	}
+	
+	/**
+	 * @return true if RO_ACCESS_REPORTS shall be logged, false otherwise.
+	 */
+	public boolean isLogROAccessReports() {
+		IPreferenceStore store = LLRPPlugin.getDefault().getPreferenceStore();
+		return store.getBoolean(PreferenceConstants.P_LOG_RO_ACCESS_REPORTS);
 	}
 	
 	/**

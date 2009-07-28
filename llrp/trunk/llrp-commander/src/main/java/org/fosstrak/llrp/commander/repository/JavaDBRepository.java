@@ -211,6 +211,8 @@ public class JavaDBRepository implements Repository {
 		} catch (Exception e) {
 			isHealth = false;
 			e.printStackTrace();
+			conn = null;
+			return;
 		}
 		
 		// wipe table if erroneous or if user requests it by preferences.
@@ -557,6 +559,10 @@ public class JavaDBRepository implements Repository {
 	 * allowed to use the database for their own purposes.
 	 */
 	public Connection getDBConnection() {
+		// we need to open the repository first.
+		if (null == conn) {
+			open();
+		}
 		return conn;
 	}
 }

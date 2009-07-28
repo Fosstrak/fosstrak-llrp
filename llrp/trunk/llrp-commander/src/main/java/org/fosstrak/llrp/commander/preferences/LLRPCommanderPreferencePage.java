@@ -88,6 +88,13 @@ public class LLRPCommanderPreferencePage
 						PreferenceConstants.P_WIPE_DB_ON_STARTUP, 
 						"Wipe DB on startup", getFieldEditorParent())
 				);
+		
+		addField(
+				new BooleanFieldEditor(
+						PreferenceConstants.P_LOG_RO_ACCESS_REPORTS,
+						"Log RO_ACCESS_REPORTS", getFieldEditorParent()
+						)
+				);
 	}
 
 	/* (non-Javadoc)
