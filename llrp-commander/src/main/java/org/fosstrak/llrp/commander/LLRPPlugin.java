@@ -114,8 +114,11 @@ public class LLRPPlugin extends AbstractUIPlugin {
 			}
 		}
 		
-		// now all the path should be ok and it is safe to start the management.
+		// now all the path should be OK and it is safe to start the management.
 		ResourceCenter.getInstance().initializeAdaptorMgmt();
+		
+		// and now initialize the logging facility
+		ResourceCenter.getInstance().initializeROAccessReportsLogging();
 	}
 
 	/*

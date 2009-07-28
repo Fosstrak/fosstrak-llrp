@@ -54,4 +54,7 @@ public class PreferenceConstants {
 	/** name of the preference field for the configuration of the DB-wipe. */
 	public static final String P_WIPE_DB_ON_STARTUP = "wipeDBOnStartup";
 	
+	/** name of the preference field for the log RO_ACCESS_REPORTS. */
+	public static final String P_LOG_RO_ACCESS_REPORTS = "logRO_ACCESS_REPORTS";
+	
 }
