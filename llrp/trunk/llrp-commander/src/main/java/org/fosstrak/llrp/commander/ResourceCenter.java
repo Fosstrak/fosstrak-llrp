@@ -435,6 +435,15 @@ public class ResourceCenter {
 	}
 	
 	/**
+	 * @return true if the RO_ACCESS_REPORTS database is to be wiped on startup.
+	 */
+	public boolean isWipeLogROAccessReportsOnStartup() {
+		IPreferenceStore store = LLRPPlugin.getDefault().getPreferenceStore();
+		return store.getBoolean(
+				PreferenceConstants.P_WIPE_RO_ACCESS_REPORTS_ON_STARTUP);
+	}
+	
+	/**
 	 * Get Eclipse Project Name
 	 * @return Eclipse Project Name
 	 */

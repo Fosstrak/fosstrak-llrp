@@ -215,7 +215,7 @@ public class RepoROAccessReports implements MessageHandler {
 			log.error("table for RO_ACCESS_REPORT not ok, (re)create it.");
 		}
 		
-		if (recreate || ResourceCenter.getInstance().wipeRepositoryOnStartup()) {
+		if (recreate || ResourceCenter.getInstance().isWipeLogROAccessReportsOnStartup()) {
 			dropTable();
 			createTable();
 		}

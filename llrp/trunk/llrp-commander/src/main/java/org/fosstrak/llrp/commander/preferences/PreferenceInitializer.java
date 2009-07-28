@@ -44,11 +44,16 @@ public class PreferenceInitializer extends AbstractPreferenceInitializer {
 		IPreferenceStore store = LLRPPlugin.getDefault().getPreferenceStore();
 		
 		store.setDefault(PreferenceConstants.P_READER_FROM, "fromXML");
-		store.setDefault(PreferenceConstants.P_PROJECT, ResourceCenter.DEFAULT_ECLIPSE_PROJECT);
+		store.setDefault(PreferenceConstants.P_PROJECT, 
+				ResourceCenter.DEFAULT_ECLIPSE_PROJECT);
 		store.setDefault(PreferenceConstants.P_STRING, "Default value");		
-		store.setDefault(PreferenceConstants.P_DEFAULT_EDITOR, PreferenceConstants.P_DEFAULT_EDITOR_GRAPHICAL);
+		store.setDefault(PreferenceConstants.P_DEFAULT_EDITOR, 
+				PreferenceConstants.P_DEFAULT_EDITOR_GRAPHICAL);
 		store.setDefault(PreferenceConstants.P_WIPE_DB_ON_STARTUP, false);
-		store.setDefault(PreferenceConstants.P_LOG_RO_ACCESS_REPORTS, true);
+		store.setDefault(PreferenceConstants.P_LOG_RO_ACCESS_REPORTS, false);
+		store.setDefault(
+				PreferenceConstants.P_WIPE_RO_ACCESS_REPORTS_ON_STARTUP,
+				false);
 	}
 
 }
