@@ -75,6 +75,12 @@
 			<version>10.4.1.3</version>
 			<scope>compile</scope>
 		</dependency>
+		<!--  mysql jdbc -->
+		<dependency>
+		    <groupId>mysql</groupId>
+		    <artifactId>mysql-connector-java</artifactId>
+		    <version>5.1.6</version>
+		</dependency> 
 		<!-- eclipse dependencies -->
 		<dependency>
 			<groupId>org.eclipse.ui</groupId>

@@ -52,6 +52,11 @@ public interface Repository {
 	public void close();
 	
 	/**
+	 * @return true if the repository is ok, false otherwise.
+	 */
+	public boolean isHealth();
+	
+	/**
 	 * Get the LLRP Message Item from repository according to the unique Message ID.
 	 * 
 	 * @param aMsgSysId The unique message ID
@@ -113,4 +118,17 @@ public interface Repository {
 	 * allowed to use the database for their own purposes.
 	 */
 	public Connection getDBConnection();
+	
+	/**
+	 * The {@link ROAccessReportsRepository} is implemented via the strategy 
+	 * pattern. Depending on the type of the repository, you will get a 
+	 * different implementation of this handle at runtime. The respective 
+	 * implementation will setup the data-structures used to log 
+	 * RO_ACCESS_REPORTS and ease the access to the stored information.
+	 * 
+	 * @return a handle to the RO_ACCESS_REPORTS repository. if the 
+	 * implementation of the repository does not implement this functionality, 
+	 * it shall return <code>null</code>.
+	 */
+	public ROAccessReportsRepository getROAccessRepository();
 }
