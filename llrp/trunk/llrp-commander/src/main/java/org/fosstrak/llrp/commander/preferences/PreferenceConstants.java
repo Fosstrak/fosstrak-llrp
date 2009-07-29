@@ -60,4 +60,19 @@ public class PreferenceConstants {
 	/** name of the preference field for the configuration field of the wipe DB.*/
 	public static final String P_WIPE_RO_ACCESS_REPORTS_ON_STARTUP 
 		= "wipeROACCESSREPORTSOnStartup";
+	
+	/** name of the preference field whether to use internal db or not. */
+	public static final String P_USE_INTERNAL_DB = "useInternalDB";
+	
+	/** preference name for external DB implementing class. */
+	public static final String P_EXT_DB_IMPLEMENTOR = "extDBImplementor";
+	
+	/** preference name for external DB user name. */
+	public static final String P_EXT_DB_USERNAME = "extDBUserName";
+	
+	/** preference name for external DB password. */
+	public static final String P_EXT_DB_PWD = "extDBPassword";
+	
+	/** preference name for external DB JDBC connector string. */
+	public static final String P_EXT_DB_JDBC = "extDBJDBC";
 }

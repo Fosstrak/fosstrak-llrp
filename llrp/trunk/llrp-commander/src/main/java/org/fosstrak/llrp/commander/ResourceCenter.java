@@ -54,11 +54,12 @@ import org.fosstrak.llrp.adaptor.exception.LLRPRuntimeException;
 import org.fosstrak.llrp.client.LLRPExceptionHandlerTypeMap;
 import org.fosstrak.llrp.client.LLRPMessageItem;
 import org.fosstrak.llrp.client.MessageHandler;
+import org.fosstrak.llrp.client.ROAccessReportsRepository;
 import org.fosstrak.llrp.client.Repository;
 import org.fosstrak.llrp.commander.preferences.PreferenceConstants;
 import org.fosstrak.llrp.commander.repository.JavaDBRepository;
 import org.fosstrak.llrp.commander.repository.MessageModel;
-import org.fosstrak.llrp.commander.repository.log.RepoROAccessReports;
+import org.fosstrak.llrp.commander.repository.mysql.MySQLRepository;
 import org.fosstrak.llrp.commander.util.LLRP;
 import org.fosstrak.llrp.commander.util.MessageBoxRefresh;
 import org.fosstrak.llrp.commander.util.Utility;
@@ -121,7 +122,7 @@ public class ResourceCenter {
 	
 	private static ResourceCenter instance;
 	
-	private JavaDBRepository repo;
+	private Repository repo;
 	
 	private static Logger log = Logger.getLogger(ResourceCenter.class);
 	
@@ -155,9 +156,6 @@ public class ResourceCenter {
 	
 	/** use an image cache in order not to recreate images over and over again.*/
 	private Map<String, Image> imageCache = new HashMap<String, Image> ();
-	
-	// database logging RO_ACCESS_REPORTS in an expanded way.
-	private RepoROAccessReports repoROAccessReports = null; 
 	
     /**
      * Private Constructor, internally called.
@@ -290,9 +288,11 @@ public class ResourceCenter {
 		
 		log.debug("initializing RO_ACCESS_REPORTS logging facility.");
 		// get a handle of the repository.
-		RepoROAccessReports repo = getROAccessReportsRepository();
-		AdaptorManagement.getInstance().registerPartialHandler(
-				repo, RO_ACCESS_REPORT.class);
+		ROAccessReportsRepository r = getRepository().getROAccessRepository();
+		if ((null != r) && (r instanceof MessageHandler)) {
+			AdaptorManagement.getInstance().registerPartialHandler(
+					(MessageHandler)r, RO_ACCESS_REPORT.class);
+		}
 	}
 	
 	/**
@@ -383,6 +383,9 @@ public class ResourceCenter {
 	 */
 	public Repository getRepository() {
 		if (repo == null) {
+			
+			// FIXME: there is still ugly stuff in here...
+			
 			log.debug("open/create new repository");
 			IProject project = getEclipseProject();
 			// refresh the workspace...
@@ -401,21 +404,31 @@ public class ResourceCenter {
 					dbFolder.getFullPath().toString() + "/";
 			
 			log.info("using db location: " + dbLocation);
-			repo = new JavaDBRepository(dbLocation);
+			IPreferenceStore store = LLRPPlugin.getDefault().getPreferenceStore();
+			boolean internalDB = store.getBoolean(
+					PreferenceConstants.P_USE_INTERNAL_DB);
+			
+			repo = null;
+			if (!internalDB) {
+				try {
+					Object db = Class.forName(store.getString(
+							PreferenceConstants.P_EXT_DB_IMPLEMENTOR
+							)).newInstance();
+					if (db instanceof Repository) {
+						repo = (Repository) db;
+					}
+				} catch (Exception e) {
+					log.error("Could not invoke the repository, using fallback");
+					e.printStackTrace();
+				}
+			}
+			if (internalDB || (null == repo)) {
+				log.debug("Starting internal Derby database.");
+				repo = new JavaDBRepository(dbLocation);
+			}
 			repo.open();
 		}
 		return repo;
-	}
-	
-	/**
-	 * @return a handle to the RO_ACCESS_REPORTS logging Repository.
-	 */
-	public RepoROAccessReports getROAccessReportsRepository() {
-		if (null == repoROAccessReports) {
-			log.debug("No RepoROAccessReports handle yet - Create a new one.");
-			repoROAccessReports = new RepoROAccessReports();
-		}
-		return repoROAccessReports;
 	}
 	
 	/**

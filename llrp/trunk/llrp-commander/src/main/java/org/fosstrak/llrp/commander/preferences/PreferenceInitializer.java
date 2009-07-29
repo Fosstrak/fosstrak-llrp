@@ -25,6 +25,7 @@ import org.eclipse.core.runtime.preferences.AbstractPreferenceInitializer;
 import org.eclipse.jface.preference.IPreferenceStore;
 import org.fosstrak.llrp.commander.LLRPPlugin;
 import org.fosstrak.llrp.commander.ResourceCenter;
+import org.fosstrak.llrp.commander.repository.mysql.MySQLRepository;
 
 /**
  * Class used to initialize default preference values.
@@ -54,6 +55,14 @@ public class PreferenceInitializer extends AbstractPreferenceInitializer {
 		store.setDefault(
 				PreferenceConstants.P_WIPE_RO_ACCESS_REPORTS_ON_STARTUP,
 				false);
+		store.setDefault(PreferenceConstants.P_USE_INTERNAL_DB, true);
+		store.setDefault(PreferenceConstants.P_EXT_DB_IMPLEMENTOR, 
+				MySQLRepository.class.getName());
+		store.setDefault(PreferenceConstants.P_EXT_DB_JDBC,
+				MySQLRepository.JDBC_STR);
+		store.setDefault(PreferenceConstants.P_EXT_DB_USERNAME, "llrp");
+		store.setDefault(PreferenceConstants.P_EXT_DB_PWD, "llrp");
+		
 	}
 
 }

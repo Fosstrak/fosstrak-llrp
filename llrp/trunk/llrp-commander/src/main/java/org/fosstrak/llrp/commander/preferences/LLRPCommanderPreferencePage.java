@@ -22,12 +22,14 @@
 package org.fosstrak.llrp.commander.preferences;
 
 import org.eclipse.jface.preference.BooleanFieldEditor;
+import org.eclipse.jface.preference.FieldEditor;
 import org.eclipse.jface.preference.FieldEditorPreferencePage;
 import org.eclipse.jface.preference.RadioGroupFieldEditor;
 import org.eclipse.jface.preference.StringFieldEditor;
 import org.eclipse.ui.IWorkbench;
 import org.eclipse.ui.IWorkbenchPreferencePage;
 import org.fosstrak.llrp.commander.LLRPPlugin;
+import org.fosstrak.llrp.commander.repository.mysql.MySQLRepository;
 
 /**
  * This class represents a preference page that
@@ -82,7 +84,10 @@ public class LLRPCommanderPreferencePage
 				getFieldEditorParent(),
 	          true)
 		);
-		
+		addField(new BooleanFieldEditor(
+				PreferenceConstants.P_USE_INTERNAL_DB, 
+				"Use internal standalone Derby Database.", getFieldEditorParent())
+		);
 		addField(
 				new BooleanFieldEditor(
 						PreferenceConstants.P_WIPE_DB_ON_STARTUP, 
@@ -102,6 +107,18 @@ public class LLRPCommanderPreferencePage
 						getFieldEditorParent()
 						)
 				);
+		addField(new StringFieldEditor(
+				PreferenceConstants.P_EXT_DB_IMPLEMENTOR, 
+				"If using external DB, the implementor:", getFieldEditorParent()));
+		addField(new StringFieldEditor(
+				PreferenceConstants.P_EXT_DB_JDBC, 
+				"If using external DB, the jdbc string:", getFieldEditorParent()));
+		addField(new StringFieldEditor(
+				PreferenceConstants.P_EXT_DB_USERNAME, 
+				"If using external DB, the user:", getFieldEditorParent()));
+		addField(new StringFieldEditor(
+				PreferenceConstants.P_EXT_DB_PWD, 
+				"If using external DB, the password:", getFieldEditorParent()));
 	}
 
 	/* (non-Javadoc)
