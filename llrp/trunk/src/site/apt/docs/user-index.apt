@@ -22,6 +22,8 @@ User Guide
   The {{{../pdf/llrp_commander_UserGuide.pdf}user guide}} with step-by-step instructions on installation and use is available in PDF format. 
 
   If you just want to install the LLRP Commander, simply follow the instructions provided in the {{{../download.html}installation guide}}.
+  
+  If you would like to use the ROAccessReports database from Matlab, follow the instructions in the {{{developer-repository.html}Developers guide}}.
 
   On this page we present a few easy use cases that show you, how you can use the LLRP Commander.
 
