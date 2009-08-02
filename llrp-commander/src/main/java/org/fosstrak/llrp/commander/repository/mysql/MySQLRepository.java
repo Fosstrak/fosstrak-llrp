@@ -25,10 +25,8 @@ import java.sql.Connection;
 import java.sql.DriverManager;
 
 import org.apache.log4j.Logger;
-import org.eclipse.jface.preference.IPreferenceStore;
+import org.fosstrak.llrp.adaptor.exception.LLRPRuntimeException;
 import org.fosstrak.llrp.client.ROAccessReportsRepository;
-import org.fosstrak.llrp.commander.LLRPPlugin;
-import org.fosstrak.llrp.commander.preferences.PreferenceConstants;
 import org.fosstrak.llrp.commander.repository.AbstractSQLRepository;
 import org.fosstrak.llrp.commander.repository.log.DerbyROAccessReportsRepository;
 
@@ -95,12 +93,14 @@ public class MySQLRepository extends AbstractSQLRepository {
 		// RO_ACCESS_REPORTS repository!).
 		if (null == repoROAccessReports) {
 			log.debug("No RepoROAccessReports handle yet - Create a new one.");
-			try {
 			repoROAccessReports = new DerbyROAccessReportsRepository();
-			repoROAccessReports.initialize(this, wipeROAccess);
-			} catch (Exception e) {
-				e.printStackTrace();
-			}
+			try {
+				repoROAccessReports.initialize(this);
+			} catch (LLRPRuntimeException e) {
+				log.error(String.format(
+						"Could not initialize the RO_ACCESS_REPORTS repo: '%s'",
+						e.getMessage()));
+			}	
 		}
 		return repoROAccessReports;
 	}

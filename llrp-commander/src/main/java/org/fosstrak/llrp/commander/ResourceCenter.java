@@ -56,6 +56,7 @@ import org.fosstrak.llrp.client.LLRPMessageItem;
 import org.fosstrak.llrp.client.MessageHandler;
 import org.fosstrak.llrp.client.ROAccessReportsRepository;
 import org.fosstrak.llrp.client.Repository;
+import org.fosstrak.llrp.client.RepositoryFactory;
 import org.fosstrak.llrp.commander.preferences.PreferenceConstants;
 import org.fosstrak.llrp.commander.repository.JavaDBRepository;
 import org.fosstrak.llrp.commander.repository.MessageModel;
@@ -430,26 +431,26 @@ public class ResourceCenter {
 			boolean wipe = store.getBoolean(
 					PreferenceConstants.P_WIPE_DB_ON_STARTUP
 					);
-			
+			Map<String, String> args = new HashMap<String, String> ();
+			args.put(RepositoryFactory.ARG_WIPE_DB, 
+					String.format("%b", wipe));
+			args.put(RepositoryFactory.ARG_WIPE_RO_ACCESS_REPORTS_DB, 
+					String.format("%b", wipeRO));
 			if (!internalDB) {
-				// obtain the username, password and JDBC connector URL from the 
+				// obtain the user name, password and JDBC connector URL from the 
 				// eclipse preference store.
-				String username = store.getString(
-						PreferenceConstants.P_EXT_DB_USERNAME);
-				String password = store.getString(
-						PreferenceConstants.P_EXT_DB_PWD);
-				String connURL = store.getString(
-						PreferenceConstants.P_EXT_DB_JDBC);
+				args.put(RepositoryFactory.ARG_USERNAME,
+						store.getString(PreferenceConstants.P_EXT_DB_USERNAME));
+				args.put(RepositoryFactory.ARG_PASSWRD,
+						store.getString(PreferenceConstants.P_EXT_DB_PWD));
+				args.put(RepositoryFactory.ARG_JDBC_STRING,
+						store.getString(PreferenceConstants.P_EXT_DB_JDBC));
+				args.put(RepositoryFactory.ARG_DB_CLASSNAME,
+						store.getString(PreferenceConstants.P_EXT_DB_IMPLEMENTOR));
 				
 				try {
-					Object db = Class.forName(store.getString(
-							PreferenceConstants.P_EXT_DB_IMPLEMENTOR
-							)).newInstance();
-					if (db instanceof Repository) {
-						repo = (Repository) db;
-						repo.initialize(username, password, connURL, 
-								wipe, wipeRO);
-					}
+					repo = RepositoryFactory.create(args);
+					
 				} catch (Exception e) {
 					log.error("Could not invoke the repository, using fallback");
 					e.printStackTrace();
@@ -457,8 +458,17 @@ public class ResourceCenter {
 			}
 			if (internalDB || (null == repo)) {
 				log.debug("Starting internal Derby database.");
-				repo = new JavaDBRepository(dbLocation);
-				repo.initialize(null, null, null, wipe, wipeRO);
+				args.put(JavaDBRepository.ARG_REPO_LOCATION, dbLocation);
+				args.put(RepositoryFactory.ARG_USERNAME, "");
+				args.put(RepositoryFactory.ARG_PASSWRD, "");
+				args.put(RepositoryFactory.ARG_JDBC_STRING, "");
+				repo = new JavaDBRepository();
+				try {
+					repo.initialize(args);
+				} catch (LLRPRuntimeException e) {
+					// FIXME: really bad if failover does break...
+					e.printStackTrace();
+				}
 			}
 			repo.open();
 		}

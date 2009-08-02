@@ -9,12 +9,14 @@ import java.sql.Statement;
 import java.sql.Timestamp;
 import java.util.ArrayList;
 import java.util.Date;
+import java.util.Map;
 
 import org.apache.log4j.Logger;
 import org.fosstrak.llrp.adaptor.AdaptorManagement;
+import org.fosstrak.llrp.adaptor.exception.LLRPRuntimeException;
 import org.fosstrak.llrp.client.LLRPMessageItem;
 import org.fosstrak.llrp.client.Repository;
-import org.fosstrak.llrp.commander.ResourceCenter;
+import org.fosstrak.llrp.client.RepositoryFactory;
 import org.fosstrak.llrp.commander.repository.mysql.MySQLRepository;
 import org.fosstrak.llrp.commander.views.ReaderExplorerViewContentProvider;
 
@@ -122,6 +124,9 @@ public abstract class AbstractSQLRepository implements Repository {
 	
 	/** whether to wipe the RO_ACCESS_REPORTS database at startup or not. */
 	protected boolean wipeROAccess = false;
+	
+	/** map with additional arguments to be passed to the initializer. */
+	protected Map<String, String> args = null;
 	
 	// ------------------------- SQL STATEMENTS -------------------------------
 	/**
@@ -308,13 +313,39 @@ public abstract class AbstractSQLRepository implements Repository {
 	 */
 	protected abstract Connection openConnection() throws Exception;
 	
-	public void initialize(String username, String password, String connURL, 
-			boolean wipe, boolean wipeROAccessReportsDB) {
-		this.username = username;
-		this.password = password;
-		this.connectURL = connURL;
-		this.wipe = wipe;
-		this.wipeROAccess = wipeROAccessReportsDB;
+	public void initialize(Map<String, String> args) 
+		throws LLRPRuntimeException {
+
+		this.args = args;
+		
+		username = args.get(RepositoryFactory.ARG_USERNAME);
+		password = args.get(RepositoryFactory.ARG_PASSWRD);
+		connectURL = args.get(RepositoryFactory.ARG_JDBC_STRING);
+		try {
+			wipe = Boolean.parseBoolean(args.get(RepositoryFactory.ARG_WIPE_DB));
+			wipeROAccess = Boolean.parseBoolean(
+				args.get(RepositoryFactory.ARG_WIPE_RO_ACCESS_REPORTS_DB));
+		} catch (NumberFormatException e) {
+			wipe = false;
+			wipeROAccess = false;
+			log.error("wrong boolean value in args table for wipe-db|wipe-ro" + 
+					" - using defaults (false).");
+		}
+		
+		// check if values are set correctly.
+		if (null == username) {
+			throw new LLRPRuntimeException("username missing in args table.");
+		}
+		if (null == password) {
+			throw new LLRPRuntimeException("password missing in args table.");
+		}
+		if (null == connectURL) {
+			throw new LLRPRuntimeException("connectURL missing in args table.");
+		}
+	}
+	
+	public Map<String, String> getArgs() {
+		return args;
 	}
 	
     /**

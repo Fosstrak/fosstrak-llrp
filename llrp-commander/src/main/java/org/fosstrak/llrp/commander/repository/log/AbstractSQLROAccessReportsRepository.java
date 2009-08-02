@@ -34,9 +34,10 @@ import java.sql.Types;
 import java.util.List;
 
 import org.apache.log4j.Logger;
+import org.fosstrak.llrp.adaptor.exception.LLRPRuntimeException;
 import org.fosstrak.llrp.client.ROAccessReportsRepository;
 import org.fosstrak.llrp.client.Repository;
-import org.fosstrak.llrp.commander.ResourceCenter;
+import org.fosstrak.llrp.client.RepositoryFactory;
 import org.fosstrak.llrp.commander.repository.JavaDBRepository;
 import org.llrp.ltk.generated.interfaces.AirProtocolTagData;
 import org.llrp.ltk.generated.interfaces.EPCParameter;
@@ -172,6 +173,9 @@ public abstract class AbstractSQLROAccessReportsRepository implements ROAccessRe
 	 */
 	protected abstract String sqlCreateTable();
 	
+	/**
+	 * @return a SQL dropping the table.
+	 */
 	protected abstract String sqlDropTable();
 	
 	/**
@@ -179,8 +183,16 @@ public abstract class AbstractSQLROAccessReportsRepository implements ROAccessRe
 	 */
 	protected abstract String sqlInsert();
 	
-	public void initialize(Repository repository, boolean wipe) {
-		this.wipe = wipe;
+	/** flag, whether this repository is initialized or not. */
+	protected boolean initialized = false;
+	
+	public void initialize(Repository repository) 
+		throws LLRPRuntimeException {
+		
+		if (initialized) return; 
+		
+		wipe = Boolean.parseBoolean(repository.getArgs().get(
+				RepositoryFactory.ARG_WIPE_RO_ACCESS_REPORTS_DB));
 		this.repository = repository;
 		
 		conn = repository.getDBConnection();
@@ -192,6 +204,7 @@ public abstract class AbstractSQLROAccessReportsRepository implements ROAccessRe
 					e.getMessage());
 			conn = null;
 		}
+		initialized = true;
 	}
 	
 	/**

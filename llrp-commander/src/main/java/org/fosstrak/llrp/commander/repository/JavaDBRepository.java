@@ -23,8 +23,10 @@ package org.fosstrak.llrp.commander.repository;
 
 import java.sql.Connection;
 import java.sql.DriverManager;
+import java.util.Map;
 
 import org.apache.log4j.Logger;
+import org.fosstrak.llrp.adaptor.exception.LLRPRuntimeException;
 import org.fosstrak.llrp.client.ROAccessReportsRepository;
 import org.fosstrak.llrp.commander.repository.log.DerbyROAccessReportsRepository;
 
@@ -51,19 +53,31 @@ public class JavaDBRepository extends AbstractSQLRepository {
 	private static final String DB_PROTOCOL = "jdbc:derby:";
 	private static final String DB_CREATE = ";create=true";
 	
+	/** the name of the property for the repository location in the args map. */
+	public static final String ARG_REPO_LOCATION = "argRepoLocation";
     
 	/** the location of the repository. */
-	private final String repoLocation;
+	private String repoLocation;
 	
 	/**
-	 * construct a new java db repository.
-	 * @param repoLocation the location where to create/load the repository.
+	 * construct a new java DB repository.
 	 */
-	public JavaDBRepository(String repoLocation) {
-		if (repoLocation == null) {
-			repoLocation = DB_NAME;
+	public JavaDBRepository() {
+	}
+	
+	@Override
+	public void initialize(Map<String, String> args) 
+		throws LLRPRuntimeException {
+		
+		super.initialize(args);
+		
+		String argRepoLoc = null;
+		if ((null == args) || (null == args.get(ARG_REPO_LOCATION))) {
+			argRepoLoc = DB_NAME;
+		} else {
+			argRepoLoc = args.get(ARG_REPO_LOCATION);
 		}
-		this.repoLocation = repoLocation + DB_NAME;
+		repoLocation = argRepoLoc + DB_NAME;
 	}
 
 	@Override
@@ -75,7 +89,13 @@ public class JavaDBRepository extends AbstractSQLRepository {
 		if (null == repoROAccessReports) {
 			log.debug("No RepoROAccessReports handle yet - Create a new one.");
 			repoROAccessReports = new DerbyROAccessReportsRepository();
-			repoROAccessReports.initialize(this, wipeROAccess);
+			try {
+				repoROAccessReports.initialize(this);
+			} catch (LLRPRuntimeException e) {
+				log.error(String.format(
+						"Could not initialize the RO_ACCESS_REPORTS repo: '%s'",
+						e.getMessage()));
+			}			
 		}
 		return repoROAccessReports;
 	}
