@@ -52,6 +52,7 @@ public interface ROAccessReportsRepository extends MessageHandler {
 	 * interface, you <strong>MUST</strong> call this method directly after 
 	 * instantiation.
 	 * @param repository the repository belonging to this RO_ACCESS_REPORTS DB.
+	 * @throws when there is a problem with initialization (eg. missing param).
 	 */
 	public void initialize(Repository repository) throws LLRPRuntimeException;
 }

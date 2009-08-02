@@ -45,6 +45,7 @@ public interface Repository {
 	 * after instantiation. <strong>Notice</strong>, that this method usually 
 	 * only stores the configuration parameters.
 	 * @param args hash-map with the parameters.
+	 * @throws when there is a problem with initialization (eg. missing param).
 	 */
 	public void initialize(Map<String, String> args) 
 		throws LLRPRuntimeException;
