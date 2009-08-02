@@ -22,6 +22,7 @@
 package org.fosstrak.llrp.client;
 
 import org.fosstrak.llrp.adaptor.AdaptorManagement;
+import org.fosstrak.llrp.adaptor.exception.LLRPRuntimeException;
 
 /**
  * Common interface for all the implementations providing access to the 
@@ -50,8 +51,7 @@ public interface ROAccessReportsRepository extends MessageHandler {
 	 * <strong>NOTICE</strong>: if you create an instance of a subclass of this 
 	 * interface, you <strong>MUST</strong> call this method directly after 
 	 * instantiation.
-	 * @param wipe if true, wipe the database.
-	 * @param repository the repository belonging to this RO_ACCESS_REPORTS db.
+	 * @param repository the repository belonging to this RO_ACCESS_REPORTS DB.
 	 */
-	public void initialize(Repository repository, boolean wipe);
+	public void initialize(Repository repository) throws LLRPRuntimeException;
 }

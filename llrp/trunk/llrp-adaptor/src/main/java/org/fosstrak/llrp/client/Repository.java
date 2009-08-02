@@ -23,6 +23,9 @@ package org.fosstrak.llrp.client;
 
 import java.sql.Connection;
 import java.util.ArrayList;
+import java.util.Map;
+
+import org.fosstrak.llrp.adaptor.exception.LLRPRuntimeException;
 
 /**
  * This single access point for Reader Management module to access the message
@@ -41,14 +44,15 @@ public interface Repository {
 	 * Initializer method for the repository. The method will be called directly 
 	 * after instantiation. <strong>Notice</strong>, that this method usually 
 	 * only stores the configuration parameters.
-	 * @param username the user name or <code>null</code>. 
-	 * @param password the password or <code>null</code>.
-	 * @param connURL a connection URL or <code>null</code>.
-	 * @param wipeLLRPMsgDB if true, wipe the llrp_msg database at startup.
-	 * @param wipeROAccessReportsDB if true, wipe the RO_ACCESS_REPORTS db.
+	 * @param args hash-map with the parameters.
 	 */
-	public void initialize(String username, String password, String connURL, 
-			boolean wipeLLRPMsgDB, boolean wipeROAccessReportsDB);
+	public void initialize(Map<String, String> args) 
+		throws LLRPRuntimeException;
+	
+	/**
+	 * @return a hash map with the properties passed by the initializer.
+	 */
+	public Map<String, String> getArgs();
 	
 	/**
 	 * Opens the repository.
