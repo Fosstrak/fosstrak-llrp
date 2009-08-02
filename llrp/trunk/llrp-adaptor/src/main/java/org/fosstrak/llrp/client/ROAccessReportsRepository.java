@@ -38,4 +38,20 @@ import org.fosstrak.llrp.adaptor.AdaptorManagement;
  *
  */
 public interface ROAccessReportsRepository extends MessageHandler {
+	
+	/**
+	 * set the repository that "owns" this RO_ACCESS_REPORTS repository.
+	 * @param repository the repository that "owns" this RO_ACCESS_REPORTS repository.
+	 */
+	public void setRepository(Repository repository);
+	
+	/**
+	 * Initializer for the RO_ACCESS_REPORTS repository. 
+	 * <strong>NOTICE</strong>: if you create an instance of a subclass of this 
+	 * interface, you <strong>MUST</strong> call this method directly after 
+	 * instantiation.
+	 * @param wipe if true, wipe the database.
+	 * @param repository the repository belonging to this RO_ACCESS_REPORTS db.
+	 */
+	public void initialize(Repository repository, boolean wipe);
 }

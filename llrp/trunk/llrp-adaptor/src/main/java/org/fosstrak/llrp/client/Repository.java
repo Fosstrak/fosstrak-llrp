@@ -21,8 +21,6 @@
 
 package org.fosstrak.llrp.client;
 
-import org.fosstrak.llrp.client.LLRPMessageItem;
-
 import java.sql.Connection;
 import java.util.ArrayList;
 
@@ -40,14 +38,25 @@ public interface Repository {
 	public static final int RETRIEVE_ALL = -1;
 	
 	/**
-	 * How the resource layer (File System, Database, and etc.) initiates
-	 * its resources. This function will be called when the client startup.
+	 * Initializer method for the repository. The method will be called directly 
+	 * after instantiation. <strong>Notice</strong>, that this method usually 
+	 * only stores the configuration parameters.
+	 * @param username the user name or <code>null</code>. 
+	 * @param password the password or <code>null</code>.
+	 * @param connURL a connection URL or <code>null</code>.
+	 * @param wipeLLRPMsgDB if true, wipe the llrp_msg database at startup.
+	 * @param wipeROAccessReportsDB if true, wipe the RO_ACCESS_REPORTS db.
+	 */
+	public void initialize(String username, String password, String connURL, 
+			boolean wipeLLRPMsgDB, boolean wipeROAccessReportsDB);
+	
+	/**
+	 * Opens the repository.
 	 */
 	public void open();
 	
 	/**
-	 * How the resource layer (File System, Database, and etc.) close and destroy
-	 * related resource handlers. This function will be called when the client exits.
+	 * Closing the repository.
 	 */
 	public void close();
 	

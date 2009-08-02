@@ -75,6 +75,7 @@ public class JavaDBRepository extends AbstractSQLRepository {
 		if (null == repoROAccessReports) {
 			log.debug("No RepoROAccessReports handle yet - Create a new one.");
 			repoROAccessReports = new DerbyROAccessReportsRepository();
+			repoROAccessReports.initialize(this, wipeROAccess);
 		}
 		return repoROAccessReports;
 	}
