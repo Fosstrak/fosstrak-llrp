@@ -108,6 +108,21 @@ public abstract class AbstractSQLRepository implements Repository {
 	/** the database driver to use. NOTICE: the default is derby!. */
 	public static final String DB_DRIVER = "org.apache.derby.jdbc.EmbeddedDriver";
 	
+	/** the database user name. */
+	protected String username = "llrp";
+	
+	/** the database password. */
+	protected String password = "llrp";
+	
+	/** the connection URL. */
+	protected String connectURL;
+	
+	/** whether to wipe the database at startup or not. */
+	protected boolean wipe = false;
+	
+	/** whether to wipe the RO_ACCESS_REPORTS database at startup or not. */
+	protected boolean wipeROAccess = false;
+	
 	// ------------------------- SQL STATEMENTS -------------------------------
 	/**
 	 * <strong>NOTICE:</strong> this SQL command corresponds to derby SQL!.
@@ -293,6 +308,15 @@ public abstract class AbstractSQLRepository implements Repository {
 	 */
 	protected abstract Connection openConnection() throws Exception;
 	
+	public void initialize(String username, String password, String connURL, 
+			boolean wipe, boolean wipeROAccessReportsDB) {
+		this.username = username;
+		this.password = password;
+		this.connectURL = connURL;
+		this.wipe = wipe;
+		this.wipeROAccess = wipeROAccessReportsDB;
+	}
+	
     /**
      * load the connection driver and establish the connection.
      */
@@ -313,7 +337,7 @@ public abstract class AbstractSQLRepository implements Repository {
 		}
 		
 		// wipe table if erroneous or if user requests it by preferences.
-		if (!existsTable() || ResourceCenter.getInstance().wipeRepositoryOnStartup()) {
+		if (!existsTable() || wipe) {
 			dropTable();
 			createTable();
 		}
@@ -406,23 +430,7 @@ public abstract class AbstractSQLRepository implements Repository {
 			
 			psInsert.executeUpdate();
 			psInsert.close();
-			
-			ResourceCenter.getInstance().addToMessageMetadataList(aMessage);
-			
-			if (aMessage.getMessageType().equals("GET_READER_CONFIG_RESPONSE")) {
-				ResourceCenter.getInstance().addReaderConfig(
-						aMessage.getAdapter(), 
-						aMessage.getReader(), 
-						aMessage.getId());
-			}
-			
-			if (aMessage.getMessageType().equals("GET_ROSPECS_RESPONSE")) {
-				ResourceCenter.getInstance().addReaderROSpec(
-						aMessage.getAdapter(), 
-						aMessage.getReader(), 
-						aMessage.getId());
-			}
-			
+		
 			log.debug("Put Message (ID=" + aMessage.getId() + ") into database.");
 		} catch (SQLException sqle) {
             sqle.printStackTrace();

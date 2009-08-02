@@ -99,4 +99,8 @@ public class DerbyROAccessReportsRepository extends AbstractSQLROAccessReportsRe
 	protected String sqlDropTable() {
 		return String.format("DROP TABLE %s", TABLE_RO_ACCESS_REPORTS);
 	}
+	
+	public DerbyROAccessReportsRepository() {
+		super();
+	}
 }

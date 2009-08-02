@@ -59,7 +59,6 @@ import org.fosstrak.llrp.client.Repository;
 import org.fosstrak.llrp.commander.preferences.PreferenceConstants;
 import org.fosstrak.llrp.commander.repository.JavaDBRepository;
 import org.fosstrak.llrp.commander.repository.MessageModel;
-import org.fosstrak.llrp.commander.repository.mysql.MySQLRepository;
 import org.fosstrak.llrp.commander.util.LLRP;
 import org.fosstrak.llrp.commander.util.MessageBoxRefresh;
 import org.fosstrak.llrp.commander.util.Utility;
@@ -258,6 +257,23 @@ public class ResourceCenter {
 				}
 				
 				getRepository().put(item);
+				
+				// add the message to the meta data list.
+				addToMessageMetadataList(item);
+				
+				if (item.getMessageType().equals("GET_READER_CONFIG_RESPONSE")) {
+					ResourceCenter.getInstance().addReaderConfig(
+							item.getAdapter(), 
+							item.getReader(), 
+							item.getId());
+				}
+				
+				if (item.getMessageType().equals("GET_ROSPECS_RESPONSE")) {
+					ResourceCenter.getInstance().addReaderROSpec(
+							item.getAdapter(), 
+							item.getReader(), 
+							item.getId());
+				}
 			}
 		};
 		
@@ -409,13 +425,30 @@ public class ResourceCenter {
 					PreferenceConstants.P_USE_INTERNAL_DB);
 			
 			repo = null;
+			boolean wipeRO = store.getBoolean(
+					PreferenceConstants.P_WIPE_RO_ACCESS_REPORTS_ON_STARTUP);
+			boolean wipe = store.getBoolean(
+					PreferenceConstants.P_WIPE_DB_ON_STARTUP
+					);
+			
 			if (!internalDB) {
+				// obtain the username, password and JDBC connector URL from the 
+				// eclipse preference store.
+				String username = store.getString(
+						PreferenceConstants.P_EXT_DB_USERNAME);
+				String password = store.getString(
+						PreferenceConstants.P_EXT_DB_PWD);
+				String connURL = store.getString(
+						PreferenceConstants.P_EXT_DB_JDBC);
+				
 				try {
 					Object db = Class.forName(store.getString(
 							PreferenceConstants.P_EXT_DB_IMPLEMENTOR
 							)).newInstance();
 					if (db instanceof Repository) {
 						repo = (Repository) db;
+						repo.initialize(username, password, connURL, 
+								wipe, wipeRO);
 					}
 				} catch (Exception e) {
 					log.error("Could not invoke the repository, using fallback");
@@ -425,18 +458,11 @@ public class ResourceCenter {
 			if (internalDB || (null == repo)) {
 				log.debug("Starting internal Derby database.");
 				repo = new JavaDBRepository(dbLocation);
+				repo.initialize(null, null, null, wipe, wipeRO);
 			}
 			repo.open();
 		}
 		return repo;
-	}
-	
-	/**
-	 * @return wipe the repository on startup.
-	 */
-	public boolean wipeRepositoryOnStartup() {
-		IPreferenceStore store = LLRPPlugin.getDefault().getPreferenceStore();
-		return store.getBoolean(PreferenceConstants.P_WIPE_DB_ON_STARTUP);
 	}
 	
 	/**
@@ -445,15 +471,6 @@ public class ResourceCenter {
 	public boolean isLogROAccessReports() {
 		IPreferenceStore store = LLRPPlugin.getDefault().getPreferenceStore();
 		return store.getBoolean(PreferenceConstants.P_LOG_RO_ACCESS_REPORTS);
-	}
-	
-	/**
-	 * @return true if the RO_ACCESS_REPORTS database is to be wiped on startup.
-	 */
-	public boolean isWipeLogROAccessReportsOnStartup() {
-		IPreferenceStore store = LLRPPlugin.getDefault().getPreferenceStore();
-		return store.getBoolean(
-				PreferenceConstants.P_WIPE_RO_ACCESS_REPORTS_ON_STARTUP);
 	}
 	
 	/**

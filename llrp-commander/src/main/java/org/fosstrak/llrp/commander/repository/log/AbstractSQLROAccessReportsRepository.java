@@ -149,21 +149,22 @@ public abstract class AbstractSQLROAccessReportsRepository implements ROAccessRe
 	/** the number of columns in the table. */
 	public static final int NUM_COLUMNS = 18;
 	
+	/** the repository "owning" this item. */
+	protected Repository repository;
+	
+	/** whether to wipe the database at startup or not. */
+	protected boolean wipe = false;
+	
 	/**
 	 * creates a new handle to the RO_ACCESS_REPORTS repository. The default 
 	 * constructor uses the connection from the {@link JavaDBRepository}.
 	 */
 	public AbstractSQLROAccessReportsRepository() {	
-		conn = ResourceCenter.getInstance().
-			getRepository().getDBConnection();
-		
-		try {
-			init();
-		} catch (Exception e) {
-			log.error("could not connect to database or database is corrupt: " + 
-					e.getMessage());
-			conn = null;
-		}
+
+	}
+	
+	public void setRepository(Repository repository) {
+		this.repository = repository;
 	}
 	
 	/**
@@ -178,6 +179,21 @@ public abstract class AbstractSQLROAccessReportsRepository implements ROAccessRe
 	 */
 	protected abstract String sqlInsert();
 	
+	public void initialize(Repository repository, boolean wipe) {
+		this.wipe = wipe;
+		this.repository = repository;
+		
+		conn = repository.getDBConnection();
+		
+		try {
+			init();
+		} catch (Exception e) {
+			log.error("could not connect to database or database is corrupt: " + 
+					e.getMessage());
+			conn = null;
+		}
+	}
+	
 	/**
 	 * initialize the table. (create it, if not existing yet).
 	 * @throws Exception when the connection could not be established or if the 
@@ -190,7 +206,7 @@ public abstract class AbstractSQLROAccessReportsRepository implements ROAccessRe
 			log.error("table for RO_ACCESS_REPORT not ok, (re)create it.");
 		}
 		
-		if (recreate || ResourceCenter.getInstance().isWipeLogROAccessReportsOnStartup()) {
+		if (recreate || wipe) {
 			dropTable();
 			createTable();
 		}

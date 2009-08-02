@@ -68,17 +68,11 @@ public class MySQLRepository extends AbstractSQLRepository {
 
 	@Override
 	protected Connection openConnection() throws Exception {
-		// obtain the username, password and JDBC connector URL from the 
-		// eclipse preference store.
-		IPreferenceStore store = LLRPPlugin.getDefault().getPreferenceStore();
-		String username = store.getString(PreferenceConstants.P_EXT_DB_USERNAME);
-		String password = store.getString(PreferenceConstants.P_EXT_DB_PWD);
-		String connURL = store.getString(PreferenceConstants.P_EXT_DB_JDBC);
 		log.debug(String.format("Opening MySQL connection with:\n" +
 				"\tusername: %s\n " +
-				"\tJDBC connector URL: %s\n", username, connURL));
+				"\tJDBC connector URL: %s\n", username, connectURL));
 		
-		return DriverManager.getConnection(connURL,	username, password);
+		return DriverManager.getConnection(connectURL, username, password);
 	}
 	
 	@Override
@@ -101,7 +95,12 @@ public class MySQLRepository extends AbstractSQLRepository {
 		// RO_ACCESS_REPORTS repository!).
 		if (null == repoROAccessReports) {
 			log.debug("No RepoROAccessReports handle yet - Create a new one.");
+			try {
 			repoROAccessReports = new DerbyROAccessReportsRepository();
+			repoROAccessReports.initialize(this, wipeROAccess);
+			} catch (Exception e) {
+				e.printStackTrace();
+			}
 		}
 		return repoROAccessReports;
 	}
