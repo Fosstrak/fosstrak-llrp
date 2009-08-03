@@ -22,42 +22,59 @@
 package org.fosstrak.llrp.commander.dialogs;
 
 import java.rmi.RemoteException;
-import java.util.*;
+import java.util.ArrayList;
+import java.util.HashMap;
+import java.util.HashSet;
+import java.util.Iterator;
+import java.util.Map;
+import java.util.Set;
+
 import org.apache.log4j.Logger;
-import org.eclipse.swt.*;
-import org.eclipse.swt.graphics.Rectangle;
-import org.eclipse.swt.graphics.Point;
-import org.eclipse.swt.graphics.Color;
+import org.eclipse.swt.SWT;
 import org.eclipse.swt.events.SelectionAdapter;
 import org.eclipse.swt.events.SelectionEvent;
+import org.eclipse.swt.graphics.Color;
+import org.eclipse.swt.graphics.Point;
+import org.eclipse.swt.graphics.Rectangle;
 import org.eclipse.swt.layout.GridData;
 import org.eclipse.swt.layout.GridLayout;
-import org.eclipse.swt.widgets.*;
+import org.eclipse.swt.widgets.Button;
+import org.eclipse.swt.widgets.Composite;
+import org.eclipse.swt.widgets.Control;
+import org.eclipse.swt.widgets.Event;
+import org.eclipse.swt.widgets.Label;
 import org.eclipse.swt.widgets.List;
-import org.llrp.ltk.types.LLRPMessage;
+import org.eclipse.swt.widgets.Listener;
+import org.eclipse.swt.widgets.ProgressBar;
+import org.eclipse.swt.widgets.Shell;
+import org.eclipse.swt.widgets.Table;
+import org.eclipse.swt.widgets.TableColumn;
+import org.eclipse.swt.widgets.TableItem;
+import org.eclipse.swt.widgets.Text;
 import org.fosstrak.llrp.adaptor.Adaptor;
 import org.fosstrak.llrp.adaptor.AdaptorManagement;
 import org.fosstrak.llrp.adaptor.exception.LLRPRuntimeException;
-import org.fosstrak.llrp.commander.*;
+import org.fosstrak.llrp.commander.ResourceCenter;
+import org.llrp.ltk.types.LLRPMessage;
 
 /**
  * This Dialog will be triggered by the context menu from <code>LLRPEditor</code>
  * User pick up the readers to issue the LLRP messages.
  *
  * @author Haoning Zhang
+ * @author sawielan
  * @version 1.0
  */
 public class SendMessageDialog extends org.eclipse.jface.dialogs.Dialog {
+	
+	// the previously selected readers
+	private Map<String, Set<String> > previouslySelected = 
+		new HashMap<String, Set<String> > ();
 	
 	/**
 	 * Log4j instance.
 	 */
 	private static Logger log = Logger.getLogger(SendMessageDialog.class);
-
-	/**
-	 * Record the selected items from the dialog.
-	 */
-	private int[] selectedList;
 	
 	private ProgressBar progressBar;
 	
@@ -143,7 +160,7 @@ public class SendMessageDialog extends org.eclipse.jface.dialogs.Dialog {
 		columnAdapter.setText ("Adapter");
 		TableColumn columnReader = new TableColumn (tblReaders, SWT.NONE);
 		columnReader.setText ("Reader");
-		
+
 		try {
 			Iterator<String> i = AdaptorManagement.getInstance().getAdaptorNames().iterator();
 			while (i.hasNext()) {
@@ -155,7 +172,8 @@ public class SendMessageDialog extends org.eclipse.jface.dialogs.Dialog {
 					if (adaptor.getReader(readerName).isConnected()) {
 						
 						TableItem item = new TableItem (tblReaders, 0);
-						item.setText(0, adaptor.getAdaptorName());
+						String adapter = adaptor.getAdaptorName();
+						item.setText(0, adapter);
 						item.setText(1, readerName);
 					}
 				}
@@ -166,15 +184,28 @@ public class SendMessageDialog extends org.eclipse.jface.dialogs.Dialog {
 			re.printStackTrace();
 		}
 		
+		// for all the currently available readers, check if they have been
+		// selected during the last send action.
+		ArrayList<Integer> selected = new ArrayList<Integer> ();
+		// check, if we need to preselect it
+		for (int i=0; i<tblReaders.getItemCount(); i++) {
+			TableItem item = tblReaders.getItem(i);
+			if (wasSelected(item.getText(0), item.getText(1))) {
+				selected.add(i);
+			}
+		}
+		previouslySelected = new HashMap<String, Set<String>> ();
+		
 		columnAdapter.pack();
 		columnReader.pack();
 		
-		if (selectedList == null) {
-			tblReaders.selectAll();
-		} else {
-			tblReaders.setSelection(selectedList);
+		if (selected.size() > 0) {
+			int [] selectionArray = new int[selected.size()];
+			for (int i=0; i<selectionArray.length; i++) {
+				selectionArray[i] = selected.get(i);
+			}
+			tblReaders.setSelection(selectionArray);
 		}
-		
 		
 		final Label lblComment = new Label(parent, SWT.NONE);
 		lblComment.setLayoutData(gridText);
@@ -234,12 +265,11 @@ public class SendMessageDialog extends org.eclipse.jface.dialogs.Dialog {
 		} else {
 			btnOK.setEnabled(true);
 			btnOK.setFocus();
-			selectedList = tblReaders.getSelectionIndices();
 		}
 		
 		tblReaders.addListener(SWT.Selection, new Listener () {
 			public void handleEvent (Event e) {
-				selectedList = tblReaders.getSelectionIndices();
+				int[] selectedList = tblReaders.getSelectionIndices();
 				
 				if ((selectedList == null) || (selectedList.length == 0)) {
 					btnOK.setEnabled(false);
@@ -251,7 +281,7 @@ public class SendMessageDialog extends org.eclipse.jface.dialogs.Dialog {
 		
 		tblReaders.addListener(SWT.DefaultSelection, new Listener () {
 			public void handleEvent (Event e) {
-				selectedList = tblReaders.getSelectionIndices();
+				int[] selectedList = tblReaders.getSelectionIndices();
 				if ((selectedList == null) || (selectedList.length == 0)) {
 					btnOK.setEnabled(false);
 				} else {
@@ -263,6 +293,48 @@ public class SendMessageDialog extends org.eclipse.jface.dialogs.Dialog {
 		parent.pack();
 		return parent;
 		
+	}
+
+	/**
+	 * saves the readers selected in the table-readers to the previously 
+	 * selected data-structure.
+	 * @param tblReaders the table with the readers.
+	 * @param selectedList the readers that are currently selected.
+	 */
+	private void saveSelectedReaders(Table tblReaders,
+			int[] selectedList) {
+		
+		for (int i=0; i<selectedList.length; i++) {
+			TableItem item = tblReaders.getItem(selectedList[i]);
+			add(item.getText(0), item.getText(1));
+		}
+	}
+	
+	/**
+	 * add a reader to the set of a given adapter.
+	 * @param adapter the adapter.
+	 * @param reader the reader.
+	 */
+	private void add(String adapter, String reader) {
+		Set<String> readers = previouslySelected.get(adapter);
+		if (null == readers) {
+			readers = new HashSet<String> ();
+			previouslySelected.put(adapter, readers);
+		}
+		readers.add(reader);
+	}
+	
+	/**
+	 * check if the reader was previously selected.
+	 * @param adapter the name of the adapter.
+	 * @param reader the name of the reader.
+	 * @return true if previously selected, false otherwise.
+	 */
+	private boolean wasSelected(String adapter, String reader) {
+		Set<String> readers = previouslySelected.get(adapter);
+		if (null == readers) return false;
+		
+		return readers.contains(reader);
 	}
 	
 	private void output(String aLine) {
@@ -312,6 +384,9 @@ public class SendMessageDialog extends org.eclipse.jface.dialogs.Dialog {
 		
 		int step = progressBar.getMaximum() - progressBar.getSelection();
 		
+		int [] selectedList = tblReaders.getSelectionIndices();
+		// save the selected readers for the next send action.
+		saveSelectedReaders(tblReaders, selectedList);
 		if (selectedList.length > 0) {
 			step = step / selectedList.length;
 		}
