@@ -21,19 +21,19 @@
 
 package org.fosstrak.llrp.commander.views;
 
-import java.util.HashMap;
-import java.util.List;
-import java.util.Iterator;
 import java.rmi.RemoteException;
+import java.util.HashMap;
+import java.util.Iterator;
+import java.util.List;
 
 import org.apache.log4j.Logger;
 import org.eclipse.jface.viewers.IStructuredContentProvider;
 import org.eclipse.jface.viewers.ITreeContentProvider;
 import org.eclipse.jface.viewers.Viewer;
-
 import org.fosstrak.llrp.adaptor.Adaptor;
 import org.fosstrak.llrp.adaptor.AdaptorManagement;
 import org.fosstrak.llrp.adaptor.exception.LLRPRuntimeException;
+import org.fosstrak.llrp.client.Constants;
 import org.fosstrak.llrp.commander.ResourceCenter;
 
 
@@ -47,9 +47,6 @@ import org.fosstrak.llrp.commander.ResourceCenter;
  */
 public class ReaderExplorerViewContentProvider implements
 		IStructuredContentProvider, ITreeContentProvider {
-
-	/** the name of the root in the reader explorer view. */
-	public static final String ROOT_NAME =  "Adapters";
 	
 	/**
 	 * Log4j instance.
@@ -178,7 +175,8 @@ public class ReaderExplorerViewContentProvider implements
 		adapters = new HashMap<String, ReaderTreeObject>();
 		
 		// Create the reserved nodes in the tree view
-		ReaderTreeObject rootAdapters = new ReaderTreeObject(ROOT_NAME);
+		ReaderTreeObject rootAdapters = new ReaderTreeObject(
+				Constants.ROOT_NAME);
 		
 		log.debug("Retrieving Adaptor Lists from Adapter Management");
 		try {

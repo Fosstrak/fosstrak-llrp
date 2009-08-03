@@ -27,8 +27,8 @@ import org.eclipse.core.resources.IProject;
 import org.eclipse.core.resources.IResource;
 import org.eclipse.core.runtime.CoreException;
 import org.fosstrak.llrp.client.Repository;
+import org.fosstrak.llrp.client.repository.sql.DerbyRepository;
 import org.fosstrak.llrp.commander.ResourceCenter;
-import org.fosstrak.llrp.commander.repository.JavaDBRepository;
 
 /**
 * Helper that checks the derby database folder. If the folder is missing or 
@@ -63,8 +63,8 @@ public class CheckRepository extends CheckItem {
 			return false;
 		}
 		Repository r = ResourceCenter.getInstance().getRepository();
-		if (r instanceof JavaDBRepository) {
-			JavaDBRepository repo = (JavaDBRepository) r; 
+		if (r instanceof DerbyRepository) {
+			DerbyRepository repo = (DerbyRepository) r; 
 			if (!repo.isHealth()) {
 				addReportItem("JavaDB Repository doesn't exist or is corrupted.", CATEGORY_ERROR);
 				return false;
