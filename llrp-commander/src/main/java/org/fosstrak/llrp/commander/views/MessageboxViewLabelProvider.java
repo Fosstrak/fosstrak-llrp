@@ -21,15 +21,18 @@
 
 package org.fosstrak.llrp.commander.views;
 
-import org.eclipse.jface.viewers.*;
-import org.eclipse.swt.graphics.Image;
-import org.eclipse.ui.*;
+import java.text.DateFormat;
+import java.text.SimpleDateFormat;
 
-import java.text.*;
+import org.apache.log4j.Logger;
+import org.eclipse.jface.viewers.ITableLabelProvider;
+import org.eclipse.jface.viewers.LabelProvider;
+import org.eclipse.swt.graphics.Image;
+import org.eclipse.ui.ISharedImages;
+import org.eclipse.ui.PlatformUI;
 import org.fosstrak.llrp.client.LLRPMessageItem;
 import org.fosstrak.llrp.client.repository.sql.DerbyRepository;
 import org.fosstrak.llrp.commander.ResourceCenter;
-import org.apache.log4j.Logger;
 
 
 /**

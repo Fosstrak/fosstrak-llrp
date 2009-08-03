@@ -23,7 +23,6 @@ package org.fosstrak.llrp.commander.preferences;
 
 import org.eclipse.core.runtime.preferences.AbstractPreferenceInitializer;
 import org.eclipse.jface.preference.IPreferenceStore;
-import org.fosstrak.llrp.client.repository.sql.MySQLRepository;
 import org.fosstrak.llrp.client.repository.sql.PostgreSQLRepository;
 import org.fosstrak.llrp.commander.LLRPPlugin;
 import org.fosstrak.llrp.commander.ResourceCenter;
