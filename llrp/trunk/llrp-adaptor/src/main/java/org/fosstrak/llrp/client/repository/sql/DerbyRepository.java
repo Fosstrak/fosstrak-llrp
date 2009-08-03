@@ -48,9 +48,10 @@ public class DerbyRepository extends AbstractSQLRepository {
 	// a handle to the RO_ACCESS_REPORTS logging table.
 	protected DerbyROAccessReportsRepository repoROAccessReports = null;
 	
-	// Database connection string
-	
+	// the JDBC protocol.
 	private static final String DB_PROTOCOL = "jdbc:derby:";
+	
+	// whether to create the DB or not.
 	private static final String DB_CREATE = ";create=true";
 	
 	/** the name of the property for the repository location in the args map. */

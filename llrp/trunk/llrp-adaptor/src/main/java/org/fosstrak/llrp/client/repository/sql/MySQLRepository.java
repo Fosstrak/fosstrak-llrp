@@ -103,5 +103,4 @@ public class MySQLRepository extends AbstractSQLRepository {
 		}
 		return repoROAccessReports;
 	}
-
 }
