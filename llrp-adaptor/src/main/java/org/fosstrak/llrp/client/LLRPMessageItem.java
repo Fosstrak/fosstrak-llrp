@@ -21,6 +21,7 @@
 
 package org.fosstrak.llrp.client;
 
+import java.sql.Timestamp;
 import java.text.DateFormat;
 import java.text.SimpleDateFormat;
 import java.util.Date;
@@ -58,7 +59,7 @@ public class LLRPMessageItem {
 	private String messageType;
 	private String statusCode;
 	private String comment;
-	private Date issueTime;
+	private Timestamp issueTime;
 	private String content;
 	private int mark;
 	
@@ -69,7 +70,7 @@ public class LLRPMessageItem {
 		setId(DATE_FORMATTER.format(new Date()));
 		setMessageType(EMPTY_MESSAGE_TYPE);
 		setStatusCode("");
-		setTime(new Date());
+		setTime(new Timestamp(System.currentTimeMillis()));
 		setReader(EMPTY_READER_ID);
 		setContent("");
 		setComment("");
@@ -199,17 +200,17 @@ public class LLRPMessageItem {
 	 * 
 	 * @return Issue Time
 	 */
-	public Date getTime() {
+	public Timestamp getTime() {
 		return issueTime;
 	}
 	
 	/**
 	 * Set the Message issue time
 	 * 
-	 * @param aTime Issue Time
+	 * @param ts Issue Time
 	 */
-	public void setTime(Date aTime) {
-		issueTime = aTime;
+	public void setTime(Timestamp ts) {
+		issueTime = ts;
 	}
 
 	/**

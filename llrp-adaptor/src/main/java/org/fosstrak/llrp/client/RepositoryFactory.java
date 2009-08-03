@@ -1,5 +1,6 @@
 package org.fosstrak.llrp.client;
 
+import java.util.HashMap;
 import java.util.Map;
 
 import org.apache.log4j.Logger;
@@ -34,15 +35,39 @@ public class RepositoryFactory {
 	private static Logger log = Logger.getLogger(RepositoryFactory.class);
 	
 	/**
+	 * helper to create a hash-map with key-value pairs. just provide a 2D 
+	 * array, with pairs of (key, value).
+	 * <h3>Example:</h3>
+	 * <code>Map&lt;String,String&gt; m = createMap(new String[][] {</code><br/>
+	 * <code>&nbsp;&nbsp;&nbsp;&nbsp;{key1, value1},</code><br/>
+	 * <code>&nbsp;&nbsp;&nbsp;&nbsp;{key2, value2},</code><br/>
+	 * <code>&nbsp;&nbsp;&nbsp;&nbsp;{key3, value3}</code><br/>
+	 * <code>&nbsp;&nbsp;}</code>
+	 * @param keyValue the key values 2D array.
+	 * @return a hash-map mapping the 2D array in a hash-table.
+	 */
+	public static Map<String, String> createMap(String [][] keyValue) {
+		Map<String, String> map = new HashMap<String, String> ();
+		if (null == keyValue) return map;
+		
+		final int len = keyValue.length;
+		for (int i=0; i<len; i++) {
+			map.put(keyValue[i][0], keyValue[i][1]);
+		}
+		return map;
+	}
+	
+	/**
 	 * create a new repository and read the configuration from a file.
 	 * @param fileName the file where to obtain the configuration from.
 	 * @return an instance of a {@link Repository}.
 	 * @throws InstantiationException when no instantiation was possible.
 	 * @throws IllegalAccessException access to class was denied.
 	 * @throws ClassNotFoundException when the class is not existing.
+	 * @throws LLRPRuntimeException when something other went wrong.
 	 */
 	public static Repository create(String fileName) 
-		throws InstantiationException, 
+		throws InstantiationException, LLRPRuntimeException, 
 			IllegalAccessException, ClassNotFoundException {
 		throw new IllegalAccessException("not implemented yet.");
 	}
@@ -55,10 +80,11 @@ public class RepositoryFactory {
 	 * @throws InstantiationException when no instantiation was possible.
 	 * @throws IllegalAccessException access to class was denied.
 	 * @throws ClassNotFoundException when the class is not existing.
+	 * @throws LLRPRuntimeException when something other went wrong.
 	 */
 	public static Repository create(Map<String, String> args) 
 	
-		throws InstantiationException, 
+		throws InstantiationException, LLRPRuntimeException,
 			IllegalAccessException, ClassNotFoundException {
 
 		if (null == args) throw new InstantiationException(
@@ -74,7 +100,7 @@ public class RepositoryFactory {
 			} catch (LLRPRuntimeException llrpe) {
 				log.error(String.format("could not initialize: '%s'", 
 						llrpe.getMessage()));
-				repository = null;
+				throw new LLRPRuntimeException(llrpe);
 			}
 		} else {
 			// throw an Exception

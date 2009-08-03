@@ -42,8 +42,7 @@ public interface Repository {
 	
 	/**
 	 * Initializer method for the repository. The method will be called directly 
-	 * after instantiation. <strong>Notice</strong>, that this method usually 
-	 * only stores the configuration parameters.
+	 * after instantiation.
 	 * @param args hash-map with the parameters.
 	 * @throws when there is a problem with initialization (eg. missing param).
 	 */
@@ -56,17 +55,12 @@ public interface Repository {
 	public Map<String, String> getArgs();
 	
 	/**
-	 * Opens the repository.
-	 */
-	public void open();
-	
-	/**
 	 * Closing the repository.
 	 */
 	public void close();
 	
 	/**
-	 * @return true if the repository is ok, false otherwise.
+	 * @return true if the repository is OK, false otherwise.
 	 */
 	public boolean isHealth();
 	
