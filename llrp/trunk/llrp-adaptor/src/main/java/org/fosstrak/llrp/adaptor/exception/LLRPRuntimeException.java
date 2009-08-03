@@ -64,6 +64,14 @@ public class LLRPRuntimeException extends Exception {
 	}
 	
 	/**
+	 * constructor from another exception.
+	 * @param e the other exception.
+	 */
+	public LLRPRuntimeException(Exception e) {
+		super(e);
+	}
+	
+	/**
 	 * sets the exception type.
 	 * @param exceptionType the exception type.
 	 */
