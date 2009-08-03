@@ -23,9 +23,10 @@ package org.fosstrak.llrp.commander.preferences;
 
 import org.eclipse.core.runtime.preferences.AbstractPreferenceInitializer;
 import org.eclipse.jface.preference.IPreferenceStore;
+import org.fosstrak.llrp.client.repository.sql.MySQLRepository;
+import org.fosstrak.llrp.client.repository.sql.PostgreSQLRepository;
 import org.fosstrak.llrp.commander.LLRPPlugin;
 import org.fosstrak.llrp.commander.ResourceCenter;
-import org.fosstrak.llrp.commander.repository.mysql.MySQLRepository;
 
 /**
  * Class used to initialize default preference values.
@@ -57,9 +58,9 @@ public class PreferenceInitializer extends AbstractPreferenceInitializer {
 				false);
 		store.setDefault(PreferenceConstants.P_USE_INTERNAL_DB, true);
 		store.setDefault(PreferenceConstants.P_EXT_DB_IMPLEMENTOR, 
-				MySQLRepository.class.getName());
+				PostgreSQLRepository.class.getName());
 		store.setDefault(PreferenceConstants.P_EXT_DB_JDBC,
-				MySQLRepository.JDBC_STR);
+				PostgreSQLRepository.JDBC_STR);
 		store.setDefault(PreferenceConstants.P_EXT_DB_USERNAME, "llrp");
 		store.setDefault(PreferenceConstants.P_EXT_DB_PWD, "llrp");
 		

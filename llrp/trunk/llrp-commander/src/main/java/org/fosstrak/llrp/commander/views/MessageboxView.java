@@ -46,6 +46,7 @@ import org.eclipse.ui.ISelectionListener;
 import org.eclipse.ui.ISharedImages;
 import org.eclipse.ui.IWorkbenchPart;
 import org.eclipse.ui.PlatformUI;
+import org.fosstrak.llrp.client.Constants;
 import org.fosstrak.llrp.client.LLRPMessageItem;
 import org.fosstrak.llrp.client.Repository;
 import org.fosstrak.llrp.commander.ResourceCenter;
@@ -172,7 +173,7 @@ public class MessageboxView extends TableViewPart implements ISelectionListener 
 		public boolean select(Viewer aViewer, Object aParentElement, Object aElement) {
 			// special filter for the root adapter...
 			if ((null == adapterName) || (
-					ReaderExplorerViewContentProvider.ROOT_NAME.
+					Constants.ROOT_NAME.
 						equals(adapterName))) {
 				
 				return true;
@@ -192,7 +193,7 @@ public class MessageboxView extends TableViewPart implements ISelectionListener 
 						
 						// compare the reader. if the readerName is null then 
 						// the user selected a whole adapter and this means 
-						// that we dont care about the readerName.
+						// that we don't care about the readerName.
 						if (readerName == null) {
 							return true;
 						}
@@ -335,7 +336,7 @@ public class MessageboxView extends TableViewPart implements ISelectionListener 
 				String reader = ResourceCenter.getInstance().
 					getReaderExplorerView().getSelectedReader();
 				
-				if (ReaderExplorerViewContentProvider.ROOT_NAME.
+				if (Constants.ROOT_NAME.
 						equals(adapter) || (null == adapter)) {
 					
 					ResourceCenter.getInstance().getRepository().clearAll();

@@ -195,7 +195,7 @@ public class GroupedStringFieldEditor extends FieldEditor  {
 		for (int i=0; i<len; i++) {
 			getPreferenceStore().setValue(
 					preferencesLabelsAndNames[i][INDEX_PREF_NAME], 
-					preferencesValues[i]);
+					preferences[i].getText());
 		}
 	}
 

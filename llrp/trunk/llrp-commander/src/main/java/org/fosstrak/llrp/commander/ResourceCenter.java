@@ -41,6 +41,9 @@ import org.eclipse.core.resources.IResource;
 import org.eclipse.core.resources.IWorkspaceRoot;
 import org.eclipse.core.resources.ResourcesPlugin;
 import org.eclipse.core.runtime.CoreException;
+import org.eclipse.core.runtime.IStatus;
+import org.eclipse.core.runtime.Status;
+import org.eclipse.jface.dialogs.ErrorDialog;
 import org.eclipse.jface.preference.IPreferenceStore;
 import org.eclipse.jface.resource.ImageDescriptor;
 import org.eclipse.swt.graphics.Image;
@@ -57,8 +60,8 @@ import org.fosstrak.llrp.client.MessageHandler;
 import org.fosstrak.llrp.client.ROAccessReportsRepository;
 import org.fosstrak.llrp.client.Repository;
 import org.fosstrak.llrp.client.RepositoryFactory;
+import org.fosstrak.llrp.client.repository.sql.DerbyRepository;
 import org.fosstrak.llrp.commander.preferences.PreferenceConstants;
-import org.fosstrak.llrp.commander.repository.JavaDBRepository;
 import org.fosstrak.llrp.commander.repository.MessageModel;
 import org.fosstrak.llrp.commander.util.LLRP;
 import org.fosstrak.llrp.commander.util.MessageBoxRefresh;
@@ -257,7 +260,12 @@ public class ResourceCenter {
 					e.printStackTrace();
 				}
 				
-				getRepository().put(item);
+				try {
+					getRepository().put(item);
+				} catch (Exception e) {
+					// repository might be null
+					e.printStackTrace();
+				}
 				
 				// add the message to the meta data list.
 				addToMessageMetadataList(item);
@@ -401,8 +409,6 @@ public class ResourceCenter {
 	public Repository getRepository() {
 		if (repo == null) {
 			
-			// FIXME: there is still ugly stuff in here...
-			
 			log.debug("open/create new repository");
 			IProject project = getEclipseProject();
 			// refresh the workspace...
@@ -454,23 +460,38 @@ public class ResourceCenter {
 				} catch (Exception e) {
 					log.error("Could not invoke the repository, using fallback");
 					e.printStackTrace();
+					IStatus status = new Status(
+							IStatus.WARNING, LLRPPlugin.PLUGIN_ID, 
+							"LLRP Repository Warning.", e);
+					ErrorDialog.openError(
+							LLRPPlugin.getDefault().getWorkbench()
+								.getDisplay().getActiveShell(),
+							"Could not open Repository - Using fallback.", 
+							e.getMessage(), status);
 				}
 			}
 			if (internalDB || (null == repo)) {
 				log.debug("Starting internal Derby database.");
-				args.put(JavaDBRepository.ARG_REPO_LOCATION, dbLocation);
+				args.put(DerbyRepository.ARG_REPO_LOCATION, dbLocation);
 				args.put(RepositoryFactory.ARG_USERNAME, "");
 				args.put(RepositoryFactory.ARG_PASSWRD, "");
 				args.put(RepositoryFactory.ARG_JDBC_STRING, "");
-				repo = new JavaDBRepository();
+				repo = new DerbyRepository();
 				try {
 					repo.initialize(args);
 				} catch (LLRPRuntimeException e) {
-					// FIXME: really bad if failover does break...
 					e.printStackTrace();
+					IStatus status = new Status(
+							IStatus.WARNING, LLRPPlugin.PLUGIN_ID,
+							"LLRP Repository Warning.", e);
+					ErrorDialog.openError(
+							LLRPPlugin.getDefault().getWorkbench()
+								.getDisplay().getActiveShell(),
+							"Could not open Default/Fallback repository " + 
+							"LLRP Commander cannot continue properly!", 
+							e.getMessage(), status);
 				}
 			}
-			repo.open();
 		}
 		return repo;
 	}

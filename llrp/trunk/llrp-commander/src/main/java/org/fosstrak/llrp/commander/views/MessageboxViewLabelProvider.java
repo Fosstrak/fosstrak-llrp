@@ -27,8 +27,8 @@ import org.eclipse.ui.*;
 
 import java.text.*;
 import org.fosstrak.llrp.client.LLRPMessageItem;
+import org.fosstrak.llrp.client.repository.sql.DerbyRepository;
 import org.fosstrak.llrp.commander.ResourceCenter;
-import org.fosstrak.llrp.commander.repository.JavaDBRepository;
 import org.apache.log4j.Logger;
 
 
@@ -45,7 +45,7 @@ public class MessageboxViewLabelProvider extends LabelProvider implements
 	/**
 	 * Log4j instance.
 	 */
-	private static Logger log = Logger.getLogger(JavaDBRepository.class);
+	private static Logger log = Logger.getLogger(DerbyRepository.class);
 	
 	private static final DateFormat DATE_FORMATTER = new SimpleDateFormat(
 			"yyyy-MMM-dd HH:mm:ss.SSS");
