@@ -22,6 +22,8 @@
 package org.fosstrak.llrp.commander.util;
 
 import java.io.IOException;
+import java.io.PrintWriter;
+import java.io.StringWriter;
 import java.net.URL;
 
 import org.apache.log4j.Logger;
@@ -36,6 +38,18 @@ public class Utility {
 
 	/** the logger. */
 	private static Logger log = Logger.getLogger(Utility.class);
+	
+	/**
+	 * creates a nice string representation of a stack trace.
+	 * @param e the exception to be converted to a string.
+	 * @return the exception represented as a string.
+	 */
+	public static String stackTraceNice(Exception e) {
+		StringWriter sw = new StringWriter();
+	    PrintWriter pw = new PrintWriter(sw);
+	    e.printStackTrace(pw);
+	    return sw.toString();
+	}
 	
 	/**
 	 * searches the full system path for this resource.
