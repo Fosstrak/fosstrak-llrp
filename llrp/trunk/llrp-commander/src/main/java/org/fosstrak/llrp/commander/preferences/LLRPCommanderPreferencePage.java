@@ -105,7 +105,7 @@ public class LLRPCommanderPreferencePage
 				);
 		addField(new BooleanFieldEditor(
 				PreferenceConstants.P_USE_INTERNAL_DB, 
-				"Use internal standalone Derby Database.", getFieldEditorParent())
+				"Use internal standalone Derby Database. NOTICE: You need to restart the Commander!!!", getFieldEditorParent())
 		);
 		addField(new GroupedStringFieldEditor(
 				"External Database settings", 

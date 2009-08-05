@@ -402,6 +402,17 @@ public class ResourceCenter {
 	}
 	
 	/**
+	 * allows to set a new repository.
+	 * @param repo the new repository.
+	 * @return the old repository.
+	 */
+	public Repository setRepository(Repository repo) {
+		Repository old = this.repo;
+		this.repo = repo;
+		return old;
+	}
+	
+	/**
 	 * Get the Repository interface.
 	 * 
 	 * @return Repository interface

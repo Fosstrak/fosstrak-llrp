@@ -53,7 +53,7 @@ public class PostgreSQLRepository extends AbstractSQLRepository {
 	
 	/** default JDBC Connector URL. PostgreSQL needs all lower case*/
 	public static final String JDBC_STR = 
-		String.format("jdbc:postgre://localhost:5432/%s", "llrpmsgdb");
+		String.format("jdbc:postgresql://localhost:5432/%s", "llrpmsgdb");
 	
 	// log4j instance.
 	private static Logger log = Logger.getLogger(PostgreSQLRepository.class);
