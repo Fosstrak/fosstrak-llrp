@@ -171,6 +171,7 @@ public class ROAccessReportsView extends TableViewPart implements MessageHandler
 				
 				try {
 					rorepo.clear();
+					getViewer().getTable().removeAll();
 				} catch (Exception e) {
 					log.error(
 							String.format("could not clear db: %s",
