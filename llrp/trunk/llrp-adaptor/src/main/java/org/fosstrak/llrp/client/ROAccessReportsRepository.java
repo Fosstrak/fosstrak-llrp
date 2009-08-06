@@ -21,8 +21,11 @@
 
 package org.fosstrak.llrp.client;
 
+import java.util.List;
+
 import org.fosstrak.llrp.adaptor.AdaptorManagement;
 import org.fosstrak.llrp.adaptor.exception.LLRPRuntimeException;
+import org.fosstrak.llrp.client.repository.sql.roaccess.ROAccessItem;
 
 /**
  * Common interface for all the implementations providing access to the 
@@ -55,4 +58,18 @@ public interface ROAccessReportsRepository extends MessageHandler {
 	 * @throws when there is a problem with initialization (eg. missing param).
 	 */
 	public void initialize(Repository repository) throws LLRPRuntimeException;
+	
+	/**
+	 * retrieves all the RO_ACCESS_REPORTS elements in the database.
+	 * @return a list of all the entries in the database stored into 
+	 * {@link ROAccessItem}.
+	 * @throws Exception when there is an error of any kind.
+	 */
+	public List<ROAccessItem> getAll() throws Exception;
+	
+	/**
+	 * drop all the messages in the repository.
+	 * @throws Exception when there is an error of any kind.
+	 */
+	public void clear() throws Exception;
 }
