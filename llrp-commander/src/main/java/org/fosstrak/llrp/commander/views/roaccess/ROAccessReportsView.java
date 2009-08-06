@@ -21,8 +21,10 @@
 
 package org.fosstrak.llrp.commander.views.roaccess;
 
+import java.sql.Connection;
 import java.util.List;
 
+import org.apache.log4j.Logger;
 import org.eclipse.jface.action.Action;
 import org.eclipse.jface.action.IMenuManager;
 import org.eclipse.jface.viewers.ColumnLayoutData;
@@ -34,6 +36,8 @@ import org.eclipse.swt.widgets.Composite;
 import org.eclipse.swt.widgets.Display;
 import org.fosstrak.llrp.adaptor.AdaptorManagement;
 import org.fosstrak.llrp.client.MessageHandler;
+import org.fosstrak.llrp.client.ROAccessReportsRepository;
+import org.fosstrak.llrp.client.Repository;
 import org.fosstrak.llrp.client.repository.sql.roaccess.DerbyROAccessReportsRepository;
 import org.fosstrak.llrp.client.repository.sql.roaccess.ROAccessItem;
 import org.fosstrak.llrp.commander.ResourceCenter;
@@ -62,9 +66,20 @@ public class ROAccessReportsView extends TableViewPart implements MessageHandler
 	// action to enable/disable logging.
 	private Action actionEnable;
 	
+	// allow to load the entries from the database.
+	private Action actionLoadFromDatabase;
+	
+	// clear the viewer from the messages.
+	private Action actionClearViewer;
+	
+	// clear the database from the messages.
+	private Action actionClearDB;
+	
 	// whether to log or not.
 	private boolean enabled = false;
 	
+	// the log4j logger.
+	private static Logger log = Logger.getLogger(ROAccessReportsView.class);
 
 	public ROAccessReportsView() {
 		super();
@@ -83,6 +98,7 @@ public class ROAccessReportsView extends TableViewPart implements MessageHandler
 		final MessageHandler h = this;
 		
 		actionEnable = new Action() {
+			@Override
 			public void run() {
 				if (enabled) {
 					// turn off logging.
@@ -101,6 +117,76 @@ public class ROAccessReportsView extends TableViewPart implements MessageHandler
 		actionEnable.setImageDescriptor(
 				ResourceCenter.getInstance().getImageDescriptor("filter.gif"));
 		actionEnable.setChecked(false);
+		
+		actionClearViewer = new Action() {
+			@Override
+			public void run() {
+				getViewer().getTable().removeAll();
+			}
+		};
+		actionClearViewer.setText("Clear the table");
+		actionClearViewer.setToolTipText("Remove all the messages from the " +
+				"Viewer");
+		
+		actionLoadFromDatabase = new Action() {
+			@Override
+			public void run() {
+				Repository repo = ResourceCenter.getInstance().getRepository();
+				if (null == repo) return;
+				ROAccessReportsRepository rorepo = repo.getROAccessRepository();
+				if (null == rorepo) return;
+				
+				try {
+					List<ROAccessItem> items = rorepo.getAll();
+					for (ROAccessItem item : items) {
+						getViewer().add(item);
+					}
+				} catch (Exception e) {
+					log.error(
+							String.format("could not load messages from db: %s",
+									e.getMessage()));
+				}
+				
+			}
+		};
+		Repository repo = ResourceCenter.getInstance().getRepository();
+		if ((null != repo) && (null != repo.getROAccessRepository())) {
+			actionLoadFromDatabase.setEnabled(true);
+		} else {
+			actionLoadFromDatabase.setEnabled(false);
+		}
+		actionLoadFromDatabase.setText("Load from DB");
+		actionLoadFromDatabase.setToolTipText(
+				"Loads the messages from the RO_ACCESS_REPORTS database in " +
+				"the backend. This action is only available, if you have " +
+				"a running instance of the backend.");
+		
+		actionClearDB = new Action() {
+			@Override
+			public void run() {
+				Repository repo = ResourceCenter.getInstance().getRepository();
+				if (null == repo) return;
+				ROAccessReportsRepository rorepo = repo.getROAccessRepository();
+				if (null == rorepo) return;
+				
+				try {
+					rorepo.clear();
+				} catch (Exception e) {
+					log.error(
+							String.format("could not clear db: %s",
+									e.getMessage()));
+				}
+				
+			}
+		};
+		if ((null != repo) && (null != repo.getROAccessRepository())) {
+			actionClearDB.setEnabled(true);
+		} else {
+			actionClearDB.setEnabled(false);
+		}
+		actionClearDB.setText("Clear Database");
+		actionClearDB.setToolTipText(
+				"Delete all the messages from the database.");
 	}
 
 	@Override
@@ -148,6 +234,9 @@ public class ROAccessReportsView extends TableViewPart implements MessageHandler
 	protected void fillContextMenu(IMenuManager manager) {
 		super.fillContextMenu(manager);
 		manager.add(actionEnable);
+		manager.add(actionClearViewer);
+		manager.add(actionLoadFromDatabase);
+		manager.add(actionClearDB);
 	}
 	
 	

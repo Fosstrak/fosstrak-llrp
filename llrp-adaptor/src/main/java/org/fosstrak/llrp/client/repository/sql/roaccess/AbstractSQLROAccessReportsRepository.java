@@ -31,6 +31,7 @@ import java.sql.SQLException;
 import java.sql.Statement;
 import java.sql.Timestamp;
 import java.sql.Types;
+import java.util.LinkedList;
 import java.util.List;
 
 import org.apache.log4j.Logger;
@@ -337,7 +338,7 @@ public abstract class AbstractSQLROAccessReportsRepository implements ROAccessRe
 				PreparedStatement insert = conn.prepareStatement(sqlInsert);
 	
 				// log time.
-				insert.setDate(CINDEX_LOGTIME, item.getLogTime());
+				insert.setTimestamp(CINDEX_LOGTIME, item.getLogTime());
 				
 				// adapter name.
 				insert.setString(CINDEX_ADAPTER, item.getAdapterName());
@@ -465,6 +466,50 @@ public abstract class AbstractSQLROAccessReportsRepository implements ROAccessRe
 					String.format("Successfully stored %s row(s) into database.",
 							successfullyHandled));
 		}
+	}
+	
+	public List<ROAccessItem> getAll() throws Exception {
+		List<ROAccessItem> items = new LinkedList<ROAccessItem> ();
+		Statement s = repository.getDBConnection().createStatement();
+		String sql = String.format("SELECT * FROM %s", TABLE_RO_ACCESS_REPORTS);
+		ResultSet res = s.executeQuery(sql);
+		
+		while (res.next()) {
+			ROAccessItem item = new ROAccessItem();
+			
+			item.setLogTime(res.getTimestamp(CINDEX_LOGTIME));
+			item.setAdapterName(res.getString(CINDEX_ADAPTER));
+			item.setReaderName(res.getString(CINDEX_READER));
+			item.setEpc(res.getString(CINDEX_EPC));
+			item.setRoSpecID(res.getLong(CINDEX_ROSpecID));
+			item.setSpecIndex(res.getInt(CINDEX_SpecIndex));
+			item.setInventoryPrmSpecID(
+					res.getInt(CINDEX_InventoryParameterSpecID));	
+			item.setAntennaID(res.getInt(CINDEX_AntennaID));
+			item.setPeakRSSI(res.getShort(CINDEX_PeakRSSI));
+			item.setChannelIndex(res.getInt(CINDEX_ChannelIndex));
+			item.setFirstSeenUTC(res.getTimestamp(
+					CINDEX_FirstSeenTimestampUTC));
+			item.setFirstSeenUptime(
+					res.getTimestamp(CINDEX_FirstSeenTimestampUptime));
+			item.setLastSeenUTC(
+					res.getTimestamp(CINDEX_LastSeenTimestampUTC));
+			item.setLastSeenUptime(
+					res.getTimestamp(CINDEX_LastSeenTimestampUptime));
+			item.setTagSeenCount(res.getInt(CINDEX_TagSeenCount));
+			item.setC1g2_CRC(res.getInt(CINDEX_C1G2_CRC));
+			item.setC1g2_PC(res.getInt(CINDEX_C1G2_PC));
+			item.setAccessSpecID(res.getLong(CINDEX_AccessSpecID));
+			items.add(item);
+		}
+		res.close();
+		return items;
+	}
+	
+	public void clear() throws Exception {
+		Statement s = repository.getDBConnection().createStatement();
+		String sql = String.format("DELETE FROM %s", TABLE_RO_ACCESS_REPORTS);
+		s.execute(sql);
 	}
 
 	/**

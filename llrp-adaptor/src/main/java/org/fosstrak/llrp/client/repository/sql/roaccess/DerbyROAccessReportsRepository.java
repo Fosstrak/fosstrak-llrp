@@ -49,7 +49,7 @@ public class DerbyROAccessReportsRepository extends AbstractSQLROAccessReportsRe
 	 * </ul>
 	 */
 	public static final String[][] COLUMN_NAMES_AND_TYPES = new String[][] {
-		{"LOG_Time", "DATE"},
+		{"LOG_Time", "TIMESTAMP"},
 		{"Adapter", "CHAR(64)"},
 		{"Reader", "CHAR(64)"},
 		{"EPC", "VARCHAR (2048)"},	// allow variable length

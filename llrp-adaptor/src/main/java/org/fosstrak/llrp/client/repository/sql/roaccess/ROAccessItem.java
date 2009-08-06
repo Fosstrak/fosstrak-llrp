@@ -61,7 +61,7 @@ public class ROAccessItem {
 	private static Logger log = Logger.getLogger(ROAccessItem.class);
 	
 	// the log time.
-	private Date logTime;
+	private Timestamp logTime;
 	
 	// the name of the adapter.
 	private String adapterName;
@@ -136,7 +136,7 @@ public class ROAccessItem {
 			ROAccessItem item = new ROAccessItem();
 			
 			// log time.
-			item.setLogTime(new Date(currentTime));
+			item.setLogTime(new Timestamp(currentTime));
 			
 			// adapter name.
 			item.setAdapterName(adapterName);
@@ -279,14 +279,14 @@ public class ROAccessItem {
 	/**
 	 * @param logTime the logTime to set
 	 */
-	public void setLogTime(Date logTime) {
+	public void setLogTime(Timestamp logTime) {
 		this.logTime = logTime;
 	}
 
 	/**
 	 * @return the logTime
 	 */
-	public Date getLogTime() {
+	public Timestamp getLogTime() {
 		return logTime;
 	}
 
