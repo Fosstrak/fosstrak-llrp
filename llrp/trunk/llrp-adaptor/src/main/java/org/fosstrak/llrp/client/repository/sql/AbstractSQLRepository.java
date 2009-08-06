@@ -143,6 +143,9 @@ public abstract class AbstractSQLRepository implements Repository {
 	/** whether to wipe the RO_ACCESS_REPORTS database at startup or not. */
 	protected boolean wipeROAccess = false;
 	
+	/** whether to log RO_ACCESS_REPORT. */
+	protected boolean logROAccess = false;
+	
 	/** map with additional arguments to be passed to the initializer. */
 	protected Map<String, String> args = null;
 	
@@ -343,9 +346,12 @@ public abstract class AbstractSQLRepository implements Repository {
 			wipe = Boolean.parseBoolean(args.get(RepositoryFactory.ARG_WIPE_DB));
 			wipeROAccess = Boolean.parseBoolean(
 				args.get(RepositoryFactory.ARG_WIPE_RO_ACCESS_REPORTS_DB));
+			logROAccess = Boolean.parseBoolean(
+					args.get(RepositoryFactory.ARG_LOG_RO_ACCESS_REPORT));
 		} catch (NumberFormatException e) {
 			wipe = false;
 			wipeROAccess = false;
+			logROAccess = false;
 			log.error("wrong boolean value in args table for wipe-db|wipe-ro" + 
 					" - using defaults (false).");
 		}

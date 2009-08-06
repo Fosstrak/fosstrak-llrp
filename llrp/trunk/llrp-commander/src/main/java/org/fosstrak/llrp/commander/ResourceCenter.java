@@ -311,13 +311,14 @@ public class ResourceCenter {
 	public void initializeROAccessReportsLogging() {
 		if (roAccessReportsLogginInitialized) return;
 		
-		log.debug("initializing RO_ACCESS_REPORTS logging facility.");
 		// get a handle of the repository.
 		ROAccessReportsRepository r = getRepository().getROAccessRepository();
 		if ((null != r) && (r instanceof MessageHandler)) {
+			log.debug("initializing RO_ACCESS_REPORTS logging facility.");			
 			AdaptorManagement.getInstance().registerPartialHandler(
 					(MessageHandler)r, RO_ACCESS_REPORT.class);
 		}
+		roAccessReportsLogginInitialized = true;
 	}
 	
 	/**
@@ -448,11 +449,16 @@ public class ResourceCenter {
 			boolean wipe = store.getBoolean(
 					PreferenceConstants.P_WIPE_DB_ON_STARTUP
 					);
+			boolean logRO = store.getBoolean(
+					PreferenceConstants.P_LOG_RO_ACCESS_REPORTS
+					);
 			Map<String, String> args = new HashMap<String, String> ();
 			args.put(RepositoryFactory.ARG_WIPE_DB, 
 					String.format("%b", wipe));
 			args.put(RepositoryFactory.ARG_WIPE_RO_ACCESS_REPORTS_DB, 
 					String.format("%b", wipeRO));
+			args.put(RepositoryFactory.ARG_LOG_RO_ACCESS_REPORT, 
+					String.format("%b", logRO));
 			if (!internalDB) {
 				// obtain the user name, password and JDBC connector URL from the 
 				// eclipse preference store.

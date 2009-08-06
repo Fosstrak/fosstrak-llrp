@@ -87,6 +87,8 @@ public class DerbyRepository extends AbstractSQLRepository {
 	}
 
 	public ROAccessReportsRepository getROAccessRepository() {
+		if (!logROAccess) return null;
+		
 		if (null == repoROAccessReports) {
 			log.debug("No RepoROAccessReports handle yet - Create a new one.");
 			repoROAccessReports = new DerbyROAccessReportsRepository();
