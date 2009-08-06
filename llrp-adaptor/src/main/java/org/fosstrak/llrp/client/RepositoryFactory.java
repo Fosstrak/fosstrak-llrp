@@ -23,6 +23,7 @@ package org.fosstrak.llrp.client;
 
 import java.util.HashMap;
 import java.util.Map;
+import java.util.Properties;
 
 import org.apache.log4j.Logger;
 import org.fosstrak.llrp.adaptor.exception.LLRPRuntimeException;
@@ -45,6 +46,9 @@ public class RepositoryFactory {
 	
 	/** parameter whether to wipe DB in the arguments table. */
 	public static final String ARG_WIPE_DB = "wipeDB";
+	
+	/** parameter whether to log RO_ACCESS_REPORT. */
+	public static final String ARG_LOG_RO_ACCESS_REPORT = "logROAccess";
 	
 	/** parameter whether to wipe RO_ACCESS_REPORTS DB in the arguments table.*/
 	public static final String ARG_WIPE_RO_ACCESS_REPORTS_DB = "wipeROAccessDB";
@@ -79,18 +83,33 @@ public class RepositoryFactory {
 	}
 	
 	/**
-	 * create a new repository and read the configuration from a file.
-	 * @param fileName the file where to obtain the configuration from.
+	 * create a new repository and read the configuration from a Properties 
+	 * data structure.
+	 * @param properties the properties where to obtain the configuration from.
 	 * @return an instance of a {@link Repository}.
 	 * @throws InstantiationException when no instantiation was possible.
 	 * @throws IllegalAccessException access to class was denied.
 	 * @throws ClassNotFoundException when the class is not existing.
 	 * @throws LLRPRuntimeException when something other went wrong.
 	 */
-	public static Repository create(String fileName) 
+	public static Repository create(Properties properties) 
 		throws InstantiationException, LLRPRuntimeException, 
 			IllegalAccessException, ClassNotFoundException {
-		throw new IllegalAccessException("not implemented yet.");
+		
+		// extract the settings from the properties.
+		Map<String, String> args = new HashMap<String, String>();
+		
+		args.put(ARG_USERNAME, properties.getProperty(ARG_USERNAME));
+		args.put(ARG_PASSWRD, properties.getProperty(ARG_PASSWRD));
+		args.put(ARG_JDBC_STRING, properties.getProperty(ARG_JDBC_STRING));
+		args.put(ARG_WIPE_DB, properties.getProperty(ARG_WIPE_DB));
+		args.put(ARG_LOG_RO_ACCESS_REPORT, 
+				properties.getProperty(ARG_LOG_RO_ACCESS_REPORT));
+		args.put(ARG_WIPE_RO_ACCESS_REPORTS_DB, 
+				properties.getProperty(ARG_WIPE_RO_ACCESS_REPORTS_DB));
+		args.put(ARG_DB_CLASSNAME, properties.getProperty(ARG_DB_CLASSNAME));
+		
+		return create(args);
 	}
 	
 	/**
@@ -117,7 +136,12 @@ public class RepositoryFactory {
 			repository = (Repository) db;
 			try {
 			repository.initialize(args);
-			repository.getROAccessRepository().initialize(repository);
+			String logRO = args.get(ARG_LOG_RO_ACCESS_REPORT);
+			if ((null != logRO) && (Boolean.parseBoolean(logRO))) {
+				repository.getROAccessRepository().initialize(repository);
+			} else {
+				log.debug("NOT enabling RO_ACCESS_REPORT logging.");
+			}
 			} catch (LLRPRuntimeException llrpe) {
 				log.error(String.format("could not initialize: '%s'", 
 						llrpe.getMessage()));

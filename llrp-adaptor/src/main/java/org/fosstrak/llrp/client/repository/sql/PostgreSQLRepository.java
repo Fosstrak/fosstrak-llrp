@@ -87,6 +87,8 @@ public class PostgreSQLRepository extends AbstractSQLRepository {
 	}
 
 	public ROAccessReportsRepository getROAccessRepository() {
+		if (!logROAccess) return null;
+		
 		// for the RO_ACCESS_REPORTS repository, we can use the derby one as 
 		// the SQL set used, works for both PostgreSQL and Derby (only in the case
 		// RO_ACCESS_REPORTS repository!).
