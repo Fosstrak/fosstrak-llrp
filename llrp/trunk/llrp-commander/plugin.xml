@@ -63,6 +63,13 @@
             id="org.fosstrak.llrp.commander.views.ReaderExplorerView"
             name="Reader Explorer">
       </view>
+      <view
+            category="org.fosstrak.llrp.commander"
+            class="org.fosstrak.llrp.commander.views.roaccess.ROAccessReportsView"
+            icon="icons/reader.gif"
+            id="org.fosstrak.llrp.commander.views.roaccess.ROAccessReportsView"
+            name="ROAccessReports">
+      </view>
    </extension>
    <extension
          point="org.eclipse.ui.perspectiveExtensions">
@@ -85,7 +92,7 @@
                relationship="stack"
                relative="org.eclipse.ui.views.ResourceNavigator">
          </view>
-      </perspectiveExtension>
+      </perspectiveExtension>    
    </extension>
    <extension
          point="org.eclipse.ui.preferencePages">
