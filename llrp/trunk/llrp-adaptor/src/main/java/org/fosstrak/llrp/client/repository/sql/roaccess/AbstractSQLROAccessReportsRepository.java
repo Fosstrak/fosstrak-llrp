@@ -57,7 +57,6 @@ import org.llrp.ltk.generated.parameters.LastSeenTimestampUptime;
 import org.llrp.ltk.generated.parameters.PeakRSSI;
 import org.llrp.ltk.generated.parameters.ROSpecID;
 import org.llrp.ltk.generated.parameters.SpecIndex;
-import org.llrp.ltk.generated.parameters.TagReportData;
 import org.llrp.ltk.generated.parameters.TagSeenCount;
 import org.llrp.ltk.types.BitArray_HEX;
 import org.llrp.ltk.types.Integer96_HEX;
@@ -326,9 +325,11 @@ public abstract class AbstractSQLROAccessReportsRepository implements ROAccessRe
 			RO_ACCESS_REPORT message) {
 		
 		log.debug("logging RO_ACCESS_REPORT to database.");
-		List<TagReportData> tagDataList = message.getTagReportDataList();
+		
+		List<ROAccessItem> items = ROAccessItem.parse(
+				message, adapterName, readerName, System.currentTimeMillis());
 		int successfullyHandled = 0;
-		for (TagReportData tagData : tagDataList) {
+		for (ROAccessItem item : items) {
 			try {
 				
 				String sqlInsert = sqlInsert();
@@ -336,163 +337,118 @@ public abstract class AbstractSQLROAccessReportsRepository implements ROAccessRe
 				PreparedStatement insert = conn.prepareStatement(sqlInsert);
 	
 				// log time.
-				insert.setDate(CINDEX_LOGTIME, 
-						new Date(System.currentTimeMillis()));
+				insert.setDate(CINDEX_LOGTIME, item.getLogTime());
 				
 				// adapter name.
-				insert.setString(CINDEX_ADAPTER, adapterName);
+				insert.setString(CINDEX_ADAPTER, item.getAdapterName());
 				
 				// reader name.
-				insert.setString(CINDEX_READER, readerName);
+				insert.setString(CINDEX_READER, item.getReaderName());
 				
 				// store the EPC as EPC96 or EPCData
-				EPCParameter epcParameter = tagData.getEPCParameter();
-				String epc = null;
-				if (epcParameter instanceof EPC_96) {
-					EPC_96 epc96 = (EPC_96) epcParameter;
-					Integer96_HEX hex = epc96.getEPC();
-					String hx = hex.toString();
-					epc = hx;
-				} else if (epcParameter instanceof EPCData){
-					EPCData epcData = (EPCData) epcParameter;
-					BitArray_HEX hex = epcData.getEPC();
-					String hx = hex.toString();
-					epc = hx;
-				} else {
-					log.error("Unknown EPCParameter encountered - ignoring.");
-				}
-				if (null != epc) {
-					insert.setString(CINDEX_EPC, epc);
+				if (null != item.getEpc()) {
+					insert.setString(CINDEX_EPC, item.getEpc());
 				} else {
 					insert.setNull(CINDEX_EPC, Types.VARCHAR);
 				}
 				
 				// RO Spec ID.
-				ROSpecID roSpecID = tagData.getROSpecID();
-				if ((null != roSpecID) && (null != roSpecID.getROSpecID())) {
-					insert.setLong(CINDEX_ROSpecID, roSpecID.getROSpecID().toLong());
+				if (null != item.getRoSpecID()) {
+					insert.setLong(CINDEX_ROSpecID, item.getRoSpecID());
 				} else {
 					insert.setNull(CINDEX_ROSpecID, Types.BIGINT);
 				}
 				
 				// spec index.
-				SpecIndex specIndex = tagData.getSpecIndex();
-				if ((null != specIndex) && (null != specIndex.getSpecIndex())) {
-					insert.setInt(CINDEX_SpecIndex, specIndex.getSpecIndex().toInteger());
+				if (null != item.getSpecIndex()) {
+					insert.setInt(CINDEX_SpecIndex, item.getSpecIndex());
 				} else {
 					insert.setNull(CINDEX_SpecIndex, Types.INTEGER);
 				}
 				
 				// inventory parameter spec ID.
-				InventoryParameterSpecID inventoryPrmSpecID = 
-					tagData.getInventoryParameterSpecID();
-				if ((null != inventoryPrmSpecID) && (null != inventoryPrmSpecID.getInventoryParameterSpecID())) {
+				if (null != item.getInventoryPrmSpecID()) {
 					insert.setInt(CINDEX_InventoryParameterSpecID, 
-							tagData.getInventoryParameterSpecID().
-							getInventoryParameterSpecID().toInteger());	
+							item.getInventoryPrmSpecID());	
 				} else {
 					insert.setNull(CINDEX_InventoryParameterSpecID, Types.INTEGER);
 				}
 				
 				// antenna ID.
-				AntennaID antennaID = tagData.getAntennaID();
-				if ((null != antennaID) && (null != antennaID.getAntennaID())) {
-					insert.setInt(CINDEX_AntennaID, antennaID.getAntennaID().toInteger());
+				if (null != item.getAntennaID()) {
+					insert.setInt(CINDEX_AntennaID, item.getAntennaID());
 				} else {
 					insert.setNull(CINDEX_AntennaID, Types.INTEGER);
 				}
 				
 				// peak RSSI.
-				PeakRSSI peakRSSI = tagData.getPeakRSSI();
-				if ((null != peakRSSI) && (null != peakRSSI.getPeakRSSI())) {
-					insert.setShort(CINDEX_PeakRSSI, peakRSSI.getPeakRSSI().toByte());
+				if (null != item.getPeakRSSI()) {
+					insert.setShort(CINDEX_PeakRSSI, item.getPeakRSSI());
 				} else {
 					insert.setNull(CINDEX_PeakRSSI, Types.SMALLINT);
 				}
 				
 				// channel index.
-				ChannelIndex channelIndex = tagData.getChannelIndex();
-				if ((null != channelIndex) && (null != channelIndex.getChannelIndex())) {
-					insert.setInt(CINDEX_ChannelIndex, channelIndex.getChannelIndex().toInteger());
+				if (null != item.getChannelIndex()) {
+					insert.setInt(CINDEX_ChannelIndex, item.getChannelIndex());
 				} else {
 					insert.setNull(CINDEX_ChannelIndex, Types.INTEGER);
 				}
 				
 				// extract the first seen UTC time stamp.
-				FirstSeenTimestampUTC frstSnUTC = 
-					tagData.getFirstSeenTimestampUTC();
-				if ((null != frstSnUTC) && (null != frstSnUTC.getMicroseconds())) {
+				if (null != item.getFirstSeenUTC()) {
 					insert.setTimestamp(CINDEX_FirstSeenTimestampUTC, 
-							extractTimestamp(frstSnUTC.getMicroseconds()));
+							item.getFirstSeenUTC());
 				} else {
 					insert.setNull(CINDEX_FirstSeenTimestampUTC, Types.TIMESTAMP);
 				}
 				
 				// extract the first seen since uptime time stamp.
-				FirstSeenTimestampUptime frstSnUptime = 
-					tagData.getFirstSeenTimestampUptime();
-				if ((null != frstSnUptime) && (null != frstSnUptime.getMicroseconds())) {
+				if (null != item.getFirstSeenUptime()) {
 					insert.setTimestamp(CINDEX_FirstSeenTimestampUptime, 
-							extractTimestamp(frstSnUptime.getMicroseconds()));
+							item.getFirstSeenUptime());
 				} else {
 					insert.setNull(CINDEX_FirstSeenTimestampUptime, Types.TIMESTAMP);
 				}
 				
 				// extract the last seen time stamp UTC.
-				LastSeenTimestampUTC lstSnUTC = 
-					tagData.getLastSeenTimestampUTC();
-				if ((null != lstSnUTC) && (null != lstSnUTC.getMicroseconds())) {
+				if (null != item.getLastSeenUTC()) {
 					insert.setTimestamp(CINDEX_LastSeenTimestampUTC, 
-							extractTimestamp(lstSnUTC.getMicroseconds()));
+							item.getLastSeenUTC());
 				}else {
 					insert.setNull(CINDEX_LastSeenTimestampUTC, Types.TIMESTAMP);
 				}
 				
 				// extract the last seen time stamp since uptime.
-				LastSeenTimestampUptime lstSnUptime = 
-					tagData.getLastSeenTimestampUptime();
-				if ((null != lstSnUptime) && (null != lstSnUptime.getMicroseconds())) {
+				if (null != item.getLastSeenUptime()) {
 					insert.setTimestamp(CINDEX_LastSeenTimestampUptime, 
-							extractTimestamp(lstSnUptime.getMicroseconds()));
+							item.getLastSeenUptime());
 				}else {
 					insert.setNull(CINDEX_LastSeenTimestampUptime, Types.TIMESTAMP);
 				}
 				
 				// extract the tag count.
-				TagSeenCount tagSeenCount = tagData.getTagSeenCount();
-				if ((null != tagSeenCount) && (null != tagSeenCount.getTagCount())) {
-					insert.setInt(CINDEX_TagSeenCount, tagSeenCount.getTagCount().toInteger());
+				if (null != item.getTagSeenCount()) {
+					insert.setInt(CINDEX_TagSeenCount, item.getTagSeenCount());
 				} else {
 					insert.setNull(CINDEX_TagSeenCount, Types.INTEGER);
 				}
 				
-				List<AirProtocolTagData> airProtoTagData = 
-					tagData.getAirProtocolTagDataList();
-				
-				// first set the two to null.
-				insert.setNull(CINDEX_C1G2_CRC, Types.INTEGER);
-				insert.setNull(CINDEX_C1G2_PC, Types.INTEGER);
-				for (AirProtocolTagData aptd : airProtoTagData) {
-					if (aptd instanceof C1G2_CRC) {
-						C1G2_CRC c1g2_crc = (C1G2_CRC) aptd;
-						if ((null != c1g2_crc) && (null != c1g2_crc.getCRC())) {
-							insert.setInt(CINDEX_C1G2_CRC, c1g2_crc.getCRC().toInteger());
-						}
-					} else if (aptd instanceof C1G2_PC) {
-						C1G2_PC c1g2_pc = (C1G2_PC) aptd;
-						if ((null != c1g2_pc) && (null != c1g2_pc.getPC_Bits())) {
-							insert.setInt(CINDEX_C1G2_PC, c1g2_pc.getPC_Bits().toInteger());
-						}
-					} else {
-						log.error("Unknown AirProtocolTagData item encountered.");
-					}						
+				// crc
+				if (null != item.getC1g2_CRC()) {
+					insert.setInt(CINDEX_C1G2_CRC, item.getC1g2_CRC());
+				} else {
+					insert.setNull(CINDEX_C1G2_CRC, Types.INTEGER);
+				}
+				if (null != item.getC1g2_CRC()) {
+					insert.setInt(CINDEX_C1G2_PC, item.getC1g2_PC());
+				} else {
+					insert.setNull(CINDEX_C1G2_PC, Types.INTEGER);
 				}
 				
 				// extract the access spec ID.
-				AccessSpecID accessSpecID = tagData.getAccessSpecID();
-				if ((null != accessSpecID) && 
-						(null != accessSpecID.getAccessSpecID())) {
-					insert.setLong(CINDEX_AccessSpecID, accessSpecID.getAccessSpecID().toLong());
+				if (null != item.getAccessSpecID()) {
+					insert.setLong(CINDEX_AccessSpecID, item.getAccessSpecID());
 				} else {
 					insert.setNull(CINDEX_AccessSpecID, Types.BIGINT);
 				}
@@ -516,7 +472,7 @@ public abstract class AbstractSQLROAccessReportsRepository implements ROAccessRe
 	 * @param ulong the unsigned long TimeStamp object.
 	 * @return a SQL {@link Timestamp} object.
 	 */
-	public Timestamp extractTimestamp(UnsignedLong ulong) {
+	public static Timestamp extractTimestamp(UnsignedLong ulong) {
 		try {
 //			log.debug(String.format("Extracting timestamp '%s'", ulong.toString()));
 			BigInteger value = ulong.toBigInteger();
