@@ -47,13 +47,13 @@ Developers guide - Repository
 
 	<ResourceCenter> represents the "Context" and <Repository> models the "Strategy". 
 	
-	Currently the LLRP Commander provides two different "Concrete Strategies", namely the default repository implemented by a file-based Java Derby Repository (<org.fosstrak.llrp.commander.repository.JavaDBRepository>), and the external MySQL database (<org.fosstrak.llrp.commander.repository.mysql.MySQLRepository>). 
+	Currently the LLRP Commander provides three different "Concrete Strategies", namely the default repository implemented by a file-based Java Derby Repository (<org.fosstrak.llrp.client.repository.sql.DerbyRepository>), the external PostgreSQL Repository (<org.fosstrak.llrp.client.repository.sql.PostgreSQLRepository>) and the external MySQL database (<org.fosstrak.llrp.client.repository.sql.MySQLRepository>). 
 	
 ** Strategy pattern for <ROAccessReportsRepository>
 	
 	<Repository> represents the "Context" and <ROAccessReportsRepository> models the "Strategy". 
 	
-	Currently the LLRP Commander uses only one "Concrete Strategy" for the two "Contexts" Derby/MySQL implemented by <org.fosstrak.llrp.commander.repository.log.DerbyROAccessReportsRepository>. 
+	Currently the LLRP Commander uses only one "Concrete Strategy" for the two "Contexts" Derby/MySQL implemented by <org.fosstrak.llrp.client.repository.sql.DerbyROAccessReportsRepository>. 
 	
 	<<NOTICE:>> <ROAccessReportsRepository> is not accessible without <Repository>!
 
@@ -126,8 +126,10 @@ jdbc:mysql://localhost:3306/llrpMsgDB
 +---+
 	
 		[[i]] Set the username to <<llrp>> and the password to <<llrp>>.
+
+		[[i]] Click on the button "Test". If no error occurs, the "Switch" button is enabled and you can switch your backend at runtime. 
 		
-		[[i]] Restart the LLRP Commander.
+		[[i]] Although the LLRP Commander supports "on-the-fly" exchange of the repository, we recommend you to restart eclipse in order to load the new configuration from scratch.
 		
 		
 		
@@ -135,11 +137,21 @@ jdbc:mysql://localhost:3306/llrpMsgDB
 
 	In order to log the LLRP messages to an external PostgreSQL database, the LLRP Commander needs access to a database of the PostgreSQL server.
 	
-	[[1]] Open the PostgreSQL admin tool (pgAdmin) and connect to your server.
+	[[1]] Open the PostgreSQL admin tool (pgAdmin) and connect to your server. On *nix you can alternatively use the command-line to create the database and the roles.
 	
 		[[i]] Create a new <Login Role> with Role-name <<llrp>> and password <<llrp>>. In <Role Privileges> check <Can create database objects> (see {{{#Appendix}Appendix}}).
+
++---+
+Command-line command to create the role in *nix
+> sudo -u postgres createuser -D -A -P llrp
++---+
 	
 		[[i]] Create the database (preferably use <<llrpmsgdb>> as the name) and set the owner to <<llrp>>.
+
++---+
+Command-line command to create the database in *nix
+> sudo -u postgres createdb -O llrp llrpmsgdb
++---+
 
 	[[1]] Update the settings in the eclipse preferences page:
 	
@@ -163,7 +175,9 @@ jdbc:postgresql://localhost:5432/llrpmsgdb
 	
 		[[i]] Set the username to <<llrp>> and the password to <<llrp>>.
 		
-		[[i]] Restart the LLRP Commander.
+		[[i]] Click on the button "Test". If no error occurs, the "Switch" button is enabled and you can switch your backend at runtime. 
+		
+		[[i]] Although the LLRP Commander supports "on-the-fly" exchange of the repository, we recommend you to restart eclipse in order to load the new configuration from scratch.
 	
 	
 	

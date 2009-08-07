@@ -6,8 +6,8 @@
     <href>http://www.fosstrak.org/</href>
   </bannerLeft>
   <skin>
-    <groupId>org.apache.maven.skins</groupId>
-    <artifactId>maven-stylus-skin</artifactId>
+    <groupId>org.fosstrak.mavenskin</groupId>
+    <artifactId>mavenskin-default</artifactId>
     <version>1.0</version>
   </skin>
   <poweredBy>
@@ -44,7 +44,7 @@
 			<!--<item name="Installation and Configuration" href="docs/user-installation.html"/>
 		</item>-->
 		
-		<item name="Developer Guide" href="docs/developer-index.html" collapse="true">
+		<item name="Developer Guide" href="docs/developer-index.html" collapse="false">
                         <item name="Installation" href="docs/developer-installation.html" collapse="false"/>
 			<item name="GUI" href="docs/developer-gui.html" collapse="true">
 				<item name="Graphical Editor" href="docs/developer-graphical.html"/>
@@ -59,6 +59,7 @@
 				<item name="Adaptors" href="docs/developer-adaptors.html"/>
 				<item name="Readers" href="docs/developer-readers.html"/>
 			</item>
+			<item name="Repository" href="docs/developer-repository.html" collapse="true"/>
 			<item name="JavaDoc" href="apidocs/index.html" collapse="true"/>
 		</item>
 	</menu>  
