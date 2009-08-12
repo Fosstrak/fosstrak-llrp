@@ -799,6 +799,47 @@ public class ResourceCenter {
 		return (null == result) ? false : true;
 	}
 	
+	/**
+	 * writes a chunk of data to a folder within a requested file.
+	 * @param folder the folder where to write to. if null uses "temporary".
+	 * @param fileName the file name where to write to. if null, abort.
+	 * @param msg the data chunk to be written.
+	 * @return the file handle interface of the written file.
+	 * @throws Exception when there is a problem.
+	 */
+	public IFile writeMessageToFile(String folder, 
+			String fileName, String msg) throws Exception {
+		
+		if (null == folder) folder = ResourceCenter.REPO_SUBFOLDER;
+		if (null == msg) return null;
+		
+		if (null == fileName) fileName = String.format(
+				"%d.csv", System.currentTimeMillis());
+		
+		IProject project = getEclipseProject();
+		
+		// open if necessary
+		if (project.exists() && !project.isOpen())
+			project.open(null);
+		
+		IFolder repoFolder = project.getFolder(folder);
+		if (!repoFolder.exists()) {
+			repoFolder.create(true, true, null);
+		}
+		IFile msgFile = repoFolder.getFile(fileName);
+		
+		if (!msgFile.exists()) {
+			InputStream is = 
+				new ByteArrayInputStream(msg.getBytes());
+			msgFile.create(is, false, null);
+		}
+		return msgFile;
+	}
+	
+	/**
+	 * writes the content of the given id into a temporary file.
+	 * @param aMsgId the message id to write to file.
+	 */
 	public void writeMessageToFile(String aMsgId) {
 		
 		if (null == aMsgId) {
@@ -808,32 +849,15 @@ public class ResourceCenter {
 		
 		String content = getMessageContent(aMsgId);
 		
-		try {
-	      
-			IProject project = getEclipseProject();
-
-			// open if necessary
-			if (project.exists() && !project.isOpen())
-				project.open(null);
-
-			IFolder repoFolder = project.getFolder(ResourceCenter.REPO_SUBFOLDER);
-			if (repoFolder.exists()) {
-				
-				IFile msgFile = repoFolder.getFile(aMsgId + ".llrp");
-				
-				if (!msgFile.exists()) {
-					InputStream is = 
-						new ByteArrayInputStream(content.getBytes());
-					msgFile.create(is, false, null);
-				}
+		try {IFile msgFile = writeMessageToFile(
+					ResourceCenter.REPO_SUBFOLDER, aMsgId + ".llrp", content);
+			// Open new file in editor
+			IWorkbench workbench = PlatformUI.getWorkbench();
+			IWorkbenchPage page = 
+				workbench.getActiveWorkbenchWindow().getActivePage();
 			
-				// Open new file in editor
-				IWorkbench workbench = PlatformUI.getWorkbench();
-				IWorkbenchPage page = workbench.getActiveWorkbenchWindow().getActivePage();
-				
-				IDE.openEditor(page, msgFile, "org.fosstrak.llrp.commander.editors.LLRPEditor", true);
-
-			}
+			IDE.openEditor(page, msgFile, 
+					"org.fosstrak.llrp.commander.editors.LLRPEditor", true);
 		} catch (Exception e) {
 			e.printStackTrace();
 		}

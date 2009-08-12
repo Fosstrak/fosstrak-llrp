@@ -219,13 +219,13 @@ Example PostgreSQL:
 		[[i]] Example how to fetch all the entries already logged into the database:
 
 +---+	
->> result = get(fetch(exec(conn, 'SELECT * FROM TABLE_RO_ACCESS_REPORTS')), 'Data');
+>> result = get(fetch(exec(conn, 'SELECT * FROM table_ro_access_reports')), 'Data');
 +---+
 	
 		[[i]] Example how to fetch all the EPCs:
 
 +---+
->> result = get(fetch(exec(conn, 'SELECT count(EPC) FROM TABLE_RO_ACCESS_REPORTS')), 'Data');
+>> result = get(fetch(exec(conn, 'SELECT count(EPC) FROM table_ro_access_reports')), 'Data');
 +---+
 	
 		[[i]] Example how to display the results:

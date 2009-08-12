@@ -21,19 +21,30 @@
 
 package org.fosstrak.llrp.commander.views.roaccess;
 
-import java.sql.Connection;
+import java.sql.Timestamp;
 import java.util.List;
 
 import org.apache.log4j.Logger;
 import org.eclipse.jface.action.Action;
 import org.eclipse.jface.action.IMenuManager;
+import org.eclipse.jface.action.IToolBarManager;
+import org.eclipse.jface.dialogs.MessageDialog;
 import org.eclipse.jface.viewers.ColumnLayoutData;
 import org.eclipse.jface.viewers.ColumnWeightData;
+import org.eclipse.jface.viewers.DoubleClickEvent;
+import org.eclipse.jface.viewers.IDoubleClickListener;
+import org.eclipse.jface.viewers.IStructuredSelection;
 import org.eclipse.jface.viewers.TableViewer;
 import org.eclipse.jface.viewers.Viewer;
 import org.eclipse.jface.viewers.ViewerComparator;
 import org.eclipse.swt.widgets.Composite;
 import org.eclipse.swt.widgets.Display;
+import org.eclipse.swt.widgets.Table;
+import org.eclipse.swt.widgets.TableItem;
+import org.eclipse.ui.IActionBars;
+import org.eclipse.ui.IExportWizard;
+import org.eclipse.ui.ISharedImages;
+import org.eclipse.ui.PlatformUI;
 import org.fosstrak.llrp.adaptor.AdaptorManagement;
 import org.fosstrak.llrp.client.MessageHandler;
 import org.fosstrak.llrp.client.ROAccessReportsRepository;
@@ -75,6 +86,9 @@ public class ROAccessReportsView extends TableViewPart implements MessageHandler
 	// clear the database from the messages.
 	private Action actionClearDB;
 	
+	// export the content to a CSV file.
+	private Action actionExportAsCSV;
+	
 	// whether to log or not.
 	private boolean enabled = false;
 	
@@ -94,7 +108,18 @@ public class ROAccessReportsView extends TableViewPart implements MessageHandler
 		
 		setColumnHeaders(columnHeaders);
 		setColumnLayouts(columnLayouts);
+	}
+
+	@Override
+	public void createPartControl(Composite parent) {
+		super.createPartControl(parent);
 		
+		display = parent.getDisplay();
+		
+		TableViewer viewer = getViewer();
+		viewer.setLabelProvider(new ROAccessReportsLabelProvider());
+		viewer.setComparator(new ROAccessItemComparator());
+
 		final MessageHandler h = this;
 		
 		actionEnable = new Action() {
@@ -188,19 +213,79 @@ public class ROAccessReportsView extends TableViewPart implements MessageHandler
 		actionClearDB.setText("Clear Database");
 		actionClearDB.setToolTipText(
 				"Delete all the messages from the database.");
-	}
-
-	@Override
-	public void createPartControl(Composite parent) {
-		super.createPartControl(parent);
 		
-		display = parent.getDisplay();
+		getViewer().addDoubleClickListener(new IDoubleClickListener() {
+			public void doubleClick(DoubleClickEvent event) {
+				
+				IStructuredSelection sel = (IStructuredSelection) event.getSelection();
+				if (sel.getFirstElement() instanceof ROAccessItem) {
+					new DetailsDialog(
+							getViewer().getControl().getShell(),
+							(ROAccessItem) sel.getFirstElement()
+							).open();
+				}
+			}
+		});
 		
-		TableViewer viewer = getViewer();
-		viewer.setLabelProvider(new ROAccessReportsLabelProvider());
-		viewer.setComparator(new ROAccessItemComparator());
-
+		
+		actionExportAsCSV = new Action() {
+			@Override
+			public void run() {
+				try {
+					String folder = "csv";
+					String fileName = String.format(
+							"%s.csv",	
+							new Timestamp(System.currentTimeMillis()
+									).toString());
+					ResourceCenter.getInstance().writeMessageToFile(
+									folder, 
+									fileName, 
+									asCSV());
+					
+					MessageDialog.openInformation(
+							getViewer().getControl().getShell(), 
+							"CSV Export", String.format("Exported to file %s/%s", 
+									folder, fileName));
+				} catch (Exception e) {
+					MessageDialog.openWarning(
+							getViewer().getControl().getShell(),
+							"CSV Export", "Could not write csv");
+					e.printStackTrace();
+				}
+			}
+		};
+		actionExportAsCSV.setText("Save as CSV");
+		actionExportAsCSV.setImageDescriptor(
+				PlatformUI.getWorkbench().getSharedImages().getImageDescriptor(
+						ISharedImages.IMG_ETOOL_SAVE_EDIT));
+		
+		IActionBars bars = getViewSite().getActionBars();
+		IToolBarManager man = bars.getToolBarManager();
+		man.add(actionExportAsCSV);
+		
+		
 		viewer.refresh();
+	}
+	
+	/**
+	 * @return the content of the table as a comma-separated-values string.
+	 */
+	public String asCSV() {
+		StringBuffer str = new StringBuffer();
+		String [][] clm = DerbyROAccessReportsRepository.COLUMN_NAMES_AND_TYPES;
+		for (int i=0; i<clm.length; i++) {
+			str.append(String.format("%s,", clm[i][0]));
+		}
+		str.append("\n");
+		
+		Table table = getViewer().getTable();
+		for (TableItem item : table.getItems()) {
+			if (item.getData() instanceof ROAccessItem) {
+				ROAccessItem ro = (ROAccessItem) item.getData();
+				str.append(ro.getAsCSV()); str.append("\n");
+			}
+		}
+		return str.toString();
 	}
 
 	public void handle(String adaptorName, String readerName,

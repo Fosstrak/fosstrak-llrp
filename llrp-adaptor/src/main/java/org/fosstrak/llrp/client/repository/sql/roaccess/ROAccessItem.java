@@ -21,7 +21,6 @@
 
 package org.fosstrak.llrp.client.repository.sql.roaccess;
 
-import java.sql.Date;
 import java.sql.Timestamp;
 import java.util.LinkedList;
 import java.util.List;
@@ -527,4 +526,87 @@ public class ROAccessItem {
 	public void setAccessSpecID(Long accessSpecID) {
 		this.accessSpecID = accessSpecID;
 	}
+	
+	/**
+	 * returns the item requested by the column index used in 
+	 * {@link AbstractSQLROAccessReportsRepository}. We recommend to use 
+	 * those constants.
+	 * @param index the index to use.
+	 * @return the object requested.
+	 */
+	public Object get(int index) {
+		switch (index) {
+		case AbstractSQLROAccessReportsRepository.CINDEX_LOGTIME:
+			return getLogTime();
+		case AbstractSQLROAccessReportsRepository.CINDEX_ADAPTER:
+			return getAdapterName();
+		case AbstractSQLROAccessReportsRepository.CINDEX_READER:
+			return getReaderName();
+		case AbstractSQLROAccessReportsRepository.CINDEX_EPC:
+			return getEpc();
+		case AbstractSQLROAccessReportsRepository.CINDEX_ROSpecID:
+			return getRoSpecID();
+		case AbstractSQLROAccessReportsRepository.CINDEX_SpecIndex:
+			return getSpecIndex();
+		case AbstractSQLROAccessReportsRepository.CINDEX_InventoryParameterSpecID:
+			return getInventoryPrmSpecID();
+		case AbstractSQLROAccessReportsRepository.CINDEX_AntennaID:
+			return getAntennaID();
+		case AbstractSQLROAccessReportsRepository.CINDEX_PeakRSSI:
+			return getPeakRSSI();
+		case AbstractSQLROAccessReportsRepository.CINDEX_ChannelIndex:
+			return getChannelIndex();
+		case AbstractSQLROAccessReportsRepository.CINDEX_FirstSeenTimestampUTC:
+			return getFirstSeenUTC();
+		case AbstractSQLROAccessReportsRepository.CINDEX_FirstSeenTimestampUptime:
+			return getFirstSeenUptime();
+		case AbstractSQLROAccessReportsRepository.CINDEX_LastSeenTimestampUTC:
+			return getLastSeenUTC();
+		case AbstractSQLROAccessReportsRepository.CINDEX_LastSeenTimestampUptime:
+			return getLastSeenUptime();
+		case AbstractSQLROAccessReportsRepository.CINDEX_TagSeenCount:
+			return getTagSeenCount();
+		case AbstractSQLROAccessReportsRepository.CINDEX_C1G2_CRC:
+			return getC1g2_CRC();
+		case AbstractSQLROAccessReportsRepository.CINDEX_C1G2_PC:
+			return getC1g2_PC();
+		case AbstractSQLROAccessReportsRepository.CINDEX_AccessSpecID:
+			return getAccessSpecID();
+		}
+		return null;
+	}
+	
+	/**
+	 * returns a string representation of the requested element. use the indices 
+	 * defined in {@link AbstractSQLROAccessReportsRepository}.
+	 * @param index the column index to use.
+	 * @return the string representation or null if exception.
+	 */
+	public String getAsString(int index) {
+		String ret;
+		try {
+			return get(index).toString();
+		} catch (Exception e) {
+			// null pointer if object is null
+			ret = null;
+		}
+		return ret;
+	}
+	
+	/**
+	 * @return generates a comma-separated-values representation of this item.
+	 */
+	public String getAsCSV() {
+		StringBuffer str = new StringBuffer();
+		final int len = AbstractSQLROAccessReportsRepository.NUM_COLUMNS + 1;
+		for (int i=1; i<len; i++) {
+			String s = getAsString(i);
+			if (null != s) {
+				str.append(s);
+			}
+			str.append(",");
+		}
+		return str.toString();
+	}
+	
 }

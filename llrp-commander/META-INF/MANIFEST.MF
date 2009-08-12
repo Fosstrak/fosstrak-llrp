@@ -45,5 +45,6 @@ Bundle-ClassPath: .,
  lib/slf4j-log4j12-1.5.0.jar,
  lib/mysql-connector-java-5.1.6.jar,
  lib/postgresql-8.3-603.jdbc4.jar,
+ lib/tdt-0.9.0.jar,
  target/classes/
  

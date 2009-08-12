@@ -110,7 +110,7 @@ public abstract class AbstractSQLRepository implements Repository {
 	public static final String DB_NAME = "llrpMsgDB";
 	
 	/** the name of the LLRP message repository table. */
-	public static final String TABLE_LLRP_REPOSITORY = "LLRP_MSG";
+	public static final String TABLE_LLRP_REPOSITORY = "llrp_msg";
 	
 	// the log4j logger.
 	private static Logger log = Logger.getLogger(AbstractSQLRepository.class);

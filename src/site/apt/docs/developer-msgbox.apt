@@ -109,7 +109,7 @@ public void clearAll()
 	We implemented the JavaDB Repostory on Sun JavaDB (oringinally Derby) 
 	engine. When JavaDBRepostory starts up, it checks the existence of defined 
 	database <<llrpMsgDB>>. If it doesn’t exist, it creates the database 
-	instance and the table <<LLRP_MSG>>. 
+	instance and the table <<llrp_msg>>. 
 	
 	
 * {view}
