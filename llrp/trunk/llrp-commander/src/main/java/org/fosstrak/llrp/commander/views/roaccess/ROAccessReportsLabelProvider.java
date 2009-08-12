@@ -24,7 +24,6 @@ package org.fosstrak.llrp.commander.views.roaccess;
 import org.eclipse.jface.viewers.ITableLabelProvider;
 import org.eclipse.jface.viewers.LabelProvider;
 import org.eclipse.swt.graphics.Image;
-import org.fosstrak.llrp.client.repository.sql.roaccess.AbstractSQLROAccessReportsRepository;
 import org.fosstrak.llrp.client.repository.sql.roaccess.ROAccessItem;
 
 /**
@@ -43,53 +42,13 @@ public class ROAccessReportsLabelProvider extends LabelProvider implements
 		
 		if (arg0 instanceof ROAccessItem) {
 			ROAccessItem item = (ROAccessItem) arg0;
-			index++;	// increase by one to fit to derby index.
 
-			try {
-				switch (index) {
-				case AbstractSQLROAccessReportsRepository.CINDEX_LOGTIME:
-					return item.getLogTime().toString();
-				case AbstractSQLROAccessReportsRepository.CINDEX_ADAPTER:
-					return item.getAdapterName();
-				case AbstractSQLROAccessReportsRepository.CINDEX_READER:
-					return item.getReaderName();
-				case AbstractSQLROAccessReportsRepository.CINDEX_EPC:
-					return item.getEpc();
-				case AbstractSQLROAccessReportsRepository.CINDEX_ROSpecID:
-					return item.getRoSpecID().toString();
-				case AbstractSQLROAccessReportsRepository.CINDEX_SpecIndex:
-					return item.getSpecIndex().toString();
-				case AbstractSQLROAccessReportsRepository.CINDEX_InventoryParameterSpecID:
-					return item.getInventoryPrmSpecID().toString();
-				case AbstractSQLROAccessReportsRepository.CINDEX_AntennaID:
-					return item.getAntennaID().toString();
-				case AbstractSQLROAccessReportsRepository.CINDEX_PeakRSSI:
-					return item.getPeakRSSI().toString();
-				case AbstractSQLROAccessReportsRepository.CINDEX_ChannelIndex:
-					return item.getChannelIndex().toString();
-				case AbstractSQLROAccessReportsRepository.CINDEX_FirstSeenTimestampUTC:
-					return item.getFirstSeenUTC().toString();
-				case AbstractSQLROAccessReportsRepository.CINDEX_FirstSeenTimestampUptime:
-					return item.getFirstSeenUptime().toString();
-				case AbstractSQLROAccessReportsRepository.CINDEX_LastSeenTimestampUTC:
-					return item.getLastSeenUTC().toString();
-				case AbstractSQLROAccessReportsRepository.CINDEX_LastSeenTimestampUptime:
-					return item.getLastSeenUptime().toString();
-				case AbstractSQLROAccessReportsRepository.CINDEX_TagSeenCount:
-					return item.getTagSeenCount().toString();
-				case AbstractSQLROAccessReportsRepository.CINDEX_C1G2_CRC:
-					return item.getC1g2_CRC().toString();
-				case AbstractSQLROAccessReportsRepository.CINDEX_C1G2_PC:
-					return item.getC1g2_PC().toString();
-				case AbstractSQLROAccessReportsRepository.CINDEX_AccessSpecID:
-					return item.getAccessSpecID().toString();
-				}
-			} catch (Exception e) {
-				// values might be null..
-				return "";
+			// increase by one to fit to derby index.
+			String str = item.getAsString(index + 1);
+			if (null != str) {
+				return str;
 			}
 		}
 		return "";
 	}
-
 }

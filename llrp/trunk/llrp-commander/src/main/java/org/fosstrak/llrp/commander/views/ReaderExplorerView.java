@@ -21,17 +21,46 @@
 
 package org.fosstrak.llrp.commander.views;
 
-import org.eclipse.swt.widgets.Composite;
-import org.eclipse.ui.part.*;
-import org.eclipse.jface.viewers.*;
-import org.eclipse.jface.window.Window;
-import org.eclipse.jface.action.*;
+import java.rmi.NotBoundException;
+import java.rmi.RemoteException;
+
+import org.apache.log4j.Logger;
+import org.eclipse.jface.action.Action;
+import org.eclipse.jface.action.IMenuListener;
+import org.eclipse.jface.action.IMenuManager;
+import org.eclipse.jface.action.IToolBarManager;
+import org.eclipse.jface.action.MenuManager;
+import org.eclipse.jface.action.Separator;
 import org.eclipse.jface.dialogs.IInputValidator;
 import org.eclipse.jface.dialogs.InputDialog;
 import org.eclipse.jface.dialogs.MessageDialog;
-import org.eclipse.ui.*;
-import org.eclipse.swt.widgets.Menu;
+import org.eclipse.jface.viewers.DoubleClickEvent;
+import org.eclipse.jface.viewers.IDoubleClickListener;
+import org.eclipse.jface.viewers.ISelectionChangedListener;
+import org.eclipse.jface.viewers.IStructuredSelection;
+import org.eclipse.jface.viewers.SelectionChangedEvent;
+import org.eclipse.jface.viewers.TreeViewer;
+import org.eclipse.jface.window.Window;
 import org.eclipse.swt.SWT;
+import org.eclipse.swt.widgets.Composite;
+import org.eclipse.swt.widgets.Menu;
+import org.eclipse.ui.IActionBars;
+import org.eclipse.ui.ISharedImages;
+import org.eclipse.ui.PlatformUI;
+import org.eclipse.ui.part.DrillDownAdapter;
+import org.eclipse.ui.part.ViewPart;
+import org.fosstrak.llrp.adaptor.Adaptor;
+import org.fosstrak.llrp.adaptor.AdaptorManagement;
+import org.fosstrak.llrp.adaptor.Reader;
+import org.fosstrak.llrp.adaptor.exception.LLRPRuntimeException;
+import org.fosstrak.llrp.commander.ExceptionHandler;
+import org.fosstrak.llrp.commander.ResourceCenter;
+import org.fosstrak.llrp.commander.dialogs.AddFCDialog;
+import org.fosstrak.llrp.commander.dialogs.AddReaderDialog;
+import org.fosstrak.llrp.commander.dialogs.ReaderSettingsDialog;
+import org.fosstrak.llrp.commander.util.LLRPConstraints;
+import org.fosstrak.llrp.commander.util.LLRPFactory;
+import org.fosstrak.llrp.commander.util.LLRPRangeConstraint;
 import org.llrp.ltk.generated.messages.DELETE_ACCESSSPEC;
 import org.llrp.ltk.generated.messages.DELETE_ROSPEC;
 import org.llrp.ltk.generated.messages.DISABLE_ACCESSSPEC;
@@ -42,20 +71,6 @@ import org.llrp.ltk.generated.messages.START_ROSPEC;
 import org.llrp.ltk.generated.messages.STOP_ROSPEC;
 import org.llrp.ltk.types.LLRPMessage;
 import org.llrp.ltk.types.UnsignedInteger;
-
-import org.fosstrak.llrp.adaptor.Adaptor;
-import org.fosstrak.llrp.adaptor.AdaptorManagement;
-import org.fosstrak.llrp.adaptor.Reader;
-import org.fosstrak.llrp.adaptor.exception.LLRPRuntimeException;
-import org.fosstrak.llrp.commander.*;
-import org.fosstrak.llrp.commander.dialogs.*;
-import org.fosstrak.llrp.commander.util.LLRPConstraints;
-import org.fosstrak.llrp.commander.util.LLRPFactory;
-import org.fosstrak.llrp.commander.util.LLRPRangeConstraint;
-import org.apache.log4j.Logger;
-
-import java.rmi.NotBoundException;
-import java.rmi.RemoteException;
 
 /**
  * The Reader Management View. It embeds one <code>TreeViewer</code>, and
@@ -860,11 +875,6 @@ public class ReaderExplorerView extends ViewPart {
 				}
 			}
 		});
-	}
-
-	private void showMessage(String message) {
-		MessageDialog.openInformation(viewer.getControl().getShell(),
-				"Reader Explorer", message);
 	}
 
 	/**

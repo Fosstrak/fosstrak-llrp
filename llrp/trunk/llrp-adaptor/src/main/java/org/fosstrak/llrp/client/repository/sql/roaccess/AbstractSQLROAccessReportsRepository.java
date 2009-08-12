@@ -69,7 +69,7 @@ public abstract class AbstractSQLROAccessReportsRepository implements ROAccessRe
 	
 	/** the name of the RO_ACCESS_REPORTS table. */
 	public static final String TABLE_RO_ACCESS_REPORTS 
-		= "TABLE_RO_ACCESS_REPORTS";
+		= "table_ro_access_reports";
 	
 	// NOTICE: COLUMN INDEX IN DERBY BEGINS WITH 1
 	/** column index of the log time.*/ 
@@ -247,7 +247,7 @@ public abstract class AbstractSQLROAccessReportsRepository implements ROAccessRe
 	
 	/**
 	 * checks whether the required tables exist or not.
-	 * @return true if everything is ok, false otherwise.
+	 * @return true if everything is OK, false otherwise.
 	 */
 	protected boolean checkIfTableOk() {		
 		// we try to make a SQL query. if it fails, we assume the table to be dead...
@@ -261,7 +261,9 @@ public abstract class AbstractSQLROAccessReportsRepository implements ROAccessRe
 			}
 			final int len = NUM_COLUMNS;
 			if (n < len) {
-				throw new SQLException("missing fields");
+				throw new SQLException(
+						String.format("missing fields. %d instead of %d.",
+							n, len));
 			}
 			 
 		} catch (SQLException e) {
