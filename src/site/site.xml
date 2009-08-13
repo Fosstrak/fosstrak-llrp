@@ -49,7 +49,6 @@
 			<item name="GUI" href="docs/developer-gui.html" collapse="true">
 				<item name="Graphical Editor" href="docs/developer-graphical.html"/>
 				<item name="XML / Binary Editor" href="docs/developer-xml.html"/>
-				<item name="Message Box" href="docs/developer-msgbox.html"/>
 				<item name="Navigator" href="docs/developer-navigator.html"/>
 				<item name="Reader Explorer" href="docs/developer-explorer.html"/>
 				<item name="Wizard" href="docs/developer-wizard.html"/>
