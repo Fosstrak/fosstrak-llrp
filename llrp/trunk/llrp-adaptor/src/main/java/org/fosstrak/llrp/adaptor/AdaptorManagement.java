@@ -497,6 +497,8 @@ public class AdaptorManagement {
 								HOST_ADDRESS = localMachine.getHostAddress();
 							}
 							catch (java.net.UnknownHostException uhe) {
+								log.debug("hmmm, what happened? " +
+										"This should not occur here :-).");
 							}
 							adaptorName = HOST_NAME_PREFIX + HOST_ADDRESS;
 						}
@@ -668,6 +670,7 @@ public class AdaptorManagement {
 			} catch (Exception e) {
 				// these two exceptions only occur in remote adaptors. 
 				// therefore we can safely ignore them
+				log.debug("hmmm, what happened? This should not occur here :-).");
 			}
 		}
 		return (AdaptorImpl)getAdaptor(DEFAULT_ADAPTOR_NAME);
@@ -979,33 +982,31 @@ public class AdaptorManagement {
 							}
 							
 							// only create the readers when the adaptor has been created successfully
-							if (adaptorCreated) {
-								// if the adaptor is remote, we just retrieve the readers. 
-								if (adaptorConfiguration.isLocal()) {
-									// get a handle of the adaptor and register all the readers.
-									Adaptor adaptor = getAdaptor(adaptorName);
-									
-									if (adaptorConfiguration.getReaderPrototypes() != null) {
-										for (ReaderConfiguration readerConfiguration : adaptorConfiguration.getReaderPrototypes()) {
-											
-											String readerName = readerConfiguration.getReaderName();
-											String readerIp = readerConfiguration.getReaderIp();
-											int readerPort = readerConfiguration.getReaderPort();
-											boolean readerClientInitiated = readerConfiguration.isReaderClientInitiated();
-											boolean connectImmediately = readerConfiguration.isConnectImmediately();
-											
-											log.debug(String.format("Load llrp reader: '%s' on '%s:%d', clientInitiatedConnection: %b, connectImmediately: %b", 
-													readerName, readerIp, readerPort, readerClientInitiated, connectImmediately));
-											
-											// create the reader
-											try {
-												// try to establish the connection immediately
-												adaptor.define(readerName, readerIp, readerPort, readerClientInitiated, connectImmediately);
-												log.debug(String.format("reader '%s' successfully created", readerName));
-											} catch (RemoteException e) {
-												log.error(String.format("could not create reader '%s'", readerName));
-												e.printStackTrace();
-											}
+							// and if the adaptor is remote, we just retrieve the readers. 
+							if ((adaptorCreated) && (adaptorConfiguration.isLocal())) {
+								// get a handle of the adaptor and register all the readers.
+								Adaptor adaptor = getAdaptor(adaptorName);
+								
+								if (adaptorConfiguration.getReaderPrototypes() != null) {
+									for (ReaderConfiguration readerConfiguration : adaptorConfiguration.getReaderPrototypes()) {
+										
+										String readerName = readerConfiguration.getReaderName();
+										String readerIp = readerConfiguration.getReaderIp();
+										int readerPort = readerConfiguration.getReaderPort();
+										boolean readerClientInitiated = readerConfiguration.isReaderClientInitiated();
+										boolean connectImmediately = readerConfiguration.isConnectImmediately();
+										
+										log.debug(String.format("Load llrp reader: '%s' on '%s:%d', clientInitiatedConnection: %b, connectImmediately: %b", 
+												readerName, readerIp, readerPort, readerClientInitiated, connectImmediately));
+										
+										// create the reader
+										try {
+											// try to establish the connection immediately
+											adaptor.define(readerName, readerIp, readerPort, readerClientInitiated, connectImmediately);
+											log.debug(String.format("reader '%s' successfully created", readerName));
+										} catch (RemoteException e) {
+											log.error(String.format("could not create reader '%s'", readerName));
+											e.printStackTrace();
 										}
 									}
 								}

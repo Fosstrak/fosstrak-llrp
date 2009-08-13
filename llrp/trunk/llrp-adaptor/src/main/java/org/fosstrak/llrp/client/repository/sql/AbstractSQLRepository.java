@@ -524,9 +524,10 @@ public abstract class AbstractSQLRepository implements Repository {
 		int rowcount = 0;
 		try {
 			Statement stmt = conn.createStatement();
-			String query = "SELECT COUNT(*) FROM LLRP_MSG";
+			String query = "";
 			if (null == adaptor) {
 				// all OK
+				query = "SELECT COUNT(*) FROM LLRP_MSG";
 			} else if (null == reader) {
 				// restrict to adaptor
 				query = String.format("%s WHERE ADAPTER='%s'", query, adaptor);
@@ -535,12 +536,14 @@ public abstract class AbstractSQLRepository implements Repository {
 						query, adaptor, reader);
 			}
 			ResultSet resultSet = stmt.executeQuery(query);
-	    
-	        // Get the number of rows from the result set
-	        resultSet.next();
-	        rowcount = resultSet.getInt(1);
-	        stmt.close();
-	        resultSet.close();
+
+			// Get the number of rows from the result set
+			if (resultSet.next()) {
+				rowcount = resultSet.getInt(1);
+			}
+
+			stmt.close();
+			resultSet.close();
 		} catch (SQLException e) {
 			log.error("Could not retrieve the number of messages: " + 
 					e.getMessage());
