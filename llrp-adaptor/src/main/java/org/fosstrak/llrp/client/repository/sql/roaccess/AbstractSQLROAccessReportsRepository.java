@@ -42,7 +42,6 @@ import org.fosstrak.llrp.client.repository.sql.DerbyRepository;
 import org.llrp.ltk.generated.messages.RO_ACCESS_REPORT;
 import org.llrp.ltk.types.LLRPMessage;
 import org.llrp.ltk.types.UnsignedLong;
-import org.llrp.ltk.types.UnsignedLong_DATETIME;
 
 /**
  * Gives access to the database holding logged RO_ACCESS_REPORTS. There are 
@@ -494,7 +493,7 @@ public abstract class AbstractSQLROAccessReportsRepository implements ROAccessRe
 	}
 
 	/**
-	 * Creates a TimeStamp object from a {@link UnsignedLong_DATETIME} object.
+	 * Creates a TimeStamp object from a {@link UnsignedLong} object.
 	 * @param ulong the unsigned long TimeStamp object.
 	 * @return a SQL {@link Timestamp} object.
 	 */

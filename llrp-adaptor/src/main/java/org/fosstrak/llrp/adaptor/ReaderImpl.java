@@ -566,6 +566,9 @@ public class ReaderImpl extends UnicastRemoteObject implements LLRPEndpoint, Rea
 							try {
 								sendLLRPMessage(msg);
 							} catch (RemoteException e) {
+								log.debug(String.format(
+										"Could not send message: %s", 
+										e.getMessage()));
 							}
 						}
 					}

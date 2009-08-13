@@ -60,6 +60,7 @@ public class AdaptorCallback extends UnicastRemoteObject implements Asynchronous
 				// java 1.4. since java 1.5 the stub gets auto-generated and so 
 				// there is no stub available -> exception. we can safely 
 				// ignore this exception.
+				System.out.println("ignoring exception as with java > 5 ok.");
 			} catch (RemoteException e) {
 				e.printStackTrace();
 			}

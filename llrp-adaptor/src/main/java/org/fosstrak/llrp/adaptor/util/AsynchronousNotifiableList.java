@@ -80,11 +80,9 @@ public class AsynchronousNotifiableList implements AsynchronousNotifiable {
 		public void error() {
 			errors++;
 			
-			if (NUM_NON_RECHABLE_ALLOWED < errors) {
-				if (null == erroneous) {
-					erroneous = new LinkedList<Receiver> ();
-					erroneous.add(this);
-				}
+			if ((NUM_NON_RECHABLE_ALLOWED < errors) && (null == erroneous)) {
+				erroneous = new LinkedList<Receiver> ();
+				erroneous.add(this);
 			}
 		}
 		
