@@ -89,10 +89,9 @@ public class DeleteParameterAction extends Action implements ISelectionChangedLi
 		ISelection incoming = event.getSelection();
 		if (incoming instanceof IStructuredSelection){
 			selection = (IStructuredSelection) incoming;
-			if (selection.size() == 1){
-				if(selection.getFirstElement() instanceof LLRPParameter){
-					enable = true;
-				}
+			if ((selection.size() == 1) && 
+					(selection.getFirstElement() instanceof LLRPParameter)){
+				enable = true;
 			}
 		}
 		setEnabled(enable);

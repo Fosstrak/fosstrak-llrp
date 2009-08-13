@@ -25,7 +25,7 @@ import java.util.Observable;
 import java.util.Observer;
 
 import org.eclipse.ui.forms.IManagedForm;
-import org.eclipse.ui.forms.editor.*;
+import org.eclipse.ui.forms.editor.FormPage;
 import org.eclipse.ui.forms.widgets.ScrolledForm;
 import org.fosstrak.llrp.commander.editors.LLRPEditor;
 import org.fosstrak.llrp.commander.util.LLRPTreeMaintainer;
@@ -107,13 +107,9 @@ public class GraphicalEditorPage extends FormPage implements Observer {
 	}
 
 	public void update(Observable arg0, Object arg1) {
-		if (arg0 == treeMaintainer){
-			if (dirty == false){
-				dirty = true;
-				editor.markXMLEditorAsDirty();
-			}
+		if ((arg0 == treeMaintainer) && (!dirty)){
+			dirty = true;
+			editor.markXMLEditorAsDirty();
 		}
-		
 	}
-	
 }

@@ -34,11 +34,6 @@ import org.eclipse.ui.editors.text.TextEditor;
  * @version 1.0
  */
 public class XMLEditor extends TextEditor {
-
-	/**
-	 * Log4j instance.
-	 */
-	private static Logger log = Logger.getLogger(XMLEditor.class);
 	
 	private ColorManager colorManager;
 

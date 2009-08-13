@@ -29,7 +29,6 @@ import java.util.Iterator;
 import java.util.Map;
 import java.util.Set;
 
-import org.apache.log4j.Logger;
 import org.eclipse.swt.SWT;
 import org.eclipse.swt.events.SelectionAdapter;
 import org.eclipse.swt.events.SelectionEvent;
@@ -70,11 +69,6 @@ public class SendMessageDialog extends org.eclipse.jface.dialogs.Dialog {
 	// the previously selected readers
 	private Map<String, Set<String> > previouslySelected = 
 		new HashMap<String, Set<String> > ();
-	
-	/**
-	 * Log4j instance.
-	 */
-	private static Logger log = Logger.getLogger(SendMessageDialog.class);
 	
 	private ProgressBar progressBar;
 	

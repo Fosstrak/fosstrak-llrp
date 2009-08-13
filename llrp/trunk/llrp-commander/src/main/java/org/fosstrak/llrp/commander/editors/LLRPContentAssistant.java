@@ -21,24 +21,24 @@
 
 package org.fosstrak.llrp.commander.editors;
 
-import java.util.*;
+import java.util.Iterator;
+import java.util.List;
 
-import org.apache.log4j.Logger;
-import org.eclipse.jface.text.*;
-import org.eclipse.jface.text.contentassist.*;
+import org.eclipse.jface.text.IDocument;
+import org.eclipse.jface.text.IRegion;
+import org.eclipse.jface.text.ITextViewer;
+import org.eclipse.jface.text.contentassist.CompletionProposal;
+import org.eclipse.jface.text.contentassist.ICompletionProposal;
+import org.eclipse.jface.text.contentassist.IContentAssistProcessor;
+import org.eclipse.jface.text.contentassist.IContextInformation;
+import org.eclipse.jface.text.contentassist.IContextInformationValidator;
 
 /**
 * ...
 * @author zhanghao
 *
 */
-public class LLRPContentAssistant implements IContentAssistProcessor {
-	
-	/**
-	 * Log4j instance.
-	 */
-	private static Logger log = Logger.getLogger(LLRPContentAssistant.class);
-	
+public class LLRPContentAssistant implements IContentAssistProcessor {	
 	
 	public ICompletionProposal[] computeCompletionProposals(ITextViewer viewer,
 			int documentOffset) {
