@@ -26,6 +26,7 @@ import org.eclipse.jface.window.Window;
 import org.eclipse.swt.SWT;
 import org.eclipse.swt.events.SelectionAdapter;
 import org.eclipse.swt.events.SelectionEvent;
+import org.eclipse.swt.graphics.Color;
 import org.eclipse.swt.layout.GridData;
 import org.eclipse.swt.layout.GridLayout;
 import org.eclipse.swt.widgets.Button;
@@ -33,6 +34,7 @@ import org.eclipse.swt.widgets.Composite;
 import org.eclipse.swt.widgets.Control;
 import org.eclipse.swt.widgets.Label;
 import org.eclipse.swt.widgets.Shell;
+import org.eclipse.swt.widgets.Text;
 import org.fosstrak.llrp.adaptor.AdaptorManagement;
 import org.fosstrak.llrp.adaptor.ReaderMetaData;
 
@@ -64,36 +66,22 @@ public class ReaderSettingsDialog extends Dialog {
 	protected Control createContents(Composite parent) {
 	
 		GridLayout layout = new GridLayout();
-		layout.numColumns = 3;
-		
-		GridData gridLabel = new GridData(GridData.FILL_BOTH);
-		gridLabel.verticalSpan = 1;
-		gridLabel.horizontalSpan = 1;
-		gridLabel.heightHint=20;
-		gridLabel.widthHint = 250;
-		
-		GridData gridText = new GridData(GridData.FILL_BOTH);
-		gridText.verticalSpan = 1;
-		gridText.horizontalSpan = 2;
-		gridText.heightHint=20;
-		gridText.widthHint = 150;
+		layout.numColumns = 2;
 		
 		parent.getShell().setLayout(layout);
 		parent.getShell().setText("Messagebox View Options");
 		
 		GridData gridAll = new GridData(GridData.FILL_BOTH);
 		gridAll.verticalSpan = 1;
-		gridAll.horizontalSpan = 3;
-		gridAll.widthHint = 400;
-		gridAll.heightHint=20;
-			
+		gridAll.horizontalSpan = 2;
+		
 		final Button logKAMsg = new Button(parent, SWT.CHECK);
 		logKAMsg.setText("Log Keep-Alive Messages");
 		// we need to create a special grid data object for the check-box 
 		// without width-hint as otherwise the check-box will not be displayed 
 		// in *nix ...
 		GridData gridDataKAMsg = new GridData();
-		gridDataKAMsg.horizontalSpan = 3;
+		gridDataKAMsg.horizontalSpan = 2;
 		logKAMsg.setLayoutData(gridDataKAMsg);
 		
 		try {
@@ -110,113 +98,127 @@ public class ReaderSettingsDialog extends Dialog {
 			ReaderMetaData metaData = AdaptorManagement.getInstance().
 				getAdaptor(adaptor).getReader(reader).getMetaData();
 			
-			Label lbl = new Label(parent, SWT.NONE);
-			lbl.setLayoutData(gridLabel);
-			lbl.setText("Reader Name:");
-			Label txt = new Label(parent, SWT.NONE);
-			txt.setLayoutData(gridText);
-			txt.setText(metaData.getReaderName());
+			final Text[] txts = new Text[14];
+			final Label[] lbls = new Label[14];
+			int i=0;
 			
-			lbl = new Label(parent, SWT.NONE);
-			lbl.setLayoutData(gridLabel);
-			lbl.setText("Reader Address:");
-			txt = new Label(parent, SWT.NONE);
-			txt.setLayoutData(gridText);
-			txt.setText(metaData.getReaderAddress());
+			lbls[i] = new Label(parent, SWT.NONE);
+			lbls[i].setText("Reader Name:");
+			txts[i] = new Text(parent, SWT.NONE);
+			txts[i].setText(metaData.getReaderName());
+			i++;
 			
-			lbl = new Label(parent, SWT.NONE);
-			lbl.setLayoutData(gridLabel);
-			lbl.setText("Port:");
-			txt = new Label(parent, SWT.NONE);
-			txt.setLayoutData(gridText);
-			txt.setText(String.format("%d", metaData.getPort()));
+			lbls[i] = new Label(parent, SWT.NONE);
+			lbls[i].setText("Reader Address:");
+			txts[i] = new Text(parent, SWT.NONE);
+			txts[i].setText(metaData.getReaderAddress());
+			i++;
 			
-			lbl = new Label(parent, SWT.NONE);
-			lbl.setLayoutData(gridLabel);
-			lbl.setText("Is Alive:");
-			txt = new Label(parent, SWT.NONE);
-			txt.setLayoutData(gridText);
-			txt.setText(String.format("%b", metaData.isAlive()));
+			lbls[i] = new Label(parent, SWT.NONE);
+			lbls[i].setText("Port:");
+			txts[i] = new Text(parent, SWT.NONE);
+			txts[i].setText(String.format("%d", metaData.getPort()));
+			i++;
 			
-			lbl = new Label(parent, SWT.NONE);
-			lbl.setLayoutData(gridLabel);
-			lbl.setText("Connected to Reader:");
-			txt = new Label(parent, SWT.NONE);
-			txt.setLayoutData(gridText);
-			txt.setText(String.format("%b", metaData.isConnected()));
+			lbls[i] = new Label(parent, SWT.NONE);
+			lbls[i].setText("Is Alive:");
+			txts[i] = new Text(parent, SWT.NONE);
+			txts[i].setText(String.format("%b", metaData.isAlive()));
+			i++;
 			
-			lbl = new Label(parent, SWT.NONE);
-			lbl.setLayoutData(gridLabel);
-			lbl.setText("Connect immediately:");
-			txt = new Label(parent, SWT.NONE);
-			txt.setLayoutData(gridText);
-			txt.setText(String.format("%b", metaData.isConnectImmediately()));
+			lbls[i] = new Label(parent, SWT.NONE);
+			lbls[i].setText("Connected to Reader:");
+			txts[i] = new Text(parent, SWT.NONE);
+			txts[i].setText(String.format("%b", metaData.isConnected()));
+			i++;
 			
-			lbl = new Label(parent, SWT.NONE);
-			lbl.setLayoutData(gridLabel);
-			lbl.setText("Client initiated:");
-			txt = new Label(parent, SWT.NONE);
-			txt.setLayoutData(gridText);
-			txt.setText(String.format("%b", metaData.isClientInitiated()));
+			lbls[i] = new Label(parent, SWT.NONE);
+			lbls[i].setText("Connect immediately:");
+			txts[i] = new Text(parent, SWT.NONE);
+			txts[i].setText(String.format("%b", metaData.isConnectImmediately()));
+			i++;
 			
-			lbl = new Label(parent, SWT.NONE);
-			lbl.setLayoutData(gridLabel);
-			lbl.setText("Report Keepalive:");
-			txt = new Label(parent, SWT.NONE);
-			txt.setLayoutData(gridText);
-			txt.setText(String.format("%b", metaData.isReportKeepAlive()));
+			lbls[i] = new Label(parent, SWT.NONE);
+			lbls[i].setText("Client initiated:");
+			txts[i] = new Text(parent, SWT.NONE);
+			txts[i].setText(String.format("%b", metaData.isClientInitiated()));
+			i++;
 			
-			lbl = new Label(parent, SWT.NONE);
-			lbl.setLayoutData(gridLabel);
-			lbl.setText("Packages sent:");
-			txt = new Label(parent, SWT.NONE);
-			txt.setLayoutData(gridText);
-			txt.setText(String.format("%d", metaData.getPackagesSent()));
+			lbls[i] = new Label(parent, SWT.NONE);
+			lbls[i].setText("Report Keepalive:");
+			txts[i] = new Text(parent, SWT.NONE);
+			txts[i].setText(String.format("%b", metaData.isReportKeepAlive()));
+			i++;
 			
-			lbl = new Label(parent, SWT.NONE);
-			lbl.setLayoutData(gridLabel);
-			lbl.setText("Packages received:");
-			txt = new Label(parent, SWT.NONE);
-			txt.setLayoutData(gridText);
-			txt.setText(String.format("%d", metaData.getPackagesReceived()));
+			lbls[i] = new Label(parent, SWT.NONE);
+			lbls[i].setText("Packages sent:");
+			txts[i] = new Text(parent, SWT.NONE);
+			txts[i].setText(String.format("%d", metaData.getPackagesSent()));
+			i++;
 			
-			lbl = new Label(parent, SWT.NONE);
-			lbl.setLayoutData(gridLabel);
-			lbl.setText("Packages Current Session sent:");
-			txt = new Label(parent, SWT.NONE);
-			txt.setLayoutData(gridText);
-			txt.setText(String.format("%d", metaData.getPackagesCurrentSessionSent()));
+			lbls[i] = new Label(parent, SWT.NONE);
+			lbls[i].setText("Packages received:");
+			txts[i] = new Text(parent, SWT.NONE);
+			txts[i].setText(String.format("%d", metaData.getPackagesReceived()));
+			i++;
 			
-			lbl = new Label(parent, SWT.NONE);
-			lbl.setLayoutData(gridLabel);
-			lbl.setText("Packages Current Session received:");
-			txt = new Label(parent, SWT.NONE);
-			txt.setLayoutData(gridText);
-			txt.setText(String.format("%d", metaData.getPackagesCurrentSessionReceived()));
+			lbls[i] = new Label(parent, SWT.NONE);
+			lbls[i].setText("Packages Current Session sent:");
+			txts[i] = new Text(parent, SWT.NONE);
+			txts[i].setText(String.format("%d", metaData.getPackagesCurrentSessionSent()));
+			i++;
 			
-			lbl = new Label(parent, SWT.NONE);
-			lbl.setLayoutData(gridLabel);
-			lbl.setText("Allowed Keepalive misses:");
-			txt = new Label(parent, SWT.NONE);
-			txt.setLayoutData(gridText);
-			txt.setText(String.format("%d", metaData.getAllowNKeepAliveMisses()));
+			lbls[i] = new Label(parent, SWT.NONE);
+			lbls[i].setText("Packages Current Session received:");
+			txts[i] = new Text(parent, SWT.NONE);
+			txts[i].setText(String.format("%d", metaData.getPackagesCurrentSessionReceived()));
+			i++;
 			
-			lbl = new Label(parent, SWT.NONE);
-			lbl.setLayoutData(gridLabel);
-			lbl.setText("Keepalive Period:");
-			txt = new Label(parent, SWT.NONE);
-			txt.setLayoutData(gridText);
-			txt.setText(String.format("%d", metaData.getKeepAlivePeriod()));
+			lbls[i] = new Label(parent, SWT.NONE);
+			lbls[i].setText("Allowed Keepalive misses:");
+			txts[i] = new Text(parent, SWT.NONE);
+			txts[i].setText(String.format("%d", metaData.getAllowNKeepAliveMisses()));
+			i++;
+			
+			lbls[i] = new Label(parent, SWT.NONE);
+			lbls[i].setText("Keepalive Period:");
+			txts[i] = new Text(parent, SWT.NONE);
+			txts[i].setText(String.format("%d", metaData.getKeepAlivePeriod()));
+			
+			if (null != txts) {
+				Color color = getShell().getDisplay().getSystemColor(
+						SWT.COLOR_WHITE);
+				for (int j=0; j<txts.length; j++) {
+					if (null != txts[j]) {
+						txts[j].setEditable(false);
+						txts[j].setFont(parent.getFont());
+						txts[j].setBackground(color);
+					}
+				}
+			}
+			if (null != lbls) {
+				for (int j=0; j<lbls.length; j++) {
+					if (null != lbls[j]) {
+						lbls[j].setFont(parent.getFont());
+					}
+				}
+			}
 		} catch (Exception ex) {
 			ex.printStackTrace();
 		}
-		
 
-		final Button btnOK = new Button(parent, SWT.PUSH);
+		Composite buttonGroup = new Composite(parent, SWT.NONE);
+		buttonGroup.setFont(parent.getFont());
+		buttonGroup.setLayout(layout);
+
+		final Button btnOK = new Button(buttonGroup, SWT.PUSH);
 		btnOK.setText("OK");
-		btnOK.setLayoutData(gridLabel);
 		// set the keyboard focus
 		btnOK.setFocus();
+		btnOK.setFont(parent.getFont());
+		GridData gd = new GridData();
+		gd.widthHint = 75;
+		btnOK.setLayoutData(gd);
 		
 		btnOK.addSelectionListener(new SelectionAdapter() {
 		      public void widgetSelected(SelectionEvent e) {
@@ -233,15 +235,16 @@ public class ReaderSettingsDialog extends Dialog {
 		    });
 
 		
-		final Button btnCancel = new Button(parent, SWT.PUSH);
+		final Button btnCancel = new Button(buttonGroup, SWT.PUSH);
 		btnCancel.setText("Cancel");
-		btnCancel.setLayoutData(gridLabel);
 		btnCancel.addSelectionListener(new SelectionAdapter() {
 		      public void widgetSelected(SelectionEvent e) {
 		    	  setReturnCode(Window.CANCEL);
 		    	  close();
 		      }
 		    });
+		btnCancel.setFont(parent.getFont());
+		btnCancel.setLayoutData(gd);
 		
 		parent.pack();
 		return parent;

@@ -21,7 +21,8 @@
 
 package org.fosstrak.llrp.commander.views.roaccess;
 
-import java.sql.Timestamp;
+import java.text.SimpleDateFormat;
+import java.util.Date;
 import java.util.List;
 
 import org.apache.log4j.Logger;
@@ -42,7 +43,6 @@ import org.eclipse.swt.widgets.Display;
 import org.eclipse.swt.widgets.Table;
 import org.eclipse.swt.widgets.TableItem;
 import org.eclipse.ui.IActionBars;
-import org.eclipse.ui.IExportWizard;
 import org.eclipse.ui.ISharedImages;
 import org.eclipse.ui.PlatformUI;
 import org.fosstrak.llrp.adaptor.AdaptorManagement;
@@ -234,9 +234,9 @@ public class ROAccessReportsView extends TableViewPart implements MessageHandler
 				try {
 					String folder = "csv";
 					String fileName = String.format(
-							"%s.csv",	
-							new Timestamp(System.currentTimeMillis()
-									).toString());
+							"%s.csv",
+							new SimpleDateFormat(
+							"yyyy-MMM-dd-HH-mm-ss-SSS").format(new Date()));
 					ResourceCenter.getInstance().writeMessageToFile(
 									folder, 
 									fileName, 
