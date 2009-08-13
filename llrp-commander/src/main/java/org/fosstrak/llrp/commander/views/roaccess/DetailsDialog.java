@@ -8,6 +8,7 @@ import org.eclipse.jface.window.Window;
 import org.eclipse.swt.SWT;
 import org.eclipse.swt.events.SelectionAdapter;
 import org.eclipse.swt.events.SelectionEvent;
+import org.eclipse.swt.graphics.Color;
 import org.eclipse.swt.layout.GridData;
 import org.eclipse.swt.layout.GridLayout;
 import org.eclipse.swt.widgets.Button;
@@ -47,10 +48,11 @@ public class DetailsDialog extends Dialog {
 		gridAll.horizontalSpan = 2;
 		
 		String[][] cnt = DerbyROAccessReportsRepository.COLUMN_NAMES_AND_TYPES;
-		
+		Color color = getShell().getDisplay().getSystemColor(
+				SWT.COLOR_WHITE);
 		for (int i=0; i<cnt.length; i++) {
 			final Label lbl = new Label(parent, SWT.NONE);
-			lbl.setText(cnt[i][0]);
+			lbl.setText(cnt[i][0] + ": ");
 			lbl.setFont(parent.getFont());
 			
 			final Text txt = new Text(parent, SWT.NONE);
@@ -58,6 +60,7 @@ public class DetailsDialog extends Dialog {
 			if (null == s) s = "";
 			txt.setText(s);
 			txt.setEditable(false);
+			txt.setBackground(color);
 			
 			if (!s.equalsIgnoreCase("") && 
 					(AbstractSQLROAccessReportsRepository.CINDEX_EPC == i+1)) {
@@ -75,12 +78,14 @@ public class DetailsDialog extends Dialog {
 							LevelTypeList.PURE_IDENTITY);
 					
 					final Label lblEPC = new Label(parent, SWT.NONE);
-					lblEPC.setText("   decoded as epc-pure");
+					lblEPC.setText("   decoded as epc-pure: ");
 					lblEPC.setFont(parent.getFont());
 					
 					final Text txtEPC = new Text(parent, SWT.NONE);
 					txtEPC.setText(asEPC);
 					txtEPC.setFont(parent.getFont());
+					txtEPC.setEditable(false);
+					txtEPC.setBackground(color);
 					
 					String asTag = tdt.convert(
 							binary, 
@@ -88,13 +93,14 @@ public class DetailsDialog extends Dialog {
 							LevelTypeList.TAG_ENCODING);
 					
 					final Label lblTag = new Label(parent, SWT.NONE);
-					lblTag.setText("   decoded as epc-tag");
+					lblTag.setText("   decoded as epc-tag: ");
 					lblTag.setFont(parent.getFont());
 					
 					final Text txtTag = new Text(parent, SWT.NONE);
 					txtTag.setText(asTag);
 					txtTag.setFont(parent.getFont());
-					
+					txtTag.setEditable(false);
+					txtTag.setBackground(color);
 				} catch (Exception e) {
 					log.debug(String.format("Could not translate epc: '%s'",
 							e.getMessage()));
