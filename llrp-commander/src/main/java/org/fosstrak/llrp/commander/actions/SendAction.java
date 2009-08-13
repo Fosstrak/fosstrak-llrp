@@ -21,7 +21,6 @@
 
 package org.fosstrak.llrp.commander.actions;
 
-import org.apache.log4j.Logger;
 import org.eclipse.jface.action.IAction;
 import org.eclipse.jface.viewers.ISelection;
 import org.eclipse.ui.IWorkbenchWindow;
@@ -38,14 +37,6 @@ import org.fosstrak.llrp.commander.dialogs.SendMessageDialog;
  * @see IWorkbenchWindowActionDelegate
  */
 public class SendAction implements IWorkbenchWindowActionDelegate {
-	
-	/**
-	 * Log4j instance.
-	 */
-	private static Logger log = Logger.getLogger(SendMessageDialog.class);
-	
-	private IWorkbenchWindow window;
-
 
 	/**
 	 * The action has been activated. The argument of the
@@ -81,6 +72,5 @@ public class SendAction implements IWorkbenchWindowActionDelegate {
 	 * @see IWorkbenchWindowActionDelegate#init
 	 */
 	public void init(IWorkbenchWindow window) {
-		this.window = window;
 	}
 }

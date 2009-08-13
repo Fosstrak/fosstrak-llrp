@@ -42,11 +42,6 @@ import org.eclipse.jface.text.contentassist.ContentAssistant;
 */
 public class XMLConfiguration extends SourceViewerConfiguration {
 	
-	/**
-	 * Log4j instance.
-	 */
-	private static Logger log = Logger.getLogger(XMLConfiguration.class);
-	
 	private XMLDoubleClickStrategy doubleClickStrategy;
 	private XMLTagScanner tagScanner;
 	private XMLScanner scanner;

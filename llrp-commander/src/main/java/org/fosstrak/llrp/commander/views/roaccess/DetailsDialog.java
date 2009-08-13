@@ -21,7 +21,6 @@ import org.epcglobalinc.tdt.LevelTypeList;
 import org.fosstrak.llrp.client.repository.sql.roaccess.AbstractSQLROAccessReportsRepository;
 import org.fosstrak.llrp.client.repository.sql.roaccess.DerbyROAccessReportsRepository;
 import org.fosstrak.llrp.client.repository.sql.roaccess.ROAccessItem;
-import org.fosstrak.llrp.commander.views.ReaderExplorerView;
 import org.fosstrak.tdt.TDTEngine;
 
 public class DetailsDialog extends Dialog {
@@ -61,6 +60,7 @@ public class DetailsDialog extends Dialog {
 			txt.setText(s);
 			txt.setEditable(false);
 			txt.setBackground(color);
+			txt.setFont(parent.getFont());
 			
 			if (!s.equalsIgnoreCase("") && 
 					(AbstractSQLROAccessReportsRepository.CINDEX_EPC == i+1)) {
@@ -118,16 +118,17 @@ public class DetailsDialog extends Dialog {
 //		txt.setText(item.getAsCSV());
 //		
 //		
-//		final Button btnOk = new Button(parent, SWT.PUSH);
-//		btnOk.setText("Close");
-//		btnOk.setLayoutData(gridAll);
-//		btnOk.addSelectionListener(new SelectionAdapter() {
-//		      public void widgetSelected(SelectionEvent e) {
-//		    	  setReturnCode(Window.OK);
-//		    	  close();
-//		      }
-//		    });
-//		
+		final Button btnOk = new Button(parent, SWT.PUSH);
+		btnOk.setText("Close");
+		btnOk.setFont(parent.getFont());
+		btnOk.setLayoutData(gridAll);
+		btnOk.addSelectionListener(new SelectionAdapter() {
+		      public void widgetSelected(SelectionEvent e) {
+		    	  setReturnCode(Window.OK);
+		    	  close();
+		      }
+		    });
+		
 		parent.pack();
 		return parent;
 	}

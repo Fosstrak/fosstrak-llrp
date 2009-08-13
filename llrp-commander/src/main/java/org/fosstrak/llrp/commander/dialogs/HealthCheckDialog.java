@@ -22,7 +22,7 @@
 package org.fosstrak.llrp.commander.dialogs;
 
 import java.util.Iterator;
-import org.apache.log4j.Logger;
+
 import org.eclipse.swt.SWT;
 import org.eclipse.swt.events.SelectionAdapter;
 import org.eclipse.swt.events.SelectionEvent;
@@ -35,7 +35,9 @@ import org.eclipse.swt.widgets.Control;
 import org.eclipse.swt.widgets.Label;
 import org.eclipse.swt.widgets.List;
 import org.eclipse.swt.widgets.Shell;
-import org.fosstrak.llrp.commander.check.*;
+import org.fosstrak.llrp.commander.check.CheckEclipseProject;
+import org.fosstrak.llrp.commander.check.CheckRepository;
+import org.fosstrak.llrp.commander.check.HealthCheck;
 
 /**
 * Dialog displaying the results of the sanity-checks. 
@@ -44,11 +46,6 @@ import org.fosstrak.llrp.commander.check.*;
 *
 */
 public class HealthCheckDialog extends org.eclipse.jface.dialogs.Dialog {
-	
-	/**
-	 * Log4j instance.
-	 */
-	private static Logger log = Logger.getLogger(HealthCheckDialog.class);
 	
 	private HealthCheck healthCheck;
 	

@@ -238,12 +238,6 @@ public class LLRPEditor extends FormEditor {
 				}
 			}
 		}
-		else if (oldPageIndex == PAGE_XML){
-			// do nothing
-		}
-		else if (oldPageIndex == PAGE_BINARY){
-			// do nothing
-		}
 		
 		// update the new page with the content from the xml editor
 		if (aNewPageIndex == PAGE_GRAPHICS){
@@ -253,9 +247,6 @@ public class LLRPEditor extends FormEditor {
 				showSwitchErrorMessage();
 				return;
 			}
-		}
-		else if (aNewPageIndex == PAGE_XML){
-			// do nothing
 		}
 		else if (aNewPageIndex == PAGE_BINARY){
 			boolean success = updateBinaryViewer();
@@ -296,11 +287,9 @@ public class LLRPEditor extends FormEditor {
 	 * Here the XML Editor Page save the content.
 	 */
 	public void doSave(IProgressMonitor aMonitor) {
-		if (getActivePage() == PAGE_GRAPHICS){
-			if (!commitGraphicalEditor()){
-				showSaveErrorMessage();
-				return;
-			}
+		if ((getActivePage() == PAGE_GRAPHICS) && (!commitGraphicalEditor())){
+			showSaveErrorMessage();
+			return;
 		}
 		textEditor.doSave(aMonitor);
 	}
@@ -316,11 +305,9 @@ public class LLRPEditor extends FormEditor {
 	 * Here the XML Editor Page save as the content.
 	 */
 	public void doSaveAs() {
-		if (getActivePage() == PAGE_GRAPHICS){
-			if (!commitGraphicalEditor()){
-				showSaveErrorMessage();
-				return;
-			}
+		if ((getActivePage() == PAGE_GRAPHICS) && (!commitGraphicalEditor())){
+			showSaveErrorMessage();
+			return;
 		}
 		textEditor.doSaveAs();
 		setInput(textEditor.getEditorInput());
