@@ -46,14 +46,14 @@
 		
 		<item name="Developer Guide" href="docs/developer-index.html" collapse="false">
                         <item name="Installation" href="docs/developer-installation.html" collapse="false"/>
-			<item name="GUI" href="docs/developer-gui.html" collapse="true">
+			<item name="GUI" href="docs/developer-gui.html" collapse="false">
 				<item name="Graphical Editor" href="docs/developer-graphical.html"/>
 				<item name="XML / Binary Editor" href="docs/developer-xml.html"/>
 				<item name="Navigator" href="docs/developer-navigator.html"/>
 				<item name="Reader Explorer" href="docs/developer-explorer.html"/>
 				<item name="Wizard" href="docs/developer-wizard.html"/>
 			</item>
-			<item name="Management" href="docs/developer-mgmt.html" collapse="true">
+			<item name="Management" href="docs/developer-mgmt.html" collapse="false">
 				<item name="Adaptor Management" href="docs/developer-adaptormanagement.html"/>
 				<item name="Adaptors" href="docs/developer-adaptors.html"/>
 				<item name="Readers" href="docs/developer-readers.html"/>
