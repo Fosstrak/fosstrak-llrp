@@ -3,7 +3,7 @@
 		<title>Changes LLRP Commander</title>
 	</properties>
 	<body>
-		<release version="1.1.0" date="2009-08-XX" description="Bugfix and feature release">
+		<release version="1.1.0" date="2009-08-14" description="Bugfix and feature release">
 			<action dev="sawielan" type="add">
 				Use maven assembly descriptor to assemble instead of the pde-maven-plugin.
 	    	</action>
