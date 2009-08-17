@@ -1,0 +1,200 @@
+<project xmlns="http://maven.apache.org/POM/4.0.0" xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance" xsi:schemaLocation="http://maven.apache.org/POM/4.0.0 http://maven.apache.org/maven-v4_0_0.xsd">
+
+
+	<!-- =========================================================== -->
+	<!-- Basics                                                      -->
+	<!-- =========================================================== -->
+
+	<groupId>org.fosstrak.llrp</groupId>
+	<artifactId>llrp_commander</artifactId>
+	<version>1.0.1</version>
+	<parent>
+		<artifactId>llrp</artifactId>
+		<groupId>org.fosstrak.llrp</groupId>
+		<version>1.0.1</version>
+	</parent>
+	<packaging>jar</packaging>
+	<modelVersion>4.0.0</modelVersion>
+	<!--
+		maven-pde-plugin has a problem with "-" therefore use underscore
+	-->
+	<name>llrp_commander</name>
+
+	<!-- =========================================================== -->
+	<!-- Dependencies                                                -->
+	<!-- =========================================================== -->
+
+	<dependencies>
+		<dependency>
+			<groupId>org.fosstrak.llrp</groupId>
+			<artifactId>llrp-adaptor</artifactId>
+			<version>1.0.1</version>
+			<scope>compile</scope>
+		</dependency>
+	    	<dependency>
+	      		<groupId>org.fosstrak.tdt</groupId>
+	      		<artifactId>tdt</artifactId>
+	      		<version>0.9.0</version>
+	    	</dependency>		
+		<dependency>
+			<groupId>velocity</groupId>
+			<artifactId>velocity</artifactId>
+			<version>1.4</version>
+			<scope>compile</scope>
+		</dependency>
+		<dependency>
+			<groupId>velocity</groupId>
+			<artifactId>velocity-dep</artifactId>
+			<version>1.4</version>
+			<scope>compile</scope>
+		</dependency>
+		<dependency>
+			<groupId>commons-configuration</groupId>
+			<artifactId>commons-configuration</artifactId>
+			<version>1.5</version>
+			<scope>compile</scope>
+		</dependency>
+		<dependency>
+			<groupId>commons-lang</groupId>
+			<artifactId>commons-lang</artifactId>
+			<version>2.4</version>
+			<scope>compile</scope>
+		</dependency>
+		<dependency>
+			<groupId>org.apache.mina</groupId>
+			<artifactId>mina-core</artifactId>
+			<version>1.1.7</version>
+			<scope>compile</scope>
+		</dependency>
+		<dependency>
+			<groupId>junit</groupId>
+			<artifactId>junit</artifactId>
+			<version>4.4</version>
+			<scope>compile</scope>
+		</dependency>
+		<!-- eclipse dependencies -->
+		<dependency>
+			<groupId>org.eclipse.ui</groupId>
+			<artifactId>ide</artifactId>
+			<version>3.4.2</version>
+		</dependency>
+		<dependency>
+			<groupId>org.eclipse.equinox</groupId>
+			<artifactId>registry</artifactId>
+			<version>3.4.0</version>
+		</dependency>
+		<dependency>
+			<groupId>org.eclipse</groupId>
+			<artifactId>jface</artifactId>
+			<version>3.4.2</version>
+		</dependency>
+		<dependency>
+			<groupId>org.eclipse.core</groupId>
+			<artifactId>commands</artifactId>
+			<version>3.4.0</version>
+		</dependency>
+		<dependency>
+			<groupId>org.eclipse</groupId>
+			<artifactId>ui</artifactId>
+			<version>3.4.2</version>
+		</dependency>
+		<dependency>
+			<groupId>org.eclipse.ui</groupId>
+			<artifactId>editors</artifactId>
+			<version>3.4.0</version>
+		</dependency>
+		<dependency>
+			<groupId>org.eclipse.ui</groupId>
+			<artifactId>forms</artifactId>
+			<version>3.3.103</version>
+		</dependency>
+		<dependency>
+			<groupId>org.eclipse</groupId>
+			<artifactId>swt</artifactId>
+			<version>3.4.2</version>
+		</dependency>
+		<!-- 
+			please set the swt dependency to the one of you OS.
+			Notice: for the plugin runtime this dependency is not 
+			required, so the plugin will be plattform independant!
+		-->
+		<!-- linux 64bit -->
+		<!--<dependency>
+			<groupId>org.eclipse.swt.gtk.linux</groupId>
+			<artifactId>x86_64</artifactId>
+			<version>3.4.1</version>
+		</dependency>-->
+		<!-- linux 32bit -->
+		<!--
+		<dependency>
+			<groupId>org.eclipse.swt.gtk.linux</groupId>
+			<artifactId>x86_64</artifactId>
+			<version>3.4.1</version>
+		</dependency>
+		-->
+		<!-- os x -->
+		<!-- 
+		<dependency>
+			<groupId>org.eclipse.swt.carbon</groupId>
+			<artifactId>macosx</artifactId>
+			<version>3.4.1</version>
+		</dependency>
+		-->
+		<!-- windows -->
+		<dependency>
+			<groupId>org.eclipse.swt.win32.win32</groupId>
+			<artifactId>x86</artifactId>
+			<version>3.4.1</version>
+		</dependency>		
+	</dependencies>
+
+	<!-- =========================================================== -->
+	<!-- Build settings                                              -->
+	<!-- =========================================================== -->
+	<build>
+		<plugins>
+			<plugin>
+				<groupId>org.apache.maven.plugins</groupId>
+				<artifactId>maven-assembly-plugin</artifactId>
+				<configuration>
+					<descriptors>
+						<descriptor>src/main/assembly/bin.xml</descriptor>
+						<!-- <descriptor>src/main/assembly/rcp.xml</descriptor> -->
+					</descriptors>
+				</configuration>
+				<executions>
+					<execution>
+						<id>make-assembly</id>
+						<phase>package</phase>
+						<goals>
+							<goal>single</goal>
+						</goals>
+					</execution>
+				</executions>
+			</plugin>
+
+			<plugin>
+				<groupId>org.apache.maven.plugins</groupId>
+				<artifactId>maven-dependency-plugin</artifactId>
+				<version>2.0</version>
+				<executions>
+					<execution>
+						<id>copy-dependencies</id>
+						<phase>process-sources</phase>
+						<goals>
+							<goal>copy-dependencies</goal>
+						</goals>
+						<configuration>
+							<outputDirectory>${build.directory}/lib</outputDirectory>
+							<overWriteReleases>false</overWriteReleases>
+							<overWriteSnapshots>false</overWriteSnapshots>
+							<overWriteIfNewer>true</overWriteIfNewer>
+							<excludeTransitive>false</excludeTransitive>
+						</configuration>
+					</execution>
+				</executions>
+			</plugin>
+		</plugins>
+	</build>
+</project>
+

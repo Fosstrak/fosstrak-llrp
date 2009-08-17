@@ -1,0 +1,34 @@
+       ------
+                                    Developers guide - GUI
+                                    ------
+                                    ------
+
+
+Developers guide - GUI
+
+* Content
+	
+	[[1]] {{{#Overview}Overview}}	
+	
+
+* {Overview}
+
+	The GUI chapter shall give you an overview to the implementation of all the 
+	GUI elements.
+	
+	It is structured into 6 subchapters:
+	 
+	* <<Graphical Editor>>
+	
+	* <<XML/Binary Editor>>
+	
+	* <<Message Box>>
+	
+	* <<Navigator>>
+	
+	* <<Reader Explorer>>
+	
+	* <<Wizard>>
+	
+	
+
