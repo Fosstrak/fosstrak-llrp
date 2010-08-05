@@ -24,6 +24,7 @@ package org.fosstrak.llrp.adaptor.util;
 import java.rmi.RemoteException;
 import java.util.LinkedList;
 import java.util.List;
+import java.util.concurrent.ConcurrentLinkedQueue;
 
 import org.fosstrak.llrp.adaptor.AsynchronousNotifiable;
 import org.fosstrak.llrp.adaptor.exception.LLRPRuntimeException;
@@ -45,7 +46,7 @@ public class AsynchronousNotifiableList implements AsynchronousNotifiable {
 	public static final int NUM_NON_RECHABLE_ALLOWED = 3;
 	
 	/** erroneous receivers that will be removed during cleanup. */
-	private LinkedList<Receiver> erroneous = null;
+	private ConcurrentLinkedQueue<Receiver> erroneous = null;
 	
 	/**
 	 * internal wrapper class that helps counting the errors...
@@ -81,7 +82,7 @@ public class AsynchronousNotifiableList implements AsynchronousNotifiable {
 			errors++;
 			
 			if ((NUM_NON_RECHABLE_ALLOWED < errors) && (null == erroneous)) {
-				erroneous = new LinkedList<Receiver> ();
+				erroneous = new ConcurrentLinkedQueue<Receiver> ();
 				erroneous.add(this);
 			}
 		}
