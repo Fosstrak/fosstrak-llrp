@@ -3,6 +3,9 @@
 		<title>Changes LLRP Adaptor</title>
 	</properties>
 	<body>
+		<release version="1.1.1" date="2009-08-14" description="Bugfix and feature release">
+			<action dev="sawielan" type="fix" issue="3040179">concurrency issue in the class org.fosstrak.llrp.adaptor.util.AsynchronousNotifiableList</action>
+		</release>
 		<release version="1.1.0" date="2009-08-14" description="Bugfix and feature release">
 			<action dev="sawielan" type="fix">Move all the repository code into the llrp adapter.</action>
 			<action dev="sawielan" type="fix">Refactor repository interface into a more generic repository, allowing the generation of any kinds of repository. Implement new types of repositories (MySQLRepository, PostgreSQLRepository).</action>
