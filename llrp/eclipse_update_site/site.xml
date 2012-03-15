@@ -1,0 +1,7 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<site>
+   <feature url="features/org.fosstrak.llrp.llrp_commander_feature_1.1.0.jar" id="org.fosstrak.llrp.llrp_commander_feature" version="1.1.0">
+      <category name="org.fosstrak.llrp"/>
+   </feature>
+   <category-def name="org.fosstrak.llrp" label="org.fosstrak.llrp"/>
+</site>
