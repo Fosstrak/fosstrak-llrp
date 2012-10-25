@@ -97,8 +97,8 @@
 					<groupId>org.apache.maven.plugins</groupId>
 					<artifactId>maven-compiler-plugin</artifactId>
 					<configuration>
-						<source>1.5</source>
-						<target>1.5</target>
+						<source>1.6</source>
+						<target>1.6</target>
 					</configuration>
 				</plugin>
 				<plugin>
@@ -130,7 +130,7 @@
 		<repository>
 			<releases>
 				<enabled>true</enabled>
-				<updatePolicy>never</updatePolicy>
+				<updatePolicy>daily</updatePolicy>
 				<checksumPolicy>warn</checksumPolicy>
 			</releases>
 			<snapshots>
@@ -138,21 +138,7 @@
 			</snapshots>
 			<id>fosstrak-repository</id>
 			<name>Fosstrak repository</name>
-			<url>http://maven-repository.fosstrak.org/releases</url>
-			<layout>default</layout>
-		</repository>
-		<repository>
-			<releases>
-				<enabled>false</enabled>
-			</releases>
-			<snapshots>
-				<enabled>true</enabled>
-				<updatePolicy>always</updatePolicy>
-				<checksumPolicy>warn</checksumPolicy>
-			</snapshots>
-			<id>fosstrak-snapshot-repository</id>
-			<name>Fosstrak snapshot repository</name>
-			<url>http://maven-repository.fosstrak.org/snapshots</url>
+			<url>https://oss.sonatype.org/content/repositories/public/</url>
 			<layout>default</layout>
 		</repository>
 	</repositories>
