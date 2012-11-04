@@ -17,7 +17,7 @@
 	<!-- =========================================================== -->
 
 	<modules>
-		<module>llrp-commander</module>
+		<!--<module>llrp-commander</module>-->
 		<module>llrp-adaptor</module>
 	</modules>
 
