@@ -23,6 +23,7 @@ package org.fosstrak.llrp.adaptor.config;
 import java.util.List;
 import java.util.Map;
 
+import org.fosstrak.llrp.adaptor.config.type.AdaptorConfiguration;
 import org.fosstrak.llrp.adaptor.exception.LLRPRuntimeException;
 
 /**

@@ -30,11 +30,13 @@ import java.rmi.registry.Registry;
 import java.util.LinkedList;
 import java.util.List;
 
-import junit.framework.TestCase;
+import junit.framework.Assert;
 
 import org.apache.log4j.Logger;
 import org.jdom.Document;
 import org.jdom.input.SAXBuilder;
+import org.junit.Before;
+import org.junit.Test;
 import org.llrp.ltk.generated.LLRPMessageFactory;
 import org.llrp.ltk.types.LLRPMessage;
 
@@ -53,7 +55,7 @@ import util.AsyncNotif;
  * @author sawielan
  *
  */
-public class AdaptorTest extends TestCase {
+public class AdaptorTest {
 	
 	/** the logger. */
 	private static Logger log = Logger.getLogger(AdaptorTest.class);
@@ -109,21 +111,16 @@ public class AdaptorTest extends TestCase {
 	protected String adaptorName = "myAdaptor";
 	protected String readerName = "myReader";
 
-	
-	protected void setUp() throws Exception {
-		super.setUp();
-		
+	@Before
+	public void setUp() throws Exception {
 		readerList.add(readerName);
-	}
-
-	protected void tearDown() throws Exception {
-		super.tearDown();
 	}
 	
 	/**
 	 * run tests on the local adaptor without rmi.
 	 * @throws Exception whenever there is any type of error.
 	 */
+	@Test
 	public void testLocalAdaptor() throws Exception {		
 		Adaptor adaptor = new AdaptorImpl(adaptorName);
 		// test if getAdaptorName works.
@@ -144,6 +141,7 @@ public class AdaptorTest extends TestCase {
 	 * run test on a remote adaptor with rmi.
 	 * @throws Exception whenever there is any type of error.
 	 */
+	@Test
 	public void testRemoteAdaptor() throws Exception {
 		// create an adaptor an register it through rmi
 		AdaptorImpl serverAdaptor = new AdaptorImpl(Constants.adaptorNameInRegistry);
@@ -182,9 +180,9 @@ public class AdaptorTest extends TestCase {
 	 * @throws Exception whenever there is any type of error.
 	 */
 	protected void assertAdaptorName(String adaptorName, Adaptor adaptor) throws Exception {
-		assertNotNull(adaptor);
-		assertNotNull(adaptor.getAdaptorName());
-		assertEquals(adaptorName, adaptor.getAdaptorName());
+		Assert.assertNotNull(adaptor);
+		Assert.assertNotNull(adaptor.getAdaptorName());
+		Assert.assertEquals(adaptorName, adaptor.getAdaptorName());
 	}
 	
 	/**
@@ -195,7 +193,7 @@ public class AdaptorTest extends TestCase {
 	 * @throws Exception whenever there is any type of error.
 	 */
 	protected void assertContainsReader(boolean expected, String readerName, Adaptor adaptor) throws Exception {
-		assertEquals(expected, adaptor.containsReader(readerName));
+		Assert.assertEquals(expected, adaptor.containsReader(readerName));
 	}
 	
 	/**
@@ -205,8 +203,8 @@ public class AdaptorTest extends TestCase {
 	 * @throws Exception whenever there is any type of error.
 	 */
 	protected void assertGetReaderNames(List<String> expected, Adaptor adaptor) throws Exception {
-		assertNotNull(adaptor.getReaderNames());
-		assertEquals(expected, adaptor.getReaderNames());
+		Assert.assertNotNull(adaptor.getReaderNames());
+		Assert.assertEquals(expected, adaptor.getReaderNames());
 	}
 
 	/**
@@ -233,18 +231,18 @@ public class AdaptorTest extends TestCase {
 		notif.asyncNotifMessage = null;
 		notif.asyncNotifReaderName = null;
 		adaptor.messageReceivedCallback(binaryEncodedMessage, readerName);
-		assertNotNull(notif.asyncNotifMessage);
-		assertTrue(notif.asyncNotifMessage instanceof LLRPMessage);
+		Assert.assertNotNull(notif.asyncNotifMessage);
+		Assert.assertTrue(notif.asyncNotifMessage instanceof LLRPMessage);
 		
-		assertNotNull(notif.asyncNotifReaderName);
-		assertEquals(readerName, notif.asyncNotifReaderName);
+		Assert.assertNotNull(notif.asyncNotifReaderName);
+		Assert.assertEquals(readerName, notif.asyncNotifReaderName);
 		// deregister
  		adaptor.deregisterFromAsynchronous(notif);
 		
 		notif.asyncNotifMessage = null;
 		notif.asyncNotifReaderName = null;
 		adaptor.messageReceivedCallback(binaryEncodedMessage, readerName);
-		assertNull(notif.asyncNotifMessage);
-		assertNull(notif.asyncNotifReaderName);
+		Assert.assertNull(notif.asyncNotifMessage);
+		Assert.assertNull(notif.asyncNotifReaderName);
 	}
 }

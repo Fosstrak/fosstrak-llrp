@@ -19,7 +19,7 @@
  *
  */
 
-package org.fosstrak.llrp.adaptor.config;
+package org.fosstrak.llrp.adaptor.config.type;
 
 /**
  * a prototype holding all the settings needed for a reader.

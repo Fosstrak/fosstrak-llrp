@@ -70,7 +70,7 @@ public class ReaderImpl extends UnicastRemoteObject implements LLRPEndpoint, Rea
 	private static Logger log = Logger.getLogger(ReaderImpl.class);
 	
 	/** the llrp connector to the physical reader. */
-	private LLRPConnection connector = null;
+	private LLRPConnection readerConnection = null;
 	
 	/** the adaptor where the reader belongs to. */
 	private Adaptor adaptor = null;
@@ -153,6 +153,10 @@ public class ReaderImpl extends UnicastRemoteObject implements LLRPEndpoint, Rea
 		metaData.setPort(port);
 	}
 	
+	public ReaderImpl(Adaptor adaptor, String readerName, LLRPConnection connection) throws RemoteException {
+		this.readerConnection = connection;
+	}
+	
 	/* (non-Javadoc)
 	 * @see org.fosstrak.llrp.adaptor.ReaderIface#connect(boolean)
 	 */
@@ -160,46 +164,13 @@ public class ReaderImpl extends UnicastRemoteObject implements LLRPEndpoint, Rea
 	public void connect(boolean clientInitiatedConnection) throws LLRPRuntimeException, RemoteException {
 		// FIXME: need to handle the case when the reader is already connected.
 		try {
-			String address = metaData.getReaderAddress();
 			metaData.setClientInitiated(clientInitiatedConnection);
 			
 			// start a new counter session
 			metaData.newSession();
 			
-			if (clientInitiatedConnection) {
-				if (address == null) {
-					log.error("address for reader '" + metaData.getReaderName() + "' is empty!");
-					reportException(new LLRPRuntimeException("address for reader '" + metaData.getReaderName() + "' is empty!"));
-					return;
-				}
-					
-				// run ltk connector.
-				LLRPConnector connector = new LLRPConnector(this, address, metaData.getPort());
-				connector.getHandler().setKeepAliveAck(true);
-				connector.getHandler().setKeepAliveForward(true);
-				try {
-					connector.connect();
-				} catch (LLRPConnectionAttemptFailedException e) {
-					log.error("connection attempt to reader " + metaData.getReaderName() + " failed");
-					reportException(new LLRPRuntimeException("connection attempt to reader " + metaData.getReaderName() + " failed"));
-				}
-				
-				this.connector = connector;
-			} else {
-				// run the ltk acceptor
-				LLRPAcceptor acceptor = new LLRPAcceptor(this, metaData.getPort());
-				handler = new LLRPIoHandlerAdapterImpl(acceptor);
-				handler.setKeepAliveAck(true);
-				acceptor.getHandler().setKeepAliveForward(true);
-				acceptor.setHandler(handler);
-				try {
-					acceptor.bind();
-				} catch (LLRPConnectionAttemptFailedException e) {
-					log.error("could not bind acceptor for reader " + metaData.getReaderName());
-					reportException(new LLRPRuntimeException("could not bind acceptor for reader " + metaData.getReaderName()	));
-				}
-				
-				this.connector = acceptor;
+			if (readerConnection != null) {
+				readerConnection = prepareConnectionAndConnect();
 			}
 			metaData.setConnected(true);
 			
@@ -217,14 +188,51 @@ public class ReaderImpl extends UnicastRemoteObject implements LLRPEndpoint, Rea
 			
 		} catch (Exception e) {
 			// catch all unexpected errors...
-			LLRPRuntimeException ex = new LLRPRuntimeException(
-					String.format("Could not connect to reader %s on adapter %s:\nException: %s",
-							getReaderName(), adaptor.getAdaptorName(), e.getMessage()));
+			LLRPRuntimeException ex = new LLRPRuntimeException(String.format("Could not connect to reader %s on adapter %s:\nException: %s", getReaderName(), adaptor.getAdaptorName(), e.getMessage()));
 			reportException(ex);
 			throw ex;
 		}
 	}
 	
+	private LLRPConnection prepareConnectionAndConnect() throws LLRPRuntimeException, RemoteException {
+		if (isClientInitiated()) {
+			log.debug("preparing connection in connecting mode with an LLRPConnector");
+			if (metaData.getReaderAddress() == null) {
+				log.error("address for reader '" + metaData.getReaderName() + "' is empty!");
+				LLRPRuntimeException ex = new LLRPRuntimeException("address for reader '" + metaData.getReaderName() + "' is empty!"); 
+				reportException(ex);
+				throw ex;
+			}
+				
+			// run ltk connector.
+			LLRPConnector connector = new LLRPConnector(this, metaData.getReaderAddress(), metaData.getPort());
+			connector.getHandler().setKeepAliveAck(true);
+			connector.getHandler().setKeepAliveForward(true);
+			try {
+				connector.connect();
+			} catch (LLRPConnectionAttemptFailedException e) {
+				log.error("connection attempt to reader " + metaData.getReaderName() + " failed");
+				reportException(new LLRPRuntimeException("connection attempt to reader " + metaData.getReaderName() + " failed"));
+			}
+			
+			return connector;
+		}
+		log.debug("preparing connection in accepting mode with an LLRPAcceptor");
+		// run the ltk acceptor
+		LLRPAcceptor acceptor = new LLRPAcceptor(this, metaData.getPort());
+		handler = new LLRPIoHandlerAdapterImpl(acceptor);
+		handler.setKeepAliveAck(true);
+		acceptor.getHandler().setKeepAliveForward(true);
+		acceptor.setHandler(handler);
+		try {
+			acceptor.bind();
+		} catch (LLRPConnectionAttemptFailedException e) {
+			log.error("could not bind acceptor for reader " + metaData.getReaderName());
+			reportException(new LLRPRuntimeException("could not bind acceptor for reader " + metaData.getReaderName()	));
+		}
+		return acceptor;
+	}
+
 	/* (non-Javadoc)
 	 * @see org.fosstrak.llrp.adaptor.ReaderIface#disconnect()
 	 */
@@ -233,17 +241,17 @@ public class ReaderImpl extends UnicastRemoteObject implements LLRPEndpoint, Rea
 		log.debug("disconnecting the reader.");
 		setReportKeepAlive(false);
 		
-		if (connector != null) {
+		if (readerConnection != null) {
 			try {
-				if (connector instanceof LLRPConnector) {
+				if (readerConnection instanceof LLRPConnector) {
 					// disconnect from the reader.
-					((LLRPConnector)connector).disconnect();
-				} else if (connector instanceof LLRPAcceptor) {
+					((LLRPConnector)readerConnection).disconnect();
+				} else if (readerConnection instanceof LLRPAcceptor) {
 					// close the acceptor.
-					((LLRPAcceptor)connector).close();
+					((LLRPAcceptor)readerConnection).close();
 				}
 			} catch (Exception e) {
-				connector = null;
+				readerConnection = null;
 				log.error("caught exception during disconnect", e);
 			}
 		}
@@ -281,7 +289,7 @@ public class ReaderImpl extends UnicastRemoteObject implements LLRPEndpoint, Rea
 	 */
 	@Override
 	public void send(byte[] message) throws RemoteException {
-		if (!metaData.isConnected() || (connector == null)) {
+		if (!metaData.isConnected() || (readerConnection == null)) {
 			reportException(new LLRPRuntimeException(String.format("reader %s is not connected", metaData.getReaderName())));
 			return;
 		}
@@ -314,7 +322,7 @@ public class ReaderImpl extends UnicastRemoteObject implements LLRPEndpoint, Rea
 	private void sendLLRPMessage(LLRPMessage llrpMessage) throws RemoteException {
 		try {
 			// send the message.
-			connector.send(llrpMessage);
+			readerConnection.send(llrpMessage);
 			metaData.packageSent();
 		} catch (NullPointerException npe) {
 			// a null-pointer exception occurs when the reader is no more connected.
@@ -541,14 +549,11 @@ public class ReaderImpl extends UnicastRemoteObject implements LLRPEndpoint, Rea
 	 * @see org.fosstrak.llrp.adaptor.Reader#setKeepAlivePeriod(int, int, boolean, boolean)
 	 */
 	@Override
-	public void setKeepAlivePeriod(int keepAlivePeriod, int times,
-			boolean report, boolean throwException) throws RemoteException {
-		
+	public void setKeepAlivePeriod(int keepAlivePeriod, int times, boolean report, boolean throwException) throws RemoteException {		
 		metaData.setKeepAlivePeriod(keepAlivePeriod);
 		metaData.setAllowNKeepAliveMisses(times);
 		metaData.setReportKeepAlive(report);
 		this.throwExceptionKeepAlive = throwException;
-		
 	}
 
 	@Override
@@ -578,6 +583,7 @@ public class ReaderImpl extends UnicastRemoteObject implements LLRPEndpoint, Rea
 					while (true) {
 						synchronized (outqueue) {
 							while (outqueue.isEmpty()) outqueue.wait(PERIODICAL_WAKEUP_TIME);
+							
 							LLRPMessage msg = outqueue.remove();
 							try {
 								sendLLRPMessage(msg);
@@ -590,7 +596,6 @@ public class ReaderImpl extends UnicastRemoteObject implements LLRPEndpoint, Rea
 					log.debug("stopping out queue worker.");
 				}
 			}
-			
 		};
 	}
 	

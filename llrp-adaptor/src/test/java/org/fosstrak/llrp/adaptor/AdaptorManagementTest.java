@@ -29,7 +29,7 @@ import java.rmi.registry.Registry;
 import java.util.HashMap;
 import java.util.Map;
 
-import junit.framework.TestCase;
+import junit.framework.Assert;
 
 import org.apache.log4j.BasicConfigurator;
 import org.apache.log4j.Level;
@@ -38,6 +38,8 @@ import org.fosstrak.llrp.adaptor.config.FileStoreConfiguration;
 import org.fosstrak.llrp.adaptor.exception.LLRPDuplicateNameException;
 import org.fosstrak.llrp.adaptor.exception.LLRPRuntimeException;
 import org.fosstrak.llrp.client.MessageHandler;
+import org.junit.Before;
+import org.junit.Test;
 import org.llrp.ltk.types.LLRPMessage;
 
 /**
@@ -47,7 +49,7 @@ import org.llrp.ltk.types.LLRPMessage;
  * @author sawielan
  *
  */
-public class AdaptorManagementTest extends TestCase {
+public class AdaptorManagementTest {
 	
 	public static final String READ_CONFIG = "src/test/config/readerDefaultConfig.properties";
 	public static final String WRITE_CONFIG = "src/test/config/readerDefaultConfig.properties";
@@ -56,9 +58,8 @@ public class AdaptorManagementTest extends TestCase {
 	/** the logger. */
 	private static Logger log = Logger.getLogger(AdaptorManagementTest.class);
 	
-	protected void setUp() throws Exception {
-		super.setUp();
-		
+	@Before
+	public void setUp() throws Exception {
 		// prepare the logger
 		BasicConfigurator.configure();
 		Logger.getRootLogger().setLevel(Level.DEBUG);
@@ -100,6 +101,7 @@ public class AdaptorManagementTest extends TestCase {
 	 * </ul>
 	 * @throws Exception
 	 */
+	@Test
 	public void testInitialSetup() throws Exception {
 		initializeManagement();
 		
@@ -114,19 +116,19 @@ public class AdaptorManagementTest extends TestCase {
 		resetManagement();
 			
 		// test whether the default adaptor gets created upon reset. 
-		assertEquals(true, management.containsAdaptor(defaultAdaptorName));
+		Assert.assertEquals(true, management.containsAdaptor(defaultAdaptorName));
 		
 		// test that the shortcut for getDefaultAdaptor and getAdaptor(name) yields the same adaptor.
 		Adaptor getAdaptor = management.getAdaptor(defaultAdaptorName);
 		Adaptor getDefaultAdaptor = management.getDefaultAdaptor();
-		assertEquals(getAdaptor.getAdaptorName(), getDefaultAdaptor.getAdaptorName());
+		Assert.assertEquals(getAdaptor.getAdaptorName(), getDefaultAdaptor.getAdaptorName());
 		
 		
 		
 		// test that the adaptor is empty (contains no readers).
 		Adaptor adaptor = management.getAdaptor(defaultAdaptorName);
-		assertNotNull(adaptor.getReaderNames());
-		assertEquals(0, adaptor.getReaderNames().size());
+		Assert.assertNotNull(adaptor.getReaderNames());
+		Assert.assertEquals(0, adaptor.getReaderNames().size());
 		
 		
 		
@@ -142,9 +144,9 @@ public class AdaptorManagementTest extends TestCase {
 		
 		
 		// test that getAdaptorNames delivers the adaptor names correctly.
-		assertNotNull(management.getAdaptorNames());
-		assertEquals(1, management.getAdaptorNames().size());
-		assertEquals(defaultAdaptorName, management.getAdaptorNames().get(0));
+		Assert.assertNotNull(management.getAdaptorNames());
+		Assert.assertEquals(1, management.getAdaptorNames().size());
+		Assert.assertEquals(defaultAdaptorName, management.getAdaptorNames().get(0));
 			
 		
 		
@@ -160,19 +162,20 @@ public class AdaptorManagementTest extends TestCase {
 		
 		management.registerFullHandler(handler);
 		management.registerPartialHandler(handler, String.class);
-		assertTrue(management.hasFullHandler(handler));
-		assertTrue(management.hasPartialHandler(handler, String.class));
+		Assert.assertTrue(management.hasFullHandler(handler));
+		Assert.assertTrue(management.hasPartialHandler(handler, String.class));
 		
 		management.deregisterFullHandler(handler);
 		management.deregisterPartialHandler(handler, String.class);
-		assertFalse(management.hasFullHandler(handler));
-		assertFalse(management.hasPartialHandler(handler, String.class));
+		Assert.assertFalse(management.hasFullHandler(handler));
+		Assert.assertFalse(management.hasPartialHandler(handler, String.class));
 	}
 	
 	/**
 	 * this test creates a remote adaptor through the AdaptorManagement.
 	 * @throws Exception
 	 */
+	@Test
 	public void testCreateRemoteAdaptor() throws Exception {
 		initializeManagement();
 		
@@ -249,8 +252,8 @@ public class AdaptorManagementTest extends TestCase {
 		// retrieve the adaptor
 		Adaptor adaptor = management.getAdaptor(adaptorName);
 		
-		assertNotNull(adaptor.getAdaptorName());
-		assertEquals(adaptorName, adaptor.getAdaptorName());
+		Assert.assertNotNull(adaptor.getAdaptorName());
+		Assert.assertEquals(adaptorName, adaptor.getAdaptorName());
 		
 		// stop the thread.
 		thread.interrupt();

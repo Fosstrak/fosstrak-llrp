@@ -19,7 +19,7 @@
  *
  */
 
-package org.fosstrak.llrp.adaptor.config;
+package org.fosstrak.llrp.adaptor.config.type;
 
 import java.util.List;
 

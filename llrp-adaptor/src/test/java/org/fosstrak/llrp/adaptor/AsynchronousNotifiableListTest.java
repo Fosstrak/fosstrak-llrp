@@ -24,22 +24,23 @@ package org.fosstrak.llrp.adaptor;
 import java.io.FileReader;
 import java.rmi.RemoteException;
 
-import junit.framework.TestCase;
+import junit.framework.Assert;
 
 import org.fosstrak.llrp.adaptor.exception.LLRPRuntimeException;
 import org.fosstrak.llrp.adaptor.util.AsynchronousNotifiableList;
 import org.jdom.Document;
 import org.jdom.input.SAXBuilder;
+import org.junit.Test;
 import org.llrp.ltk.generated.LLRPMessageFactory;
 import org.llrp.ltk.types.LLRPMessage;
 
 
 /**
  * tests {@link AsynchronousNotifiableList}.
- * @author sawielan
+ * @author swieland
  *
  */
-public class AsynchronousNotifiableListTest extends TestCase {	
+public class AsynchronousNotifiableListTest {	
 	
 	public static final byte[][] msgs = new byte[10][];
 	public static final String[] names = new String[10];
@@ -48,11 +49,12 @@ public class AsynchronousNotifiableListTest extends TestCase {
 	 * tests if registration and deregistration works as expected.
 	 * @throws Exception upon error...
 	 */
+	@Test
 	public void testRegister() throws Exception {
 		AsynchronousNotifiableList an = new AsynchronousNotifiableList();
 		
 		// test 1
-		assertEquals(0, an.getAll().size());
+		Assert.assertEquals(0, an.getAll().size());
 		
 		// test 2
 		AsynchronousNotifiable asynchronousNotifiable = new AsynchronousNotifiable() {
@@ -68,9 +70,9 @@ public class AsynchronousNotifiableListTest extends TestCase {
 		};
 		
 		an.add(asynchronousNotifiable);
-		assertEquals(1, an.getAll().size());
+		Assert.assertEquals(1, an.getAll().size());
 		an.remove(asynchronousNotifiable);
-		assertEquals(0, an.getAll().size());
+		Assert.assertEquals(0, an.getAll().size());
 		
 		// test 3
 		AsynchronousNotifiable a1 = new AsynchronousNotifiable() {
@@ -99,12 +101,13 @@ public class AsynchronousNotifiableListTest extends TestCase {
 		an.add(asynchronousNotifiable);
 		an.add(a1);
 		an.add(a2);
-		assertEquals(3, an.getAll().size());
+		Assert.assertEquals(3, an.getAll().size());
 		an.remove(a1);
-		assertEquals(2, an.getAll().size());
+		Assert.assertEquals(2, an.getAll().size());
 		
 	}
 	
+	@Test
 	public void testNotify() throws Exception {
 		AsynchronousNotifiableList an = new AsynchronousNotifiableList();
 		AsynchronousNotifiable a1 = new AsynchronousNotifiable() {
@@ -149,28 +152,28 @@ public class AsynchronousNotifiableListTest extends TestCase {
 		
 		an.notify(message.encodeBinary(), readerName);
 		
-		assertNotNull(msgs[0]);
-		assertEquals(readerName, names[0]);
-		assertNotNull(msgs[1]);
-		assertEquals(readerName, names[1]);
+		Assert.assertNotNull(msgs[0]);
+		Assert.assertEquals(readerName, names[0]);
+		Assert.assertNotNull(msgs[1]);
+		Assert.assertEquals(readerName, names[1]);
 		
 		msgs[0] = msgs[1] = null;
 		names[0] = names[1] = null;
 		
 		an.remove(a2);
 		an.notify(message.encodeBinary(), readerName);
-		assertNotNull(msgs[0]);
-		assertEquals(readerName, names[0]);
-		assertNull(msgs[1]);
-		assertNull(names[1]);
+		Assert.assertNotNull(msgs[0]);
+		Assert.assertEquals(readerName, names[0]);
+		Assert.assertNull(msgs[1]);
+		Assert.assertNull(names[1]);
 		
 		msgs[0] = msgs[1] = null;
 		names[0] = names[1] = null;
 		an.remove(a1);
 		an.notify(message.encodeBinary(), readerName);
-		assertNull(msgs[0]);
-		assertNull(names[0]);
-		assertNull(msgs[1]);
-		assertNull(names[1]);
+		Assert.assertNull(msgs[0]);
+		Assert.assertNull(names[0]);
+		Assert.assertNull(msgs[1]);
+		Assert.assertNull(names[1]);
 	}
 }
