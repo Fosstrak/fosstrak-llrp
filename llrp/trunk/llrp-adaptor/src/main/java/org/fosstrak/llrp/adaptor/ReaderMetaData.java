@@ -82,7 +82,6 @@ public class ReaderMetaData implements Remote, Serializable  {
 	 * default constructor.
 	 */
 	public ReaderMetaData() {
-		
 	}
 	
 	/**
@@ -90,38 +89,38 @@ public class ReaderMetaData implements Remote, Serializable  {
 	 * @param other the meta data object to clone;
 	 */
 	public ReaderMetaData(ReaderMetaData other) {
-		_setReaderName(other.getReaderName());
-		_setReaderAddress(other.getReaderAddress());
-		_setPort(other.getPort());
+		setReaderName(other.getReaderName());
+		setReaderAddress(other.getReaderAddress());
+		setPort(other.getPort());
 		
-		_setAlive(other.isAlive());
+		setAlive(other.isAlive());
 		
-		_setPackagesCurrentSessionReceived(other.getPackagesCurrentSessionReceived());
-		_setPackagesCurrentSessionSent(other.getPackagesCurrentSessionSent());
-		_setPackagesReceived(other.getPackagesReceived());
-		_setPackagesSent(other.getPackagesSent());
+		setPackagesCurrentSessionReceived(other.getPackagesCurrentSessionReceived());
+		setPackagesCurrentSessionSent(other.getPackagesCurrentSessionSent());
+		setPackagesReceived(other.getPackagesReceived());
+		setPackagesSent(other.getPackagesSent());
 		
-		_setReportKeepAlive(other.isReportKeepAlive());
+		setReportKeepAlive(other.isReportKeepAlive());
 		
-		_setClientInitiated(other.isClientInitiated());
-		_setConnected(other.isConnected());
-		_setConnectImmediately(other.isConnectImmediately());
+		setClientInitiated(other.isClientInitiated());
+		setConnected(other.isConnected());
+		setConnectImmediately(other.isConnectImmediately());
 		
-		_setAllowNKeepAliveMisses(other.getAllowNKeepAliveMisses());
-		_setKeepAlivePeriod(other.getKeepAlivePeriod());
+		setAllowNKeepAliveMisses(other.getAllowNKeepAliveMisses());
+		setKeepAlivePeriod(other.getKeepAlivePeriod());
 	}
 
 	/**
 	 * starts a new session.
 	 */
-	public void _newSession() {
+	public void newSession() {
 		packagesCurrentSessionReceived = packagesCurrentSessionSent = 0;
 	}
 	
 	/**
 	 * increases the number of received packages by one.
 	 */
-	public void _packageReceived() {
+	public void packageReceived() {
 		packagesReceived++;
 		packagesCurrentSessionReceived++;
 	}
@@ -129,7 +128,7 @@ public class ReaderMetaData implements Remote, Serializable  {
 	/**
 	 * increases the number of sent packages by one.
 	 */
-	public void _packageSent() {
+	public void packageSent() {
 		packagesSent++;
 		packagesCurrentSessionSent++;
 	}
@@ -171,7 +170,7 @@ public class ReaderMetaData implements Remote, Serializable  {
 	/**
 	 * @param keepAlivePeriod the interval for the reader to send a keep-alive message. 
 	 */
-	public void _setKeepAlivePeriod(int keepAlivePeriod) {
+	public void setKeepAlivePeriod(int keepAlivePeriod) {
 		this.keepAlivePeriod = keepAlivePeriod;
 	}
 
@@ -185,7 +184,7 @@ public class ReaderMetaData implements Remote, Serializable  {
 	/**
 	 * @param allowNKeepAliveMisses how many times a keep-alive can be missed.
 	 */
-	public void _setAllowNKeepAliveMisses(int allowNKeepAliveMisses) {
+	public void setAllowNKeepAliveMisses(int allowNKeepAliveMisses) {
 		this.allowNKeepAliveMisses = allowNKeepAliveMisses;
 	}
 
@@ -199,7 +198,7 @@ public class ReaderMetaData implements Remote, Serializable  {
 	/**
 	 * @param port the port where to connect.
 	 */
-	public void _setPort(int port) {
+	public void setPort(int port) {
 		this.port = port;
 	}
 
@@ -213,7 +212,7 @@ public class ReaderMetaData implements Remote, Serializable  {
 	/**
 	 * @param readerAddress the address of the physical reader.
 	 */
-	public void _setReaderAddress(String readerAddress) {
+	public void setReaderAddress(String readerAddress) {
 		this.readerAddress = readerAddress;
 	}
 
@@ -227,7 +226,7 @@ public class ReaderMetaData implements Remote, Serializable  {
 	/**
 	 * @param readerName the name of this logical reader.
 	 */
-	public void _setReaderName(String readerName) {
+	public void setReaderName(String readerName) {
 		this.readerName = readerName;
 	}
 
@@ -241,7 +240,7 @@ public class ReaderMetaData implements Remote, Serializable  {
 	/**
 	 * @param alive whether the reader is alive.
 	 */
-	public void _setAlive(boolean alive) {
+	public void setAlive(boolean alive) {
 		this.alive = alive;
 	}
 
@@ -255,7 +254,7 @@ public class ReaderMetaData implements Remote, Serializable  {
 	/**
 	 * @param packagesSent the number of sent packages in total.
 	 */
-	public void _setPackagesSent(int packagesSent) {
+	public void setPackagesSent(int packagesSent) {
 		this.packagesSent = packagesSent;
 	}
 
@@ -269,7 +268,7 @@ public class ReaderMetaData implements Remote, Serializable  {
 	/**
 	 * @param packagesReceived the number of received packages in total.
 	 */
-	public void _setPackagesReceived(int packagesReceived) {
+	public void setPackagesReceived(int packagesReceived) {
 		this.packagesReceived = packagesReceived;
 	}
 
@@ -283,7 +282,7 @@ public class ReaderMetaData implements Remote, Serializable  {
 	/**
 	 * @param packagesCurrentSessionSent the number of sent packages in the current session.
 	 */
-	public void _setPackagesCurrentSessionSent(int packagesCurrentSessionSent) {
+	public void setPackagesCurrentSessionSent(int packagesCurrentSessionSent) {
 		this.packagesCurrentSessionSent = packagesCurrentSessionSent;
 	}
 
@@ -297,8 +296,7 @@ public class ReaderMetaData implements Remote, Serializable  {
 	/**
 	 * @param packagesCurrentSessionReceived the number of received packages in the current session.
 	 */
-	public void _setPackagesCurrentSessionReceived(
-			int packagesCurrentSessionReceived) {
+	public void setPackagesCurrentSessionReceived(int packagesCurrentSessionReceived) {
 		this.packagesCurrentSessionReceived = packagesCurrentSessionReceived;
 	}
 
@@ -312,7 +310,7 @@ public class ReaderMetaData implements Remote, Serializable  {
 	/**
 	 * @param reportKeepAlive whether keep alive messages get logged or not.
 	 */
-	public void _setReportKeepAlive(boolean reportKeepAlive) {
+	public void setReportKeepAlive(boolean reportKeepAlive) {
 		this.reportKeepAlive = reportKeepAlive;
 	}
 
@@ -326,7 +324,7 @@ public class ReaderMetaData implements Remote, Serializable  {
 	/**
 	 * @param clientInitiated the clientInitiated to set
 	 */
-	public void _setClientInitiated(boolean clientInitiated) {
+	public void setClientInitiated(boolean clientInitiated) {
 		this.clientInitiated = clientInitiated;
 	}
 
@@ -340,7 +338,7 @@ public class ReaderMetaData implements Remote, Serializable  {
 	/**
 	 * @param connected flags whether the reader is connected or not.
 	 */
-	public void _setConnected(boolean connected) {
+	public void setConnected(boolean connected) {
 		this.connected = connected;
 	}
 
@@ -354,7 +352,7 @@ public class ReaderMetaData implements Remote, Serializable  {
 	/**
 	 * @param connectImmediately tells whether this reader connects directly after creation.
 	 */
-	public void _setConnectImmediately(boolean connectImmediately) {
+	public void setConnectImmediately(boolean connectImmediately) {
 		this.connectImmediately = connectImmediately;
 	}
 

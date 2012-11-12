@@ -21,13 +21,14 @@
 
 package org.fosstrak.llrp.adaptor;
 
+import java.lang.reflect.Constructor;
 import java.rmi.AlreadyBoundException;
 import java.rmi.NotBoundException;
 import java.rmi.RemoteException;
 import java.rmi.registry.LocateRegistry;
 import java.rmi.registry.Registry;
 import java.util.ArrayList;
-import java.util.HashMap;
+import java.util.Collections;
 import java.util.LinkedList;
 import java.util.List;
 import java.util.Map;
@@ -35,7 +36,8 @@ import java.util.concurrent.ConcurrentHashMap;
 
 import org.apache.log4j.Logger;
 import org.fosstrak.llrp.adaptor.config.AdaptorConfiguration;
-import org.fosstrak.llrp.adaptor.config.ConfigurationLoader;
+import org.fosstrak.llrp.adaptor.config.Configuration;
+import org.fosstrak.llrp.adaptor.config.DefaultConfiguration;
 import org.fosstrak.llrp.adaptor.config.ReaderConfiguration;
 import org.fosstrak.llrp.adaptor.exception.LLRPDuplicateNameException;
 import org.fosstrak.llrp.adaptor.exception.LLRPRuntimeException;
@@ -44,6 +46,8 @@ import org.fosstrak.llrp.client.LLRPExceptionHandler;
 import org.fosstrak.llrp.client.LLRPExceptionHandlerTypeMap;
 import org.fosstrak.llrp.client.MessageHandler;
 import org.llrp.ltk.types.LLRPMessage;
+
+// FIXME: javadoc is out of date.
 
 /**
  * The AdaptorManagement handles your adaptors, enqueues LLRPMessages, handles 
@@ -97,8 +101,6 @@ public class AdaptorManagement {
 	/** the name for the default local adaptor. */
 	public static final String DEFAULT_ADAPTOR_NAME = "DEFAULT";
 	
-	
-	
 	/** the logger. */
 	private static Logger log = Logger.getLogger(AdaptorManagement.class);
 
@@ -110,12 +112,6 @@ public class AdaptorManagement {
 	 * the changes to the AdaptorManagement are committed to storeConfig.
 	 */
 	private boolean commitChanges = true;
-	
-	/** where the configuration shall be read from. */
-	private String readConfig = null;
-	
-	/** where the configuration shall be written to (if changes happen). */
-	private String storeConfig = null;
 	
 	/** 
 	 * flags whether the AdaptorManagement has been initialized or not. 
@@ -136,11 +132,10 @@ public class AdaptorManagement {
 	/** the error code for the exception handler. */
 	private static LLRPExceptionHandlerTypeMap errorType = null;
 	
-	
-	
-	/** if the configuration is load from file we can use this loader to read/write it */
-	private ConfigurationLoader configLoader = new ConfigurationLoader();
-
+	/**
+	 * by default use a no store and no load configuration.
+	 */
+	private Configuration configLoader = new DefaultConfiguration(null, null);
 	
 	// we need to distinguish between local and remote adaptors as 
 	// for local adaptors we want to be able to store the configuration
@@ -156,14 +151,16 @@ public class AdaptorManagement {
 	private Map<String, AdaptorWorker> remoteWorkers = new ConcurrentHashMap<String, AdaptorWorker> ();
 	
 	/** a list of handlers that like to receive all the LLRP messages. */
-	private LinkedList<MessageHandler> fullHandlers = new LinkedList<MessageHandler> ();
+	private List<MessageHandler> fullHandlers = Collections.synchronizedList(new LinkedList<MessageHandler> ());
 	
 	/** these handlers would like to receive only certain LLRP Messages. */
-	private Map<Class, LinkedList<MessageHandler> > partialHandlers = new HashMap<Class, LinkedList<MessageHandler> > ();
+	private Map<Class<?>, List<MessageHandler> > partialHandlers = new ConcurrentHashMap<Class<?>, List<MessageHandler> > ();
 	
 	
 	
 	// ------------------------------- initialization -------------------------------
+	
+	// FIXME: javadoc out of date.
 	
 	/**
 	 * initializes the AdaptorManagement.
@@ -181,17 +178,8 @@ public class AdaptorManagement {
 	 * process was aborted</li>
 	 * </ul>.
 	 */
-	public boolean initialize(
-			String readConfig, 
-			String storeConfig,
-			boolean commitChanges,
-			LLRPExceptionHandler exceptionHandler,
-			MessageHandler handler) 
-		throws LLRPRuntimeException {
-		
-		return initialize(readConfig, 
-				storeConfig, 
-				commitChanges, exceptionHandler, handler, false);
+	public boolean initialize(Map<String, Object> readParameters, Map<String, Object> writeParameters, String configurationClass, boolean commitChanges, LLRPExceptionHandler exceptionHandler, MessageHandler handler) throws LLRPRuntimeException {
+		return initialize(readParameters, writeParameters, configurationClass, commitChanges, exceptionHandler, handler, false);
 	}
 	
 	/**
@@ -213,25 +201,16 @@ public class AdaptorManagement {
 	 * process was aborted</li>
 	 * </ul>.
 	 */
-	public boolean initialize(
-			String readConfig, 
-			String storeConfig,
-			boolean commitChanges,
-			LLRPExceptionHandler exceptionHandler,
-			MessageHandler handler,
-			boolean export) 
-		throws LLRPRuntimeException {
+	public boolean initialize(Map<String, Object> readParameters, Map<String, Object> writeParameters, String configurationClass, boolean commitChanges, LLRPExceptionHandler exceptionHandler, MessageHandler handler, boolean export) throws LLRPRuntimeException {
 		if (initialized) {
-			log.error("You cannot initialize the AdaptorManagement twice!\n" +
-					"use the getters/setters to perform the requested changes!\n" +
-					"we will abort now!!!");
+			log.error("You cannot initialize the AdaptorManagement twice!\nuse the getters/setters to perform the requested changes!\nwe will abort now!!!");
 			return false;
 		}
 		
 		this.export = export;
 		
-		this.readConfig = readConfig;
-		this.storeConfig = storeConfig;
+		configLoader = initializeConfigurationStrategy(readParameters, writeParameters, configurationClass);
+
 		this.commitChanges = commitChanges;
 		this.exceptionHandler = exceptionHandler;
 		
@@ -244,6 +223,26 @@ public class AdaptorManagement {
 		return true;
 	}
 	
+	/**
+	 * load the configuration strategy via reflection from the given implementation class.
+	 * @param readParameters the read parameters used by the strategy.
+	 * @param writeParameters the write parameters used by the strategy.
+	 * @param configurationClass the fully qualified name of the class implementing the chosen configuration strategy.
+	 * @return an instance of the configuration strategy.
+	 * @throws LLRPRuntimeException when the strategy could not be loaded.
+	 */
+	private Configuration initializeConfigurationStrategy(Map<String, Object> readParameters, Map<String, Object> writeParameters, String configurationClass) throws LLRPRuntimeException {
+		try {
+			Class<?> clzz = Class.forName(configurationClass);
+			Constructor<?> ctor = clzz.getConstructor(Map.class, Map.class);
+			Object instance = ctor.newInstance(readParameters, writeParameters);
+			return (Configuration) instance;
+		} catch (Exception ex) {
+			log.error("could not initialize the configuration strategy", ex);
+			throw new LLRPRuntimeException(ex);
+		}
+	}
+
 	/**
 	 * flags whether the AdaptorManagement has already been initialized.
 	 * @return whether the AdaptorManagement has already been initialized.
@@ -282,11 +281,10 @@ public class AdaptorManagement {
 	 */
 	private void load() throws LLRPRuntimeException {
 		try {
-			loadFromFile();
+			loadConfiguration();
 		} catch (LLRPRuntimeException e) {
-			setStatus(true, 
-					e,
-					LLRPExceptionHandlerTypeMap.EXCEPTION_ADAPTOR_MANAGEMENT_NOT_INITIALIZED);
+			log.error("Could not load the configuration file", e);
+			setStatus(true, e, LLRPExceptionHandlerTypeMap.EXCEPTION_ADAPTOR_MANAGEMENT_NOT_INITIALIZED);
 			throw e;
 		}
 	}
@@ -299,10 +297,8 @@ public class AdaptorManagement {
 			try {
 				storeToFile();
 			} catch (LLRPRuntimeException e) {
-				log.debug("could not commit the changes to the configuration file");
-				setStatus(true, 
-						e,
-						LLRPExceptionHandlerTypeMap.EXCEPTION_ADAPTOR_MANAGEMENT_NOT_INITIALIZED);
+				log.error("could not commit the changes to the configuration file", e);
+				setStatus(true, e, LLRPExceptionHandlerTypeMap.EXCEPTION_ADAPTOR_MANAGEMENT_NOT_INITIALIZED);
 			}
 		}
 	}
@@ -313,22 +309,17 @@ public class AdaptorManagement {
 	 */
 	public void checkStatus() throws LLRPRuntimeException {
 		if (error) {
-			postException(errorException, errorType, "", "");
-			throw errorException;
+			postAndThenThrowException(errorException, errorType, "", "");
 		}
 	}
 	
 	/**
 	 * sets the status of the adaptorManagement.
 	 */
-	private void setStatus(
-			boolean error,
-			LLRPRuntimeException errorException, 
-			LLRPExceptionHandlerTypeMap errorType) 
-	{
-		this.error = error;
-		this.errorException = errorException;
-		this.errorType = errorType;
+	private void setStatus(boolean error, LLRPRuntimeException errorException, LLRPExceptionHandlerTypeMap errorType) {
+		AdaptorManagement.error = error;
+		AdaptorManagement.errorException = errorException;
+		AdaptorManagement.errorType = errorType;
 	}
 	
 	/**
@@ -343,26 +334,19 @@ public class AdaptorManagement {
 		
 		// remove the remote readers.
 		synchronized (AdaptorManagement.class) {
-			synchronized (workers) {
-				synchronized (localWorkers) {
-					synchronized (remoteWorkers) {
-						for (AdaptorWorker worker : workers.values()) {
-							// stop all the workers.
-							worker.tearDown();
-						}
-						// deregister the asynchronous callbacks
-						for (AdaptorWorker worker : remoteWorkers.values()) {
-							// stop all the workers.
-							try {
-								worker.getAdaptor().deregisterFromAsynchronous(worker.getCallback());
-							} catch (RemoteException e) {
-								log.error("an error occured when deregistering from remote adaptor: " 
-										+ e.getMessage());
-							}
-						}
-					} // synchronized remoteWorkers
-				} // synchronized localWorkers
-			} // synchronized workers
+			for (AdaptorWorker worker : workers.values()) {
+				// stop all the workers.
+				worker.tearDown();
+			}
+			// deregister the asynchronous callbacks
+			for (AdaptorWorker worker : remoteWorkers.values()) {
+				// stop all the workers.
+				try {
+					worker.getAdaptor().deregisterFromAsynchronous(worker.getCallback());
+				} catch (RemoteException e) {
+					log.error("an error occured when deregistering from remote adaptor: " + e.getMessage(), e);
+				}
+			}
 		} // synchronized adaptorManagement
 	}
 	
@@ -373,46 +357,31 @@ public class AdaptorManagement {
 	 * @throws LLRPRuntimeException
 	 */
 	private synchronized void clearWorkers() throws LLRPRuntimeException {
-		synchronized (workers) {
-			synchronized (localWorkers) {
-				synchronized (remoteWorkers) {
-					// remove the workers.
-					for (AdaptorWorker worker : workers.values()) {
-						try {
-							if (worker.getAdaptorIpAddress() == null) {
-								// if it is a local adaptor undefine the readers 
-								worker.getAdaptor().undefineAll();
-							}
-							undefine(worker.getAdaptor().getAdaptorName());
-						} catch (RemoteException e) {
-							e.printStackTrace();
-						}
-					}		
-					
-					// erase all existing adaptors
-					remoteWorkers.clear();
-					localWorkers.clear();
-					workers.clear();
+		// remove the workers.
+		for (AdaptorWorker worker : workers.values()) {
+			try {
+				if (worker.getAdaptorIpAddress() == null) {
+					// if it is a local adaptor undefine the readers 
+					worker.getAdaptor().undefineAll();
 				}
+				undefine(worker.getAdaptor().getAdaptorName());
+			} catch (RemoteException e) {
+				log.error("Got exception during cleanup.", e);
 			}
-		}
+		}		
 	}
 	
 	/**
 	 * disconnectReaders shuts down all local readers. 
 	 */
 	public void disconnectReaders() {
-		synchronized (workers) {
-			synchronized (localWorkers) {
-				for (AdaptorWorker worker : localWorkers.values()) {
-					try {
-						worker.getAdaptor().disconnectAll();
-					} catch (RemoteException e) {
-						e.printStackTrace();
-					} catch (LLRPRuntimeException e) {
-						e.printStackTrace();
-					}
-				}
+		for (AdaptorWorker worker : localWorkers.values()) {
+			try {
+				worker.getAdaptor().disconnectAll();
+			} catch (RemoteException e) {
+				log.error("Got remote exception on local adaptor during disconnect.", e);
+			} catch (LLRPRuntimeException e) {
+				log.error("Got runtime exception during disconnect", e);
 			}
 		}
 	}
@@ -425,7 +394,6 @@ public class AdaptorManagement {
 	 */
 	public boolean containsAdaptor(String adaptorName) throws LLRPRuntimeException {
 		checkStatus();
-	
 		return workers.containsKey(adaptorName);
 	}
 	
@@ -437,8 +405,18 @@ public class AdaptorManagement {
 	 */
 	public boolean isLocalAdapter(String adapterName) throws LLRPRuntimeException {
 		checkStatus();
-		
 		return localWorkers.containsKey(adapterName);
+	}
+	
+	private Adaptor getRemoteAdapter(String adaptorName, String address) throws LLRPRuntimeException, RemoteException {
+		try {
+			// try to get the instance from the remote 
+			// adaptor.
+			Registry registry = LocateRegistry.getRegistry(address, Constants.registryPort);
+			return (Adaptor) registry.lookup(Constants.adaptorNameInRegistry);
+		} catch (NotBoundException ex) {
+			throw new LLRPRuntimeException("Could not get a handle on the remote adaptor", ex);
+		}
 	}
 	
 	/**
@@ -449,125 +427,126 @@ public class AdaptorManagement {
 	 * @throws RemoteException when there is an error during transmition.
 	 * @throws NotBoundException when there is no registry available.
 	 */
-	public synchronized String define(String adaptorName, String address) 
-		throws LLRPRuntimeException, RemoteException, NotBoundException {
+	public synchronized String define(String adaptorName, String address) throws LLRPRuntimeException, RemoteException {
 		checkStatus();
 		
-		synchronized (workers) {
-			synchronized (localWorkers) {
-				synchronized (remoteWorkers) {
-					
-					Adaptor adaptor = null;
-					if (address != null) {
-						// try to get the instance from the remote 
-						// adaptor.
-						Registry registry = LocateRegistry.getRegistry(address, Constants.registryPort);
-						adaptor = (Adaptor) registry.lookup(Constants.adaptorNameInRegistry);
-						
-						// server adaptor always keeps its name. therefore 
-						// we rename the adaptor
-						log.debug(String.format("adaptor is remote. therefore renaming %s to %s.",
-								adaptorName, adaptor.getAdaptorName()));
-						
-						adaptorName = adaptor.getAdaptorName();
-					}
-					
-					// tests whether there exists already a adaptor of this name
-					if (containsAdaptor(adaptorName)) {
-						log.error("Adaptor '" + adaptorName + "' already exists!");
-						LLRPDuplicateNameException e = new LLRPDuplicateNameException(adaptorName, 
-								"Adaptor '" + adaptorName + "' already exists!");
-						
-						postException(
-								e, LLRPExceptionHandlerTypeMap.EXCEPTION_ADAPTOR_ALREADY_EXISTS,
-								adaptorName, "");
-						throw e;
-					}
-					
-					AdaptorCallback cb = null;
-					AdaptorWorker worker = null;
-					if (address == null) {
-						// determine the special hopefully unique server adaptor name
-						if (export) {
-							// change the name of the adaptor to the ip of the current machine.
-							String HOST_NAME_PREFIX = "server adaptor - ";
-							String HOST_ADDRESS = String.format("unknown ip %d", System.currentTimeMillis());
-							try {
-								java.net.InetAddress localMachine = java.net.InetAddress.getLocalHost();
-								HOST_ADDRESS = localMachine.getHostAddress();
-							}
-							catch (java.net.UnknownHostException uhe) {
-								log.debug("hmmm, what happened? " +
-										"This should not occur here :-).");
-							}
-							adaptorName = HOST_NAME_PREFIX + HOST_ADDRESS;
-						}
-						
-						// local case
-						adaptor = new AdaptorImpl(adaptorName);
-						((AdaptorImpl)adaptor).setAdaptorManagement(this);
-						cb = new AdaptorCallback(false);
-						worker = new AdaptorWorker(cb, adaptor);
-						worker.setAdaptorIpAddress(null);
-						localWorkers.put(adaptorName, worker);
-						
-						log.debug("created a new local adaptor '" + 
-								adaptorName + "'.");
-					} else {
-						// remote case
-						cb = new AdaptorCallback(true);
-						worker = new AdaptorWorker(cb, adaptor);
-						// store the ip address of the remote adaptor.
-						worker.setAdaptorIpAddress(address);
-						remoteWorkers.put(adaptorName, worker);
-						
-						log.debug("created a new client adaptor '" + 
-								adaptorName + "' with url '" + address + "'.");
-					}
-					
-					// register the callback.
-					try {
-						adaptor.registerForAsynchronous(cb);
-					} catch (RemoteException e) {
-						e.printStackTrace();
-					}
-					
-					// register the thread.
-					workers.put(adaptorName, worker);
-					
-					// start the thread
-					new Thread(worker).start();
-					
-					// if the user requests an export of the adaptor we do this...
-					// the adaptor HAS to be local!
-					if ((export) && (address == null)) {
-						// now export the adaptor
-					
-						// create the new registry
-						log.debug("create a registry for the export of the local adaptor.");
-						LocateRegistry.createRegistry(Constants.registryPort);
-						Registry registry = LocateRegistry.getRegistry(Constants.registryPort);
-						
-						log.debug("bind the adaptor to the registry");
-						try {
-							registry.bind(Constants.adaptorNameInRegistry, adaptor);
-						} catch (AlreadyBoundException e) {
+		boolean createLocalAdapter = address == null;
+		
+		Adaptor adaptor = null;
+		if (createLocalAdapter && isExportLocalAdapterToRMI()) {
+			// determine the special hopefully unique server adaptor name
+			// change the name of the adaptor to the ip of the current machine.
+			final String hostNamePrefix = "server adaptor - ";
+			String hostAddress = String.format("unknown ip %d", System.currentTimeMillis());
+			try {
+				java.net.InetAddress localMachine = java.net.InetAddress.getLocalHost();
+				hostAddress = localMachine.getHostAddress();
+			}
+			catch (java.net.UnknownHostException uhe) {
+				log.error("hmmm, what happened? " + "This should not occur here :-).", uhe);
+			}
+			adaptorName = hostNamePrefix + hostAddress;
+			
+		} else if (!createLocalAdapter) {
+			adaptor = getRemoteAdapter(adaptorName, address);
+			// server adaptor always keeps its name. therefore we rename the adaptor
+			log.debug(String.format("adaptor is remote. therefore renaming %s to %s.", adaptorName, adaptor.getAdaptorName()));					
+			adaptorName = adaptor.getAdaptorName();
+		}
+		
+		// tests whether there exists already a adaptor of this name
+		containsAndThrowExceptionIfExists(adaptorName);
+		
+		AdaptorCallback cb = null;
+		AdaptorWorker worker = null;
 
-							// this exception should NEVER occur as we destroy the 
-							// registry when we register the new adaptor.
-							log.error("THERE WAS A SEVERE ERROR THAT SHOULD NEVER OCCUR!!!");
-							e.printStackTrace();
-						}
-					}
+		cb = new AdaptorCallback(!createLocalAdapter);
+		if (createLocalAdapter) {
+			// local case
+			adaptor = new AdaptorImpl(adaptorName);
+			((AdaptorImpl)adaptor).setAdaptorManagement(this);
+			worker = new AdaptorWorker(cb, adaptor);
+			worker.setAdaptorIpAddress(null);
+			// insertion must take place atomically on both workers and localWorkers
+			synchronized (workers) {
+				synchronized (localWorkers) {
+					containsAndThrowExceptionIfExists(adaptorName);
+					localWorkers.put(adaptorName, worker);
+					workers.put(adaptorName, worker);
+					log.debug("created a new local adaptor '" + adaptorName + "'.");
 				}
 			}
-			
-			commit();
+		} else {
+			// remote case
+			worker = new AdaptorWorker(cb, adaptor);
+			// store the ip address of the remote adaptor.
+			worker.setAdaptorIpAddress(address);
+
+			// insertion must take place atomically on both workers and remoteWorkers
+			synchronized (workers) {
+				synchronized (remoteWorkers) {
+					containsAndThrowExceptionIfExists(adaptorName);
+					remoteWorkers.put(adaptorName, worker);
+					log.debug("created a new client adaptor '" + adaptorName + "' with url '" + address + "'.");
+					workers.put(adaptorName, worker);
+				}
+			}
 		}
+		registerCallbackOnAdapter(adaptor, cb);
+		
+		// register the thread.
+		new Thread(worker).start();
+		
+		// if the user requests an export of the adaptor we do this...
+		// the adaptor HAS to be local!
+		if (createLocalAdapter && isExportLocalAdapterToRMI()) {
+			exportLocalAdapterToRMI(adaptor);
+		}
+			
+		commit();
 		
 		return adaptorName;
 	}
 	
+	private void containsAndThrowExceptionIfExists(String adaptorName) throws LLRPRuntimeException {
+		// tests whether there exists already a adaptor of this name
+		if (containsAdaptor(adaptorName)) {
+			log.error("Adaptor '" + adaptorName + "' already exists!");
+			LLRPDuplicateNameException e = new LLRPDuplicateNameException(adaptorName, "Adaptor '" + adaptorName + "' already exists!");						
+			postAndThenThrowException(e, LLRPExceptionHandlerTypeMap.EXCEPTION_ADAPTOR_ALREADY_EXISTS, adaptorName, "");
+		}		
+	}
+
+	private void registerCallbackOnAdapter(Adaptor adaptor, AdaptorCallback cb) {
+		try {
+			adaptor.registerForAsynchronous(cb);
+		} catch (RemoteException e) {
+			log.error("Could not register the adapter for asynchronous messages.", e);
+		}
+	}
+
+	private boolean isExportLocalAdapterToRMI() {
+		// FIXME: this is really ugly with the export flag...!!!
+		// FIXME: on the long run we must get rid of this ugly ugly construct...
+		return export;
+	}
+	
+	private void exportLocalAdapterToRMI(Adaptor adaptor) throws RemoteException {
+		// create the new registry
+		log.debug("create a registry for the export of the local adaptor.");
+		LocateRegistry.createRegistry(Constants.registryPort);
+		Registry registry = LocateRegistry.getRegistry(Constants.registryPort);
+		
+		log.debug("bind the adaptor to the registry");
+		try {
+			registry.bind(Constants.adaptorNameInRegistry, adaptor);
+		} catch (AlreadyBoundException e) {
+			// this exception should NEVER occur as we destroy the 
+			// registry when we register the new adaptor.
+			log.error("THERE WAS A SEVERE ERROR THAT SHOULD NEVER OCCUR!!!", e);
+		}		
+	}
+
 	/**
 	 * removes an adaptor from the adaptor list.
 	 * @param adaptorName the name of the adaptor to remove.
@@ -576,34 +555,23 @@ public class AdaptorManagement {
 	public synchronized void undefine(String adaptorName) throws LLRPRuntimeException {
 		checkStatus();
 		
-		synchronized (workers) {
-			synchronized (localWorkers) {
-				synchronized (remoteWorkers) {
-					if (!containsAdaptor(adaptorName)) {
-						log.error("Adaptor '" + adaptorName + "' does not exist!");
-						LLRPRuntimeException e = new LLRPRuntimeException("Adaptor '" + adaptorName + "' does not exist!");
-						
-						postException(
-								e, LLRPExceptionHandlerTypeMap.EXCEPTION_ADAPTER_NOT_EXIST,
-								adaptorName, "");
-						throw e;
-					}
-					
-					localWorkers.remove(adaptorName);
-					remoteWorkers.remove(adaptorName);
-					
-					// remove the adaptor
-					AdaptorWorker worker = workers.remove(adaptorName);
-					try {
-						worker.getAdaptor().deregisterFromAsynchronous(worker.getCallback());
-						// stop the worker.
-						worker.tearDown();
-						
-					} catch (RemoteException e) {
-						e.printStackTrace();
-					}
-				}
-			}
+		if (!containsAdaptor(adaptorName)) {
+			log.error("Adaptor '" + adaptorName + "' does not exist!");
+			LLRPRuntimeException e = new LLRPRuntimeException("Adaptor '" + adaptorName + "' does not exist!");
+			postAndThenThrowException(e, LLRPExceptionHandlerTypeMap.EXCEPTION_ADAPTER_NOT_EXIST, adaptorName, "");
+		}
+		
+		// remove the adaptor
+		localWorkers.remove(adaptorName);
+		remoteWorkers.remove(adaptorName);
+		AdaptorWorker worker = workers.remove(adaptorName);
+		try {
+			worker.getAdaptor().deregisterFromAsynchronous(worker.getCallback());
+			// stop the worker.
+			worker.tearDown();
+			
+		} catch (RemoteException e) {
+			log.error("caught remote exception.", e);
 		}
 		commit();
 	}
@@ -615,7 +583,7 @@ public class AdaptorManagement {
 	public List<String> getAdaptorNames() throws LLRPRuntimeException {
 		checkStatus();
 		
-		ArrayList<String> adaptorNames = new ArrayList<String> ();
+		List<String> adaptorNames = new ArrayList<String> (workers.size());
 		
 		// make a deep copy (no leakage)
 		for (AdaptorWorker worker : workers.values()) {
@@ -626,7 +594,6 @@ public class AdaptorManagement {
 				worker.reportConnFailure();
 				log.error("could not connect to remote adaptor: " + e.getMessage());
 			}
-			
 		}
 		checkWorkers();
 
@@ -645,11 +612,7 @@ public class AdaptorManagement {
 		if (!containsAdaptor(adaptorName)) {			
 			log.error("Adaptor '" + adaptorName + "' does not exist!");
 			LLRPRuntimeException e = new LLRPRuntimeException("Adaptor '" + adaptorName + "' does not exist!");
-			
-			postException(
-					e, LLRPExceptionHandlerTypeMap.EXCEPTION_ADAPTER_NOT_EXIST,
-					adaptorName, "");
-			throw e;
+			postAndThenThrowException(e, LLRPExceptionHandlerTypeMap.EXCEPTION_ADAPTER_NOT_EXIST, adaptorName, "");
 		}
 		
 		return workers.get(adaptorName).getAdaptor();
@@ -660,6 +623,7 @@ public class AdaptorManagement {
 	 * @return the default local adaptor.
 	 * @throws LLRPRuntimeException this should never occur!
 	 */
+	// FIXME: check if we really need to cast explicitly...
 	public AdaptorImpl getDefaultAdaptor() throws LLRPRuntimeException {
 		checkStatus();
 						
@@ -670,10 +634,10 @@ public class AdaptorManagement {
 			} catch (Exception e) {
 				// these two exceptions only occur in remote adaptors. 
 				// therefore we can safely ignore them
-				log.debug("hmmm, what happened? This should not occur here :-).");
+				log.error("hmmm, what happened? This should not occur here :-).", e);
 			}
 		}
-		return (AdaptorImpl)getAdaptor(DEFAULT_ADAPTOR_NAME);
+		return (AdaptorImpl) getAdaptor(DEFAULT_ADAPTOR_NAME);
 	}
 	
 	/**
@@ -688,10 +652,7 @@ public class AdaptorManagement {
 			log.error("Adaptor '" + adaptorName + "' does not exist!");
 			LLRPRuntimeException e = new LLRPRuntimeException("Adaptor '" + adaptorName + "' does not exist!");
 			
-			postException(
-					e, LLRPExceptionHandlerTypeMap.EXCEPTION_ADAPTER_NOT_EXIST,
-					adaptorName, "");
-			throw e;
+			postAndThenThrowException(e, LLRPExceptionHandlerTypeMap.EXCEPTION_ADAPTER_NOT_EXIST, adaptorName, "");
 		}
 		
 		return workers.get(adaptorName).isReady();
@@ -709,24 +670,17 @@ public class AdaptorManagement {
 	public void enqueueLLRPMessage(String adaptorName, String readerName, LLRPMessage message) throws LLRPRuntimeException {
 		checkStatus();
 		
-		synchronized (workers) {
-			AdaptorWorker theWorker = null;
-			if (!workers.containsKey(adaptorName)) {
-				postException(new LLRPRuntimeException("Adaptor does not exist"), 
-						LLRPExceptionHandlerTypeMap.EXCEPTION_ADAPTER_NOT_EXIST, adaptorName, readerName);
-				
-			} else {
-				theWorker = workers.get(adaptorName);
-			}
-			
-			if (!theWorker.isReady()) {
-				LLRPRuntimeException e = new LLRPRuntimeException("Queue is full");
-				postException(e, LLRPExceptionHandlerTypeMap.EXCEPTION_READER_LOST, "AdaptorManagement", readerName);
-				throw e;
-			}
-			log.debug("enqueueLLRPMessage(" + adaptorName + ", " + readerName + ")");
-			theWorker.enqueue(new QueueEntry(message, readerName, adaptorName));
+		AdaptorWorker theWorker = workers.get(adaptorName);
+		if (null == theWorker) {
+			postAndThenThrowException(new LLRPRuntimeException("Adaptor does not exist"), LLRPExceptionHandlerTypeMap.EXCEPTION_ADAPTER_NOT_EXIST, adaptorName, readerName);
 		}
+		
+		if (!theWorker.isReady()) {
+			LLRPRuntimeException e = new LLRPRuntimeException("Queue is full");
+			postAndThenThrowException(e, LLRPExceptionHandlerTypeMap.EXCEPTION_READER_LOST, "AdaptorManagement", readerName);
+		}
+		log.debug("enqueueLLRPMessage(" + adaptorName + ", " + readerName + ")");
+		theWorker.enqueue(new QueueEntry(message, readerName, adaptorName));
 	}
 	
 	/**
@@ -734,9 +688,8 @@ public class AdaptorManagement {
 	 * @param handler the handler.
 	 */
 	public void registerFullHandler(MessageHandler handler) {
-		synchronized (fullHandlers) {
-			fullHandlers.add(handler);
-		}
+		// fullHandlers is a synchronized collection, thus no explicit synchronization required.
+		fullHandlers.add(handler);
 	}
 	
 	/**
@@ -744,9 +697,8 @@ public class AdaptorManagement {
 	 * @param handler the handler to be removed.
 	 */
 	public void deregisterFullHandler(MessageHandler handler) {
-		synchronized (fullHandlers) {
-			fullHandlers.remove(handler);
-		}
+		// fullHandlers is a synchronized collection, thus no explicit synchronization required.
+		fullHandlers.remove(handler);
 	}
 	
 	/**
@@ -755,9 +707,7 @@ public class AdaptorManagement {
 	 * @return true if the handler is present, false otherwise.
 	 */
 	public boolean hasFullHandler(MessageHandler handler) {
-		synchronized (fullHandlers) {
-			return fullHandlers.contains(handler);
-		}
+		return fullHandlers.contains(handler);
 	}
 	
 	/**
@@ -765,11 +715,12 @@ public class AdaptorManagement {
 	 * @param handler the handler.
 	 * @param clzz the type of messages that the handler likes to receive (example KEEPALIVE.class).
 	 */
-	public void registerPartialHandler(MessageHandler handler, Class clzz) {
+	public void registerPartialHandler(MessageHandler handler, Class<?> clzz) {
 		synchronized (partialHandlers) {
-			LinkedList<MessageHandler> handlers = partialHandlers.get(clzz);
+			List<MessageHandler> handlers = partialHandlers.get(clzz);			
 			if (null == handlers) {
-				handlers = new LinkedList<MessageHandler> ();
+				List<MessageHandler> temp = Collections.synchronizedList(new LinkedList<MessageHandler> ());
+				handlers = temp;
 				partialHandlers.put(clzz, handlers);
 			}
 			handlers.add(handler);
@@ -781,14 +732,12 @@ public class AdaptorManagement {
 	 * @param handler the handler to remove.
 	 * @param clzz the class where the handler is registered.
 	 */
-	public void deregisterPartialHandler(MessageHandler handler, Class clzz) {
-		synchronized (partialHandlers) {
-			LinkedList<MessageHandler> handlers = partialHandlers.get(clzz);
-			if (null != handlers) {
-				synchronized (handlers) {					
-					handlers.remove(handler);
-				}
-			}
+	public void deregisterPartialHandler(MessageHandler handler, Class<?> clzz) {
+		// partialHandlers is synchronized thus retrieval is safe.
+		List<MessageHandler> handlers = partialHandlers.get(clzz);
+		if (null != handlers) {
+			// handlers is a synchronized collection, thus we can safely work on it.
+			handlers.remove(handler);
 		}
 	}
 	
@@ -798,14 +747,11 @@ public class AdaptorManagement {
 	 * @param clzz the class where to search for the handler.
 	 * @return true if the handler is present, false otherwise.
 	 */
-	public boolean hasPartialHandler(MessageHandler handler, Class clzz) {
-		synchronized (partialHandlers) {
-			LinkedList<MessageHandler> handlers = partialHandlers.get(clzz);
-			if (null != handlers) {
-				synchronized (handlers) {
-					return handlers.contains(handler);
-				}
-			}
+	public boolean hasPartialHandler(MessageHandler handler, Class<?> clzz) {
+		// partialHandlers and its content are synchronized, thus reading on it is safe without explicit synchronization.
+		List<MessageHandler> handlers = partialHandlers.get(clzz);
+		if (null != handlers) {
+			return handlers.contains(handler);
 		}
 		return false;
 	}
@@ -822,24 +768,30 @@ public class AdaptorManagement {
 			LLRPMessage message) {
 		
 		// handle full handlers...
-		synchronized (fullHandlers) {
-			for (MessageHandler handler : fullHandlers) {
-				handler.handle(adaptorName, readerName, message);
-			}
+		for (MessageHandler handler : fullHandlers) {
+			handler.handle(adaptorName, readerName, message);
 		}
 		
 		// handle partial handlers
-		synchronized (partialHandlers) {
-			LinkedList<MessageHandler> handlers = partialHandlers.get(message.getClass());
-			if (null != handlers) {
-				synchronized (handlers) {
-					for (MessageHandler handler : handlers) {
-						handler.handle(adaptorName, readerName, message);
-					}
-				}
+		List<MessageHandler> handlers = partialHandlers.get(message.getClass());
+		if (null != handlers) {
+			for (MessageHandler handler : handlers) {
+				handler.handle(adaptorName, readerName, message);
 			}
 		}
-		
+	}
+
+	/**
+	 * posts an exception the the exception handler and then throws the given exception.
+	 * @param exceptionType the type of the exception. see {@link LLRPExceptionHandler} for more details.
+	 * @param adapterName the name of the adaptor that caused the exception.
+	 * @param readerName the name of the reader that caused the exception.
+	 * @param e the exception itself.
+	 * @throws LLRPRuntimeException the given exception is thrown always.
+	 */
+	public void postAndThenThrowException(LLRPRuntimeException e, LLRPExceptionHandlerTypeMap exceptionType, String adapterName, String readerName) throws LLRPRuntimeException{
+		postException(e, exceptionType, adapterName, readerName);
+		throw e;
 	}
 	
 	/**
@@ -849,22 +801,13 @@ public class AdaptorManagement {
 	 * @param readerName the name of the reader that caused the exception.
 	 * @param e the exception itself.
 	 */
-	public void postException(
-			LLRPRuntimeException e, 
-			LLRPExceptionHandlerTypeMap 
-			exceptionType, 
-			String adapterName, 
-			String readerName) 
-	{
-		
+	public void postException(LLRPRuntimeException e, LLRPExceptionHandlerTypeMap exceptionType, String adapterName, String readerName) {		
 		if (exceptionHandler == null) {
-			log.error("ExceptionHandler not set!!!");
-			e.printStackTrace();
+			log.error("ExceptionHandler not set!!!", e);
 			return;
 		}
 
-		log.debug(String.format("Received error call on callback from '%s'.\nException:\n%s", readerName, e.getMessage()));
-		
+		log.debug(String.format("Received error call on callback from '%s'.\nException:\n%s", readerName, e.getMessage(), e));		
 		exceptionHandler.postExceptionToGUI(exceptionType, e, adapterName, readerName);
 	}
 	
@@ -889,10 +832,6 @@ public class AdaptorManagement {
 	
 	// ------------------------------- default config -------------------------------
 	private synchronized void createDefaultConfiguration() throws LLRPRuntimeException {
-			
-		// do not store this configuration
-		storeConfig = null;
-		
 		// no config -> no changes to commit
 		setCommitChanges(false);
 		
@@ -903,9 +842,7 @@ public class AdaptorManagement {
 		try {
 			define(DEFAULT_ADAPTOR_NAME, null);
 		} catch (RemoteException e) {
-			e.printStackTrace();
-		} catch (NotBoundException e) {
-			e.printStackTrace();
+			log.error("could not define the default adaptor.", e);
 		}
 	}
 	// ------------------------------- load and store -------------------------------
@@ -916,106 +853,87 @@ public class AdaptorManagement {
 	 * setting, the client might get blocked for a short moment!
 	 * @throws LLRPRuntimeException whenever there is an exception during restoring.
 	 */
-	public synchronized void loadFromFile() throws LLRPRuntimeException {
-	
-		if (readConfig == null) {
+	public synchronized void loadConfiguration() throws LLRPRuntimeException {
 
-			// if the config cannot be read, then we inform the user about that
-			// issue but then just use a default configuration
-			
-			log.info("config not specified -> create a default configuration");	
-			createDefaultConfiguration();
-			return;
-		}
-		
 		// store the commit mode.
 		boolean commitMode = isCommitChanges();
 		setCommitChanges(false);
 		
 		boolean isExported = false;
 		synchronized (AdaptorManagement.class) {
-			synchronized (workers) {
-				synchronized (localWorkers) {
-					synchronized (remoteWorkers) {
-						
-						// clear out all available adaptors
-						clearWorkers();
-						
-						List<AdaptorConfiguration> configurations = null;
-						try {
-							configurations = configLoader.getConfiguration(readConfig);
-						} catch (LLRPRuntimeException e) {
-							log.info("could not read the config -> create a default configuration");
-							
-							createDefaultConfiguration();
-							return;
-						}
-						
-						for (AdaptorConfiguration adaptorConfiguration : configurations) {
-							
-							String adaptorName = adaptorConfiguration.getAdaptorName();
-							String adaptorIP = adaptorConfiguration.getIp();
-											
-							if (adaptorConfiguration.isLocal()) {
-								log.debug("Load local Adaptor");
-								adaptorIP = null;
-							} else {
-								log.debug(String.format("Load Remote Adaptor: '%s' on '%s'",
-										adaptorName, 
-										adaptorConfiguration.getIp()));
-							}
-							
-							boolean adaptorCreated = false;
-							try {
-								if ((export) && (isExported)) {
-									// only export the first adaptor
-									isExported = true;
-									define(adaptorName, adaptorIP);
-								}
-								adaptorName = define(adaptorName, adaptorIP);
-	
-								adaptorCreated = true;
-								log.debug(String.format("adaptor '%s' successfully created", adaptorName));
-							} catch (Exception e) {
-								log.error(String.format("could not create adaptor '%s': %s", adaptorName,
-										e.getMessage()));
-							}
-							
-							// only create the readers when the adaptor has been created successfully
-							// and if the adaptor is remote, we just retrieve the readers. 
-							if ((adaptorCreated) && (adaptorConfiguration.isLocal())) {
-								// get a handle of the adaptor and register all the readers.
-								Adaptor adaptor = getAdaptor(adaptorName);
+			// clear out all available adaptors
+			clearWorkers();
+			
+			List<AdaptorConfiguration> configurations = null;
+			try {
+				configurations = configLoader.getConfiguration();
+			} catch (LLRPRuntimeException e) {
+				log.info("could not read the config -> create a default configuration");
+				
+				createDefaultConfiguration();
+				return;
+			}
+			
+			for (AdaptorConfiguration adaptorConfiguration : configurations) {
+				
+				String adaptorName = adaptorConfiguration.getAdaptorName();
+				String adaptorIP = adaptorConfiguration.getIp();
 								
-								if (adaptorConfiguration.getReaderPrototypes() != null) {
-									for (ReaderConfiguration readerConfiguration : adaptorConfiguration.getReaderPrototypes()) {
-										
-										String readerName = readerConfiguration.getReaderName();
-										String readerIp = readerConfiguration.getReaderIp();
-										int readerPort = readerConfiguration.getReaderPort();
-										boolean readerClientInitiated = readerConfiguration.isReaderClientInitiated();
-										boolean connectImmediately = readerConfiguration.isConnectImmediately();
-										
-										log.debug(String.format("Load llrp reader: '%s' on '%s:%d', clientInitiatedConnection: %b, connectImmediately: %b", 
-												readerName, readerIp, readerPort, readerClientInitiated, connectImmediately));
-										
-										// create the reader
-										try {
-											// try to establish the connection immediately
-											adaptor.define(readerName, readerIp, readerPort, readerClientInitiated, connectImmediately);
-											log.debug(String.format("reader '%s' successfully created", readerName));
-										} catch (RemoteException e) {
-											log.error(String.format("could not create reader '%s'", readerName));
-											e.printStackTrace();
-										}
-									}
-								}
+				if (adaptorConfiguration.isLocal()) {
+					log.debug("Load local Adaptor");
+					adaptorIP = null;
+				} else {
+					log.debug(String.format("Load Remote Adaptor: '%s' on '%s'",
+							adaptorName, 
+							adaptorConfiguration.getIp()));
+				}
+				
+				boolean adaptorCreated = false;
+				try {
+					if ((export) && (isExported)) {
+						// only export the first adaptor
+						isExported = true;
+						define(adaptorName, adaptorIP);
+					}
+					adaptorName = define(adaptorName, adaptorIP);
+
+					adaptorCreated = true;
+					log.debug(String.format("adaptor '%s' successfully created", adaptorName));
+				} catch (Exception e) {
+					log.error(String.format("could not create adaptor '%s': %s", adaptorName,
+							e.getMessage()));
+				}
+				
+				// only create the readers when the adaptor has been created successfully
+				// and if the adaptor is remote, we just retrieve the readers. 
+				if ((adaptorCreated) && (adaptorConfiguration.isLocal())) {
+					// get a handle of the adaptor and register all the readers.
+					Adaptor adaptor = getAdaptor(adaptorName);
+					
+					if (adaptorConfiguration.getReaderPrototypes() != null) {
+						for (ReaderConfiguration readerConfiguration : adaptorConfiguration.getReaderPrototypes()) {
+							
+							String readerName = readerConfiguration.getReaderName();
+							String readerIp = readerConfiguration.getReaderIp();
+							int readerPort = readerConfiguration.getReaderPort();
+							boolean readerClientInitiated = readerConfiguration.isReaderClientInitiated();
+							boolean connectImmediately = readerConfiguration.isConnectImmediately();
+							
+							log.debug(String.format("Load llrp reader: '%s' on '%s:%d', clientInitiatedConnection: %b, connectImmediately: %b", 
+									readerName, readerIp, readerPort, readerClientInitiated, connectImmediately));
+							
+							// create the reader
+							try {
+								// try to establish the connection immediately
+								adaptor.define(readerName, readerIp, readerPort, readerClientInitiated, connectImmediately);
+								log.debug(String.format("reader '%s' successfully created", readerName));
+							} catch (RemoteException e) {
+								log.error(String.format("could not create reader '%s'", readerName), e);
 							}
 						}
-						
-					} // synchronized remoteWorkers
-				} // synchronized localWorkers
-			} // synchronized workers
+					}
+				}
+			}
 		} // synchronized adaptorManagement
 		
 		// restore the commit mode.
@@ -1027,74 +945,59 @@ public class AdaptorManagement {
 	 * the local adaptor all readers get stored as well.
 	 * @throws LLRPRuntimeException whenever there occurs an error during storage.
 	 */
-	public synchronized void storeToFile() throws LLRPRuntimeException {
-		if (storeConfig == null) {
-			log.info("Store config not specified, not storing the configuration.");
-			return;
-		}
-		
+	public synchronized void storeToFile() throws LLRPRuntimeException {		
 		synchronized (AdaptorManagement.class) {
-			synchronized (workers) {
-				synchronized (localWorkers) {
-					synchronized (remoteWorkers) {
-						
-						List<AdaptorConfiguration> configurations = new LinkedList<AdaptorConfiguration>();
-						
-		 				for (String adaptorName : workers.keySet()) {
-		 					String ip = workers.get(adaptorName).getAdaptorIpAddress();
-		 					boolean isLocal = false;
-		 					if (ip == null) {
-		 						isLocal = true;
-		 					}
-							configurations.add(
-									new AdaptorConfiguration(
-											adaptorName, 
-											ip,
-											isLocal,
-											null));
+			List<AdaptorConfiguration> configurations = new LinkedList<AdaptorConfiguration>();
+			
+			for (String adaptorName : workers.keySet()) {
+				String ip = workers.get(adaptorName).getAdaptorIpAddress();
+				boolean isLocal = false;
+				if (ip == null) {
+					isLocal = true;
+				}
+				configurations.add(
+						new AdaptorConfiguration(
+								adaptorName, 
+								ip,
+								isLocal,
+								null));
+			}
+			
+			for (AdaptorConfiguration configuration : configurations) {
+				if (configuration.isLocal()) {
+ 					List<ReaderConfiguration> readerConfigurations = new LinkedList<ReaderConfiguration> ();
+ 					configuration.setReaderConfigurations(readerConfigurations);
+ 					// get a handle on the adaptor
+ 					Adaptor adaptor = getAdaptor(configuration.getAdaptorName());
+ 					try {
+						for (String readerName : adaptor.getReaderNames()) {
+							Reader reader = adaptor.getReader(readerName);
+							boolean connectImmed = false;	// somehow this causes bugs with MINA, if we start the reader at startup.
+							boolean clientInit = reader.isClientInitiated();
+							String ip = reader.getReaderAddress();
+							int port = reader.getPort();
+							
+							readerConfigurations.add(new ReaderConfiguration(
+										readerName,
+										ip,
+										port,
+										clientInit,
+										connectImmed
+									)
+							);
 						}
-						
-		 				for (AdaptorConfiguration configuration : configurations) {
-		 					if (configuration.isLocal()) {
-			 					List<ReaderConfiguration> readerConfigurations = new LinkedList<ReaderConfiguration> ();
-			 					configuration.setReaderConfigurations(readerConfigurations);
-			 					// get a handle on the adaptor
-			 					Adaptor adaptor = getAdaptor(configuration.getAdaptorName());
-			 					try {
-									for (String readerName : adaptor.getReaderNames()) {
-										Reader reader = adaptor.getReader(readerName);
-										boolean connectImmed = false;	// somehow this causes bugs with MINA, if we start the reader at startup.
-										boolean clientInit = reader.isClientInitiated();
-										String ip = reader.getReaderAddress();
-										int port = reader.getPort();
-										
-										readerConfigurations.add(new ReaderConfiguration(
-													readerName,
-													ip,
-													port,
-													clientInit,
-													connectImmed
-												)
-										);
-									}
-								} catch (RemoteException e) {
-									// local configuration therefore we can ignore the remote exception.
-									e.printStackTrace();
-								}
-		 					}
-		 				}
-		 				
-		 				try {
-		 					configLoader.writeConfiguration(configurations, storeConfig);
-		 				} catch (LLRPRuntimeException e) {
-		 					postException(e, 
-		 							LLRPExceptionHandlerTypeMap.EXCEPTION_ADAPTOR_MANAGEMENT_CONFIG_NOT_STORABLE, 
-		 							"", "");
-		 				}
-		 				
-					} // synchronized remoteWorkers
-				} // synchronized localWorkers
-			} // synchronized workers
+					} catch (RemoteException e) {
+						// local configuration therefore we can ignore the remote exception.
+						log.error("caugth remote exception on local configuration - humm, something smells here ...", e);
+					}
+				}
+			}
+			
+			try {
+				configLoader.writeConfiguration(configurations);
+			} catch (LLRPRuntimeException e) {
+				postException(e, LLRPExceptionHandlerTypeMap.EXCEPTION_ADAPTOR_MANAGEMENT_CONFIG_NOT_STORABLE, "", "");
+			}
 		} // synchronized adaptorManagement
 	}
 	
@@ -1135,38 +1038,6 @@ public class AdaptorManagement {
 	 */
 	public void setCommitChanges(boolean commitChanges) {
 		this.commitChanges = commitChanges;
-	}
-
-	/**
-	 * returns the configuration file where to read the settings.
-	 * @return the configuration file where to read the settings.
-	 */
-	public String getReadConfig() {
-		return readConfig;
-	}
-
-	/**
-	 * sets the configuration file.
-	 * @param readConfig the configuration file.
-	 */
-	public void setReadConfig(String readConfig) {
-		this.readConfig = readConfig;
-	}
-
-	/**
-	 * returns the configuration file where to store changes.
-	 * @return the configuration file where to store changes.
-	 */
-	public String getStoreConfig() {
-		return storeConfig;
-	}
-
-	/**
-	 * sets the configuration file where to store changes.
-	 * @param storeConfig the configuration file where to store changes.
-	 */
-	public void setStoreConfig(String storeConfig) {
-		this.storeConfig = storeConfig;
 	}
 	
 	private synchronized void checkWorkers() {

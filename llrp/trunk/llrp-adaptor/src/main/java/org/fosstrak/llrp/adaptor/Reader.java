@@ -41,56 +41,55 @@ public interface Reader extends Remote  {
 	 * @throws LLRPRuntimeException whenever an error occurs.
 	 * @throws RemoteException whenever there is an rmi error.
 	 */
-	public void connect(boolean clientInitiatedConnection)
-			throws LLRPRuntimeException, RemoteException;
+	void connect(boolean clientInitiatedConnection) throws LLRPRuntimeException, RemoteException;
 
 	/**
 	 * disconnect the reader stub from the physical reader.
 	 * @throws RemoteException whenever there is an rmi error.
 	 */
-	public void disconnect() throws RemoteException;
+	void disconnect() throws RemoteException;
 
 	/**
 	 * try to reconnect the reader.
 	 * @throws RemoteException whenever there is an rmi error.
 	 * @throws LLRPRuntimeException whenever there is a exception during connection setup.
 	 */
-	public void reconnect() throws LLRPRuntimeException, RemoteException;
+	void reconnect() throws LLRPRuntimeException, RemoteException;
 
 	/**
 	 * send a message to the llrp reader.
 	 * @param message the message to be sent.
 	 * @throws RemoteException whenever there is an rmi error.
 	 */
-	public void send(byte[] message) throws RemoteException;
+	void send(byte[] message) throws RemoteException;
 
 	/**
 	 * tells if the reader is connected or not.
 	 * @return true if the reader is connected.
 	 * @throws RemoteException whenever there is an rmi error.
 	 */
-	public boolean isConnected() throws RemoteException;
+	boolean isConnected() throws RemoteException;
 
 	/**
 	 * return the ip address of this reader.
 	 * @return the ip address of this reader.
 	 * @throws RemoteException whenever there is an rmi error.
 	 */
-	public String getReaderAddress() throws RemoteException;
+	String getReaderAddress() throws RemoteException;
 
 	/**
 	 * return the name of this reader.
 	 * @return the name of this reader.
 	 * @throws RemoteException whenever there is an rmi error.
 	 */
-	public String getReaderName() throws RemoteException;
+	String getReaderName() throws RemoteException;
 	
 	/**
 	 * return the port of this reader.
 	 * @return the port of this reader.
 	 * @throws RemoteException whenever there is an rmi error.
 	 */
-	public int getPort() throws RemoteException;
+	int getPort() throws RemoteException;
 
 	/**
 	 * tell if this reader maintains a client initiated connection or if the 
@@ -98,21 +97,21 @@ public interface Reader extends Remote  {
 	 * @return <ul><li>true if client initiated connection</li><li>false if llrp reader initiated connection</li></ul>
 	 * @throws RemoteException whenever there is an rmi error.
 	 */
-	public boolean isClientInitiated() throws RemoteException;
+	boolean isClientInitiated() throws RemoteException;
 
 	/**
 	 * sets the connect behavior to the specified value.
 	 * @param clientInitiated if true then the client issues the connect.
 	 * @throws RemoteException whever there is an RMI error.
 	 */
-	public void setClientInitiated(boolean clientInitiated) throws RemoteException;
+	void setClientInitiated(boolean clientInitiated) throws RemoteException;
 	
 	/** 
 	 * tells whether this reader connects immediately after creation.
 	 * @return whether this reader connects immediately after creation.
 	 * @throws RemoteException whenever there is an RMI error.
 	 */
-	public boolean isConnectImmediate() throws RemoteException;
+	boolean isConnectImmediate() throws RemoteException;
 	
 	/**
 	 * 
@@ -120,14 +119,14 @@ public interface Reader extends Remote  {
 	 * @param value whether this reader connects immediately after creation.
 	 * @throws RemoteException whenever there is an RMI error.	 
 	 */
-	public void setConnectImmediate(boolean value) throws RemoteException;
+	void setConnectImmediate(boolean value) throws RemoteException;
 	
 	/**
 	 * register for asynchronous messages from the physical reader.
 	 * @param receiver the receiver that shall be notified with the message.
 	 * @throws RemoteException whenever there is an RMI error.
 	 */
-	public abstract void registerForAsynchronous(AsynchronousNotifiable receiver) throws RemoteException;
+	abstract void registerForAsynchronous(AsynchronousNotifiable receiver) throws RemoteException;
 
 	/**
 	 * deregister from the asynchronous messages. the receiver will no more 
@@ -135,8 +134,7 @@ public interface Reader extends Remote  {
 	 * @param receiver the receiver to deregister.
 	 * @throws RemoteException whenever there is an RMI error.
 	 */
-	public void deregisterFromAsynchronous(
-			AsynchronousNotifiable receiver) throws RemoteException;
+	void deregisterFromAsynchronous(AsynchronousNotifiable receiver) throws RemoteException;
 	
 	/**
 	 * sets the connection timeout period for the reader. if the times * keepAlivePeriod has 
@@ -147,14 +145,14 @@ public interface Reader extends Remote  {
 	 * @param throwException whether to throw an exception upon disconnection.
 	 * @throws RemoteException whenever there is an RMI error. 
 	 */
-	public void setKeepAlivePeriod(int keepAlivePeriod, int times, boolean report, boolean throwException) throws RemoteException;
+	void setKeepAlivePeriod(int keepAlivePeriod, int times, boolean report, boolean throwException) throws RemoteException;
 	
 	/**
 	 * returns the keepalive period set for this reader.
 	 * @return the keepalive period set for this reader.
 	 * @throws RemoteException whenever there is an RMI error. 
 	 */
-	public int getKeepAlivePeriod() throws RemoteException;
+	int getKeepAlivePeriod() throws RemoteException;
 	
 	/**
 	 * if set to true, the reader will report all the keep-alive messages exchanged between the 
@@ -162,18 +160,18 @@ public interface Reader extends Remote  {
 	 * @param report if true report the status messages. if false not.
 	 * @throws RemoteException whenever there is an RMI error.
 	 */
-	public void setReportKeepAlive(boolean report) throws RemoteException;
+	void setReportKeepAlive(boolean report) throws RemoteException;
 	
 	/**
 	 * @return whether the reader stub delivers the keep-alive messages to the repo or not.
 	 * @throws RemoteException whenever there is an RMI error.
 	 */
-	public boolean isReportKeepAlive() throws RemoteException;
+	boolean isReportKeepAlive() throws RemoteException;
 	
 	/**
 	 * the reader meta-data contains information about the reader, the settings, etc.
 	 * @return a meta-data structure.
 	 * @throws RemoteException whenever there is an RMI error.
 	 */
-	public ReaderMetaData getMetaData() throws RemoteException;
+	ReaderMetaData getMetaData() throws RemoteException;
 }

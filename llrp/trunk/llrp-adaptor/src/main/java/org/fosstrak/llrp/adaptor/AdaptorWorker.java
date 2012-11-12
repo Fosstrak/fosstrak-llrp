@@ -23,9 +23,10 @@ package org.fosstrak.llrp.adaptor;
 
 import java.util.LinkedList;
 
+import org.apache.log4j.Logger;
+import org.fosstrak.llrp.adaptor.exception.LLRPRuntimeException;
 import org.fosstrak.llrp.adaptor.queue.QueueEntry;
 import org.fosstrak.llrp.client.LLRPExceptionHandlerTypeMap;
-import org.fosstrak.llrp.adaptor.exception.LLRPRuntimeException;
 import org.llrp.ltk.exceptions.InvalidLLRPMessageException;
 
 /**
@@ -37,6 +38,7 @@ import org.llrp.ltk.exceptions.InvalidLLRPMessageException;
  *
  */
 public class AdaptorWorker implements Runnable {
+	
 	/** the worker does not accept more messages in the queue than this threshold. */
 	public static final int QUEUE_THRESHOLD = 100;
 	
@@ -60,6 +62,9 @@ public class AdaptorWorker implements Runnable {
 	 * such a way that upon startup erroneous adaptors get cleaned out. 
 	 * */
 	private int connFailures = 2;
+
+	/** the logger. */
+	private static Logger log = Logger.getLogger(AdaptorWorker.class);
 	
 	/** the number of allowed connection failures between adaptor and client. */
 	public static final int MAX_CONN_FAILURES = 3;
@@ -92,7 +97,7 @@ public class AdaptorWorker implements Runnable {
 					process(entry);
 				}
 			} catch (InterruptedException e) {
-				e.printStackTrace();
+				log.info("got interrupted", e);
 			}
 		}
 		

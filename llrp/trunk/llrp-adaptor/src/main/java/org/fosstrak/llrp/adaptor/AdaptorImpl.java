@@ -23,10 +23,10 @@ package org.fosstrak.llrp.adaptor;
 
 import java.rmi.RemoteException;
 import java.rmi.server.UnicastRemoteObject;
-import java.util.HashMap;
 import java.util.LinkedList;
 import java.util.List;
 import java.util.Map;
+import java.util.concurrent.ConcurrentHashMap;
 
 import org.fosstrak.llrp.adaptor.exception.LLRPDuplicateNameException;
 import org.fosstrak.llrp.adaptor.exception.LLRPRuntimeException;
@@ -45,13 +45,13 @@ public class AdaptorImpl extends UnicastRemoteObject implements Adaptor {
 	private static final long serialVersionUID = -5896254195502117705L;
 
 	/** a map holding all the readers contained in this adaptor. */
-	protected Map<String, ReaderImpl> readers = new HashMap<String, ReaderImpl> ();
+	private Map<String, Reader> readers = new ConcurrentHashMap<String, Reader> ();
 	
 	/** a list with all the receivers of asynchronous messages. */
 	private AsynchronousNotifiableList toNotify = new AsynchronousNotifiableList();
 	
 	/** the name of this adaptor. */
-	protected String adaptorName = null;
+	private String adaptorName = null;
 	
 	private AdaptorManagement adaptorManagement = null;
 	
@@ -64,22 +64,28 @@ public class AdaptorImpl extends UnicastRemoteObject implements Adaptor {
 		super();
 		this.adaptorName = adaptorName;
 	}
-	
+
+	@Override	
 	public boolean containsReader(String readerName) throws RemoteException {
 		return readers.containsKey(readerName);
 	}
 
-	public void define(String readerName, 
-			String readerAddress, 
-			boolean clientInitiatedConnection,
-			boolean connectImmediately)
-			throws RemoteException, LLRPRuntimeException {
-		
+	@Override
+	public void define(String readerName, String readerAddress, boolean clientInitiatedConnection, boolean connectImmediately) throws RemoteException, LLRPRuntimeException {
+		define(new ReaderImpl(this, readerName, readerAddress), clientInitiatedConnection, connectImmediately);
+	}
+
+	@Override
+	public void define(String readerName, String readerAddress, int port, boolean clientInitiatedConnection, boolean connectImmediately) throws RemoteException, LLRPRuntimeException {	
+		define(new ReaderImpl(this, readerName, readerAddress, port), clientInitiatedConnection, connectImmediately);
+	}
+	
+	private void define(Reader reader, boolean clientInitiatedConnection, boolean connectImmediately) throws RemoteException, LLRPRuntimeException {
+		final String readerName = reader.getReaderName();
+
 		if (containsReader(readerName)) {
 			throw new LLRPDuplicateNameException(readerName, "Reader '" + readerName + "' already exists.");
-		}
-		
-		ReaderImpl reader = new ReaderImpl(this, readerName, readerAddress);
+		}	
 		reader.setClientInitiated(clientInitiatedConnection);
 		reader.setConnectImmediate(connectImmediately);
 		
@@ -91,33 +97,12 @@ public class AdaptorImpl extends UnicastRemoteObject implements Adaptor {
 		commit();
 	}
 
-	public void define(String readerName, 
-			String readerAddress,
-			int port, 
-			boolean clientInitiatedConnection,
-			boolean connectImmediately) 
-		throws RemoteException, LLRPRuntimeException {
-		
-		if (containsReader(readerName)) {
-			throw new LLRPDuplicateNameException(readerName, "Reader '" + readerName + "' already exists.");
-		}
-		
-		ReaderImpl reader = new ReaderImpl(this, readerName, readerAddress, port);	
-		reader.setClientInitiated(clientInitiatedConnection);
-		reader.setConnectImmediate(connectImmediately);
-		
-		// run the connection setup only when requested.
-		if (connectImmediately) {
-			reader.connect(clientInitiatedConnection);
-		}
-		readers.put(readerName, reader);
-		commit();
-	}
-
+	@Override
 	public String getAdaptorName() throws RemoteException {
 		return adaptorName;
 	}
 
+	@Override
 	public List<String> getReaderNames() throws RemoteException {
 		// we create a copy, no leakage!
 		List<String> readerNames = new LinkedList<String> ();
@@ -128,9 +113,8 @@ public class AdaptorImpl extends UnicastRemoteObject implements Adaptor {
 		return readerNames;
 	}
 
-	public void undefine(String readerName) throws RemoteException,
-			LLRPRuntimeException {
-		
+	@Override
+	public void undefine(String readerName) throws RemoteException,	LLRPRuntimeException {
 		if (!containsReader(readerName)) {
 			throw new LLRPRuntimeException("Reader '" + readerName + "' does not exist.");
 		}
@@ -138,9 +122,10 @@ public class AdaptorImpl extends UnicastRemoteObject implements Adaptor {
 		reader.disconnect();
 		commit();
 	}
-		
+
+	@Override
 	public void undefineAll() throws RemoteException, LLRPRuntimeException {
-		for (String readerName : getReaderNames()) {
+		for (final String readerName : getReaderNames()) {
 			try {
 				undefine(readerName);
 			} catch (LLRPRuntimeException e) {
@@ -153,16 +138,16 @@ public class AdaptorImpl extends UnicastRemoteObject implements Adaptor {
 		}
 		commit();
 	}
-	
-	
+
+	@Override
 	public void disconnectAll() throws RemoteException, LLRPRuntimeException {
-		for (String readerName : getReaderNames()) {
+		for (final String readerName : getReaderNames()) {
 			readers.get(readerName).disconnect();
 		}
 	}
-	
-	public void sendLLRPMessage(String readerName, byte[] message)
-			throws RemoteException, LLRPRuntimeException {
+
+	@Override
+	public void sendLLRPMessage(String readerName, byte[] message) throws RemoteException, LLRPRuntimeException {
 		
 		if (!containsReader(readerName)) {
 			throw new LLRPRuntimeException("Reader '" + readerName + "' does not exist.");
@@ -171,49 +156,39 @@ public class AdaptorImpl extends UnicastRemoteObject implements Adaptor {
 		readers.get(readerName).send(message);
 	}
 
-	public void sendLLRPMessageToAllReaders(byte[] message)
-			throws RemoteException, LLRPRuntimeException {
-		
+	@Override
+	public void sendLLRPMessageToAllReaders(byte[] message) throws RemoteException, LLRPRuntimeException {
 		for (Reader reader : readers.values()) {
 			reader.send(message);
 		}
-		
 	}
 
-	
-	public void registerForAsynchronous(AsynchronousNotifiable receiver)
-			throws RemoteException {
-		
+	@Override	
+	public void registerForAsynchronous(AsynchronousNotifiable receiver) throws RemoteException {		
 		toNotify.add(receiver);
 	}
 
-	
-	public void messageReceivedCallback(byte[] message, String readerName)
-			throws RemoteException {
-		
+	@Override	
+	public void messageReceivedCallback(byte[] message, String readerName) throws RemoteException {		
 		toNotify.notify(message, readerName);
 	}
 
-	
-	public void deregisterFromAsynchronous(AsynchronousNotifiable receiver)
-			throws RemoteException {
-		
+	@Override	
+	public void deregisterFromAsynchronous(AsynchronousNotifiable receiver) throws RemoteException {
 		toNotify.remove(receiver);
 	}
 
-	
-	public void errorCallback(LLRPRuntimeException e, String readerName)
-		throws RemoteException {
-		
+	@Override
+	public void errorCallback(LLRPRuntimeException e, String readerName) throws RemoteException {
 		toNotify.notifyError(e, readerName);	
 	}
 
-	
+	@Override	
 	public Reader getReader(String readerName) throws RemoteException {
 		return readers.get(readerName);
 	}
 
-	
+	@Override
 	public void setAdaptorName(String adaptorName) throws RemoteException {
 		this.adaptorName = adaptorName;
 	}
@@ -223,9 +198,8 @@ public class AdaptorImpl extends UnicastRemoteObject implements Adaptor {
 			adaptorManagement.commit();
 		}
 	}
-	
+
 	public void setAdaptorManagement(AdaptorManagement management) {
 		this.adaptorManagement = management;
 	}
-
 }

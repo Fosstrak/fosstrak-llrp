@@ -30,17 +30,15 @@ import java.rmi.registry.Registry;
 import java.util.LinkedList;
 import java.util.List;
 
-import org.fosstrak.llrp.adaptor.Adaptor;
-import org.fosstrak.llrp.adaptor.AdaptorImpl;
-import org.fosstrak.llrp.adaptor.Constants;
+import junit.framework.TestCase;
+
+import org.apache.log4j.Logger;
 import org.jdom.Document;
 import org.jdom.input.SAXBuilder;
 import org.llrp.ltk.generated.LLRPMessageFactory;
 import org.llrp.ltk.types.LLRPMessage;
 
 import util.AsyncNotif;
-
-import junit.framework.TestCase;
 
 /**
  * this class runs basic tests on the adaptor.
@@ -56,6 +54,9 @@ import junit.framework.TestCase;
  *
  */
 public class AdaptorTest extends TestCase {
+	
+	/** the logger. */
+	private static Logger log = Logger.getLogger(AdaptorTest.class);
 
 	/** 
 	 * helper class to test the remote rmi adaptor.
@@ -75,9 +76,9 @@ public class AdaptorTest extends TestCase {
 				Registry r = LocateRegistry.getRegistry(Constants.registryPort);
 				r.bind(Constants.adaptorNameInRegistry, adaptor);					
 			} catch (RemoteException e) {
-				e.printStackTrace();
+				log.error("caught remote exception", e);
 			} catch (AlreadyBoundException e) {
-				e.printStackTrace();
+				log.error("already bound", e);
 			}				
 		}
 		
@@ -95,9 +96,9 @@ public class AdaptorTest extends TestCase {
 				r = LocateRegistry.getRegistry(Constants.registryPort);
 				r.unbind(Constants.adaptorNameInRegistry);
 			} catch (RemoteException e) {
-				e.printStackTrace();
+				log.error("remote exception", e);
 			} catch (NotBoundException e) {
-				e.printStackTrace();
+				log.error("not bound", e);
 			}
 
 		}

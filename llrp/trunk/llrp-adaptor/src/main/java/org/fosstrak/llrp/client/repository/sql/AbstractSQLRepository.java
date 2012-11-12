@@ -300,19 +300,14 @@ public abstract class AbstractSQLRepository implements Repository {
     	final String driver = getDBDriver();
     	try {
             Class.forName(driver).newInstance();
-            log.info(String.format("Loaded the appropriate driver: %s",
-            		driver));
+            log.info(String.format("Loaded the appropriate driver: %s", driver));
             isHealth = true;
         } catch (ClassNotFoundException cnfe) {
-            log.warn("Unable to load the JDBC driver " + driver);
-            log.warn("Please check your CLASSPATH.");
-            cnfe.printStackTrace(System.err);
+            log.warn("Unable to load the JDBC driver " + driver + "Please check your CLASSPATH.", cnfe);
         } catch (InstantiationException ie) {
-        	log.warn("Unable to instantiate the JDBC driver " + driver);
-            ie.printStackTrace(System.err);
+        	log.warn("Unable to instantiate the JDBC driver " + driver, ie);
         } catch (IllegalAccessException iae) {
-        	log.warn("Not allowed to access the JDBC driver " + driver);
-            iae.printStackTrace(System.err);
+        	log.warn("Not allowed to access the JDBC driver " + driver, iae);
         }
         return isHealth;
     }
@@ -480,7 +475,7 @@ public abstract class AbstractSQLRepository implements Repository {
 		
 			log.debug("Put Message (ID=" + aMessage.getId() + ") into database.");
 		} catch (SQLException sqle) {
-            sqle.printStackTrace();
+			log.error("could not store item", sqle);
 		}
 	}
 	
@@ -494,7 +489,7 @@ public abstract class AbstractSQLRepository implements Repository {
 			psRemoveAll.executeUpdate();
 			psRemoveAll.close();
 		} catch (SQLException sqle) {
-            sqle.printStackTrace();
+			log.error("could not truncate database", sqle);
 		}
 	}
 	
@@ -564,7 +559,7 @@ public abstract class AbstractSQLRepository implements Repository {
 			psRemove.executeUpdate();
 			psRemove.close();
 		} catch (SQLException sqle) {
-            sqle.printStackTrace();
+			log.error("could not clear adapter", sqle);
 		}		
 	}
 
@@ -582,7 +577,7 @@ public abstract class AbstractSQLRepository implements Repository {
 			psRemove.executeUpdate();
 			psRemove.close();
 		} catch (SQLException sqle) {
-            sqle.printStackTrace();
+			log.error("could not clear the reader", sqle);
 		}	
 	}
 	
@@ -596,7 +591,7 @@ public abstract class AbstractSQLRepository implements Repository {
                 conn = null;
             }
         } catch (SQLException e) {
-            e.printStackTrace();
+        	log.error("could not close the database connection", e);
         }
 	}
 	
@@ -708,7 +703,7 @@ public abstract class AbstractSQLRepository implements Repository {
 			results.close();
 			
 		} catch (SQLException sqle) {
-            sqle.printStackTrace();
+			log.error("could not query for the requested message item", sqle);
 		}
 		
 		return msg;

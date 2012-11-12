@@ -17,8 +17,14 @@
 	<!-- =========================================================== -->
 
 	<modules>
-		<!--<module>llrp-commander</module>-->
 		<module>llrp-adaptor</module>
+		<module>llrp-adaptor-integration</module>
+		<!--
+		LLRP Commander will be moved into its own project and thus 
+		be deleted from the source trunk here. For the sake of 
+		simplicity, keep it deactivated here for now.
+		<module>llrp-commander</module>
+		-->
 	</modules>
 
 
@@ -48,12 +54,12 @@
 		<dependency>
 			<groupId>org.llrp</groupId>
 			<artifactId>ltkjava</artifactId>
-			<version>1.0.0.6</version>
+			<version>1.0.0.7</version>
 		</dependency>
 		<dependency>
 			<groupId>org.llrp</groupId>
 			<artifactId>ltkjava-generator</artifactId>
-			<version>1.0.0.6</version>
+			<version>1.0.0.7</version>
 		</dependency>
 	</dependencies>
 
