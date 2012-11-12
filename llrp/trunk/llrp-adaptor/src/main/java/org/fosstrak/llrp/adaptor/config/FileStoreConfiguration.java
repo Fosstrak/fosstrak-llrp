@@ -23,7 +23,6 @@ package org.fosstrak.llrp.adaptor.config;
 
 import java.io.File;
 import java.io.FileInputStream;
-import java.io.FileNotFoundException;
 import java.io.FileOutputStream;
 import java.io.IOException;
 import java.util.LinkedList;
@@ -33,6 +32,8 @@ import java.util.Properties;
 
 import org.apache.log4j.Logger;
 import org.fosstrak.llrp.adaptor.AdaptorManagement;
+import org.fosstrak.llrp.adaptor.config.type.AdaptorConfiguration;
+import org.fosstrak.llrp.adaptor.config.type.ReaderConfiguration;
 import org.fosstrak.llrp.adaptor.exception.LLRPRuntimeException;
 import org.fosstrak.llrp.adaptor.util.SortedProperties;
 
@@ -78,12 +79,15 @@ public class FileStoreConfiguration extends Configuration {
 	/**
 	 * creates a configuration loader.
 	 */
-	public FileStoreConfiguration(Map<String, Object> readParameters,	Map<String, Object> writeParameters) {
+	public FileStoreConfiguration(Map<String, Object> readParameters, Map<String, Object> writeParameters) {
 		super(readParameters, writeParameters);
 	}
 
 	@Override
 	public List<AdaptorConfiguration> getConfiguration() throws LLRPRuntimeException {
+		if (readParameters == null) {
+			throw new IllegalArgumentException("readParameters is null - aborting.");
+		}
 		return getConfiguration((String) readParameters.get(KEY_LOADFILEPATH));
 	}
 	
@@ -94,17 +98,13 @@ public class FileStoreConfiguration extends Configuration {
 	 * @throws LLRPRuntimeException whenever the configuration file could not be read.
 	 */
 	private List<AdaptorConfiguration> getConfiguration(String propertiesFile ) throws LLRPRuntimeException {
-		
 		props = new Properties();
 		// try to load the properties file
 		try {
 			props.load(new FileInputStream(new File(propertiesFile)));
-		} catch (FileNotFoundException e) {
-			log.error("The configuration file " + propertiesFile + " was not found.");
-			throw new LLRPRuntimeException(e.getMessage());
 		} catch (IOException e) {
-			log.error("There has been an IO Exception when reading the configuration file " + propertiesFile);
-			throw new LLRPRuntimeException(e.getMessage());
+			log.error("There has been an IO Exception when reading the configuration file " + propertiesFile, e);
+			throw new LLRPRuntimeException(e.getMessage(), e);
 		}	
 		
 		adaptorConfigurations = new LinkedList<AdaptorConfiguration>();
@@ -167,6 +167,12 @@ public class FileStoreConfiguration extends Configuration {
 
 	@Override
 	public void writeConfiguration(List<AdaptorConfiguration> configurations) throws LLRPRuntimeException {
+		if (writeParameters == null) {
+			throw new IllegalArgumentException("writeParameters null - aborting.");
+		}
+		if (configurations == null) {
+			throw new IllegalArgumentException("configuration to write must not be null - aborting.");
+		}
 		writeConfiguration(configurations, (String) writeParameters.get(KEY_STOREFILEPATH));
 	}
 	
@@ -189,29 +195,27 @@ public class FileStoreConfiguration extends Configuration {
 		props.setProperty(CFG_NBR_ADAPTORS, String.format("%s", configurations.size()));
 		
 		// the first adapter we write is the default adapter
-		int defaultIndex = 0;
+		List<AdaptorConfiguration> others = new LinkedList<AdaptorConfiguration> ();
+		AdaptorConfiguration defaultAdaptor = null;
 		for (AdaptorConfiguration cfg : configurations) {
 			if (AdaptorManagement.DEFAULT_ADAPTOR_NAME.equals(cfg.getAdaptorName())) {
-				break;
+				defaultAdaptor = cfg;
+			} else {
+				others.add(cfg);
 			}
-			defaultIndex ++;
 		}
-		AdaptorConfiguration defaultCfg = configurations.remove(defaultIndex);
-		writeAdapter(defaultCfg, props, 0);
+		writeAdapter(defaultAdaptor, props, 0);
 		int i=1;
-		for (AdaptorConfiguration adaptor : configurations) {
+		for (AdaptorConfiguration adaptor : others) {
 			writeAdapter(adaptor, props, i);
 			i++;		
 		}
 		
 		try {
 			props.store(new FileOutputStream(new File(propertiesFile)), null);
-		} catch (FileNotFoundException e) {
-			log.error("The configuration file " + propertiesFile + " could not be written.");
-			throw new LLRPRuntimeException(e.getMessage());
 		} catch (IOException e) {
-			log.error("There has been an IO Exception when writing the configuration file " + propertiesFile);
-			throw new LLRPRuntimeException(e.getMessage());
+			log.error("There has been an IO Exception when writing the configuration file " + propertiesFile, e);
+			throw new LLRPRuntimeException(e.getMessage(), e);
 		}
 	}
 
@@ -225,9 +229,7 @@ public class FileStoreConfiguration extends Configuration {
 		String adaptorPrefix = CFG_ADAPTOR_PREFIX + i + CFG_SEPARATOR;
 		
 		// write the adaptor name
-		log.debug(String.format("writing property/value (%s,%s)", 
-					adaptorPrefix + CFG_ADAPTOR_NAME,
-					adaptor.getAdaptorName()));
+		log.debug(String.format("writing property/value (%s,%s)", adaptorPrefix + CFG_ADAPTOR_NAME, adaptor.getAdaptorName()));
 		props.setProperty(adaptorPrefix + CFG_ADAPTOR_NAME, adaptor.getAdaptorName());
 		
 		boolean isLocal = false;
@@ -247,9 +249,7 @@ public class FileStoreConfiguration extends Configuration {
 		// now store the reader part
 		if (isLocal) {
 			// store the number of readers to create
-			log.debug(String.format("writing property/value (%s,%s)",
-					adaptorPrefix + CFG_NBR_READERS,
-					adaptor.getReaderPrototypes().size()));
+			log.debug(String.format("writing property/value (%s,%s)", adaptorPrefix + CFG_NBR_READERS, adaptor.getReaderPrototypes().size()));
 			props.setProperty(adaptorPrefix + CFG_NBR_READERS, String.format("%d", adaptor.getReaderPrototypes().size()));
 			int j=0;
 			for (ReaderConfiguration reader : adaptor.getReaderPrototypes()) {

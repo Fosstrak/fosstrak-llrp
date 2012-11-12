@@ -26,6 +26,7 @@ import java.util.List;
 import java.util.Map;
 
 import org.apache.log4j.Logger;
+import org.fosstrak.llrp.adaptor.config.type.AdaptorConfiguration;
 import org.fosstrak.llrp.adaptor.exception.LLRPRuntimeException;
 
 /**

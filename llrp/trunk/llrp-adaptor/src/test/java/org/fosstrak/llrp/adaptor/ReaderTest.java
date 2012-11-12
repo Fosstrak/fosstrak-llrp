@@ -23,38 +23,43 @@ package org.fosstrak.llrp.adaptor;
 
 import java.io.FileReader;
 
-import org.fosstrak.llrp.adaptor.Adaptor;
-import org.fosstrak.llrp.adaptor.AdaptorImpl;
-import org.fosstrak.llrp.adaptor.Reader;
-import org.fosstrak.llrp.adaptor.ReaderImpl;
+import junit.framework.Assert;
+
 import org.jdom.Document;
 import org.jdom.input.SAXBuilder;
+import org.junit.Test;
 import org.llrp.ltk.generated.LLRPMessageFactory;
 import org.llrp.ltk.types.LLRPMessage;
 
 import util.AsyncNotif;
-import junit.framework.TestCase;
 
-public class ReaderTest extends TestCase {
+/**
+ * test the default implementation of the reader.
+ * @author swieland
+ *
+ */
+public class ReaderTest {
 	
 	private String readerName = "readerName";
 	private String readerAddress = "localhost";
 	private String adaptorName = "adaptorName";
 	private final int readerPort = 49212;
 	
+	@Test
 	public void testSetterAndGetterAndConstructor() throws Exception {
 		Reader reader = new ReaderImpl(null, readerName, readerAddress);
 		reader.setKeepAlivePeriod(10000, 10, false, false);
-		assertEquals(readerName, reader.getReaderName());
-		assertEquals(readerAddress, reader.getReaderAddress());
+		Assert.assertEquals(readerName, reader.getReaderName());
+		Assert.assertEquals(readerAddress, reader.getReaderAddress());
 		
 		reader = new ReaderImpl(null, readerName, readerAddress, 1234);
 		reader.setKeepAlivePeriod(10000, 10, false, false);
-		assertEquals(readerName, reader.getReaderName());
-		assertEquals(readerAddress, reader.getReaderAddress());
-		assertEquals(1234, reader.getPort());
+		Assert.assertEquals(readerName, reader.getReaderName());
+		Assert.assertEquals(readerAddress, reader.getReaderAddress());
+		Assert.assertEquals(1234, reader.getPort());
 	}
 	
+	@Test
 	public void testAsynchronousNotification() throws Exception {
 		AsyncNotif notif = new AsyncNotif(false);
 		Adaptor adaptor = new AdaptorImpl(adaptorName);
@@ -78,19 +83,19 @@ public class ReaderTest extends TestCase {
 		// we need to wait a few milliseconds to allow the worker to process
 		// the message
 		Thread.sleep(1000);
-		assertNotNull(notif.asyncNotifMessage);
-		assertTrue(notif.asyncNotifMessage instanceof LLRPMessage);
+		Assert.assertNotNull(notif.asyncNotifMessage);
+		Assert.assertTrue(notif.asyncNotifMessage instanceof LLRPMessage);
 		
-		assertNotNull(notif.asyncNotifReaderName);
-		assertEquals(readerName, notif.asyncNotifReaderName);
+		Assert.assertNotNull(notif.asyncNotifReaderName);
+		Assert.assertEquals(readerName, notif.asyncNotifReaderName);
 		// deregister
  		reader.deregisterFromAsynchronous(notif);
 		
 		notif.asyncNotifMessage = null;
 		notif.asyncNotifReaderName = null;
 		((ReaderImpl)reader).messageReceived(message);
-		assertNull(notif.asyncNotifMessage);
-		assertNull(notif.asyncNotifReaderName);
+		Assert.assertNull(notif.asyncNotifMessage);
+		Assert.assertNull(notif.asyncNotifReaderName);
 		reader.disconnect();
 	}
 }

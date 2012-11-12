@@ -35,10 +35,10 @@ import java.util.Map;
 import java.util.concurrent.ConcurrentHashMap;
 
 import org.apache.log4j.Logger;
-import org.fosstrak.llrp.adaptor.config.AdaptorConfiguration;
 import org.fosstrak.llrp.adaptor.config.Configuration;
 import org.fosstrak.llrp.adaptor.config.DefaultConfiguration;
-import org.fosstrak.llrp.adaptor.config.ReaderConfiguration;
+import org.fosstrak.llrp.adaptor.config.type.AdaptorConfiguration;
+import org.fosstrak.llrp.adaptor.config.type.ReaderConfiguration;
 import org.fosstrak.llrp.adaptor.exception.LLRPDuplicateNameException;
 import org.fosstrak.llrp.adaptor.exception.LLRPRuntimeException;
 import org.fosstrak.llrp.adaptor.queue.QueueEntry;
@@ -46,8 +46,6 @@ import org.fosstrak.llrp.client.LLRPExceptionHandler;
 import org.fosstrak.llrp.client.LLRPExceptionHandlerTypeMap;
 import org.fosstrak.llrp.client.MessageHandler;
 import org.llrp.ltk.types.LLRPMessage;
-
-// FIXME: javadoc is out of date.
 
 /**
  * The AdaptorManagement handles your adaptors, enqueues LLRPMessages, handles 
@@ -72,9 +70,12 @@ import org.llrp.ltk.types.LLRPMessage;
  * <code>// run the initializer method</code><br/>
  * <code>String readConfig = Utility.findWithFullPath("/readerDefaultConfig.properties");</code><br/>
  * <code>String writeConfig = readConfig;</code><br/>
+ * <code>Map<String, Object> config = new HashMap<String, Object> ();</code><br/>
+ * <code>config.put(FileStoreConfiguration.KEY_LOADFILEPATH, readConfig);</code><br/>
+ * <code>config.put(FileStoreConfiguration.KEY_STOREFILEPATH, writeConfig);
+ * <code>String configurationClass = FileStoreConfiguration.class.getCanonicalName();
  * <code>boolean commitChanges = true;</code><br/>
- * <code>AdaptorManagement.getInstance().initialize(</code><br/>
- * <code>&nbsp;&nbsp;&nbsp;&nbsp;readConfig, storeConfig, commitChanges, handler, msgHandler);</code><br/>
+ * <code>AdaptorManagement.getInstance().initialize(config, config, configurationClass, commitChanges, msgHandler, handler);
  * <br/>
  * <code>// now the management should be initialized and ready to be used</code><br/>
  * <br/>
@@ -93,7 +94,7 @@ import org.llrp.ltk.types.LLRPMessage;
  * <code>// when you shutdown your application call the shutdown method</code><br/>
  * <code>AdaptorManagement.getInstance().shutdown();</code><br/>
  * </p>
- * @author sawielan
+ * @author swieland
  *
  */
 public class AdaptorManagement {
@@ -156,50 +157,32 @@ public class AdaptorManagement {
 	/** these handlers would like to receive only certain LLRP Messages. */
 	private Map<Class<?>, List<MessageHandler> > partialHandlers = new ConcurrentHashMap<Class<?>, List<MessageHandler> > ();
 	
-	
-	
-	// ------------------------------- initialization -------------------------------
-	
-	// FIXME: javadoc out of date.
-	
 	/**
-	 * initializes the AdaptorManagement.
-	 * @param readConfig where the configuration shall be read from.
-	 * @param storeConfig where the configuration shall be written to (if changes happen).
-	 * @param commitChanges if storeConfig is set and commitChanges is true then all 
-	 * the changes to the AdaptorManagement are committed to storeConfig.
-	 * @param exceptionHandler the exception handler from the GUI.
+	 * initializes the AdaptorManagement. Make sure this method is only invoked <strong>once</strong>.
+	 * @param readParameters the parameters for the configuration loader as a key value map. see {@link Configuration} for details.
+	 * @param writeParameters  the parameters for the configuration writer as a key value map. see {@link Configuration} for details.
+	 * @param configurationClass the implementation of the configuration loader/writer to use. see {@link DefaultConfiguration} for an example.
+	 * @param commitChanges if storeConfig is set and commitChanges is true then all the changes to the AdaptorManagement are committed to configuration writer.
+	 * @param exceptionHandler the exception handler from the GUI (or whatsoever).
 	 * @param handler a handler to dispatch the LLRP messages (can be set to null).
 	 * @throws LLRPRuntimeException whenever the AdaptorManagement could not be loaded.
-	 * @return returns 
-	 * <ul>
-	 * <li>true if initialization has been performed</li>
-	 * <li>false if initialization has already been performed and therefore the 
-	 * process was aborted</li>
-	 * </ul>.
+	 * @return returns <ul><li>true if initialization has been performed</li><li>false if initialization has already been performed and therefore the process was aborted</li></ul>.
 	 */
 	public boolean initialize(Map<String, Object> readParameters, Map<String, Object> writeParameters, String configurationClass, boolean commitChanges, LLRPExceptionHandler exceptionHandler, MessageHandler handler) throws LLRPRuntimeException {
 		return initialize(readParameters, writeParameters, configurationClass, commitChanges, exceptionHandler, handler, false);
 	}
 	
 	/**
-	 * ATTENTION: initializes the AdaptorManagement.DO NOT USE THIS METHOD as long as you know 
-	 * what you are doing (this method instructs with export=true to export the 
-	 * first local adaptor as a server adaptor. 
-	 * @param readConfig where the configuration shall be read from.
-	 * @param storeConfig where the configuration shall be written to (if changes happen).
-	 * @param commitChanges if storeConfig is set and commitChanges is true then all 
-	 * the changes to the AdaptorManagement are committed to storeConfig.
-	 * @param exceptionHandler the exception handler from the GUI.
+	 * initializes the AdaptorManagement.<strong>DO NOT USE THIS METHOD as long as you know what you are doing (this method instructs with export=true to export the first local adaptor as a server adaptor.</strong> 
+	 * @param readParameters the parameters for the configuration loader as a key value map. see {@link Configuration} for details.
+	 * @param writeParameters  the parameters for the configuration writer as a key value map. see {@link Configuration} for details.
+	 * @param configurationClass the implementation of the configuration loader/writer to use. see {@link DefaultConfiguration} for an example.
+	 * @param commitChanges if storeConfig is set and commitChanges is true then all the changes to the AdaptorManagement are committed to configuration writer.
+	 * @param exceptionHandler the exception handler from the GUI (or whatsoever).
 	 * @param handler a handler to dispatch the LLRP messages (can be set to null).
 	 * @param export if the first local adaptor is to be exported by RMI or not.
 	 * @throws LLRPRuntimeException whenever the AdaptorManagement could not be loaded.
-	 * @return returns 
-	 * <ul>
-	 * <li>true if initialization has been performed</li>
-	 * <li>false if initialization has already been performed and therefore the 
-	 * process was aborted</li>
-	 * </ul>.
+	 * @return returns <ul><li>true if initialization has been performed</li><li>false if initialization has already been performed and therefore the process was aborted</li></ul>.
 	 */
 	public boolean initialize(Map<String, Object> readParameters, Map<String, Object> writeParameters, String configurationClass, boolean commitChanges, LLRPExceptionHandler exceptionHandler, MessageHandler handler, boolean export) throws LLRPRuntimeException {
 		if (initialized) {
@@ -270,7 +253,6 @@ public class AdaptorManagement {
 			partialHandlers.clear();
 		}
 		
-		
 		load();
 		log.debug("finished reset");
 	}
@@ -290,12 +272,12 @@ public class AdaptorManagement {
 	}
 	
 	/**
-	 * commits the configuration to the properties file.
+	 * commits the adaptor managements internal configuration state as a snapshot to the configuration.
 	 */
 	public void commit() {
 		if (isCommitChanges()) {
 			try {
-				storeToFile();
+				storeToConfiguration();
 			} catch (LLRPRuntimeException e) {
 				log.error("could not commit the changes to the configuration file", e);
 				setStatus(true, e, LLRPExceptionHandlerTypeMap.EXCEPTION_ADAPTOR_MANAGEMENT_NOT_INITIALIZED);
@@ -304,7 +286,7 @@ public class AdaptorManagement {
 	}
 	
 	/**
-	 * check whether the AdaptorManagement is ok or not. 
+	 * check whether the AdaptorManagement is OK or not. 
 	 * if not, an exception is thrown and reported to the exception handler.
 	 */
 	public void checkStatus() throws LLRPRuntimeException {
@@ -350,8 +332,6 @@ public class AdaptorManagement {
 		} // synchronized adaptorManagement
 	}
 	
-	// --------------------------- adaptor handling ---------------------------
-		
 	/**
 	 * remove all the adaptors before loading the new adaptors from configuration file.
 	 * @throws LLRPRuntimeException
@@ -526,8 +506,6 @@ public class AdaptorManagement {
 	}
 
 	private boolean isExportLocalAdapterToRMI() {
-		// FIXME: this is really ugly with the export flag...!!!
-		// FIXME: on the long run we must get rid of this ugly ugly construct...
 		return export;
 	}
 	
@@ -945,7 +923,7 @@ public class AdaptorManagement {
 	 * the local adaptor all readers get stored as well.
 	 * @throws LLRPRuntimeException whenever there occurs an error during storage.
 	 */
-	public synchronized void storeToFile() throws LLRPRuntimeException {		
+	public synchronized void storeToConfiguration() throws LLRPRuntimeException {		
 		synchronized (AdaptorManagement.class) {
 			List<AdaptorConfiguration> configurations = new LinkedList<AdaptorConfiguration>();
 			
@@ -955,12 +933,7 @@ public class AdaptorManagement {
 				if (ip == null) {
 					isLocal = true;
 				}
-				configurations.add(
-						new AdaptorConfiguration(
-								adaptorName, 
-								ip,
-								isLocal,
-								null));
+				configurations.add(new AdaptorConfiguration(adaptorName, ip, isLocal, null));
 			}
 			
 			for (AdaptorConfiguration configuration : configurations) {
@@ -972,19 +945,12 @@ public class AdaptorManagement {
  					try {
 						for (String readerName : adaptor.getReaderNames()) {
 							Reader reader = adaptor.getReader(readerName);
-							boolean connectImmed = false;	// somehow this causes bugs with MINA, if we start the reader at startup.
+							boolean connectImmediately = false;	// somehow this causes bugs with MINA, if we start the reader at startup.
 							boolean clientInit = reader.isClientInitiated();
 							String ip = reader.getReaderAddress();
 							int port = reader.getPort();
 							
-							readerConfigurations.add(new ReaderConfiguration(
-										readerName,
-										ip,
-										port,
-										clientInit,
-										connectImmed
-									)
-							);
+							readerConfigurations.add(new ReaderConfiguration(readerName, ip, port, clientInit, connectImmediately));
 						}
 					} catch (RemoteException e) {
 						// local configuration therefore we can ignore the remote exception.
