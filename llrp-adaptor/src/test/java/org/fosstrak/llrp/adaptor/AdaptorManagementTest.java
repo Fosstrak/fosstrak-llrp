@@ -26,20 +26,19 @@ import java.rmi.NotBoundException;
 import java.rmi.RemoteException;
 import java.rmi.registry.LocateRegistry;
 import java.rmi.registry.Registry;
+import java.util.HashMap;
+import java.util.Map;
+
+import junit.framework.TestCase;
 
 import org.apache.log4j.BasicConfigurator;
 import org.apache.log4j.Level;
 import org.apache.log4j.Logger;
-import org.fosstrak.llrp.adaptor.Adaptor;
-import org.fosstrak.llrp.adaptor.AdaptorImpl;
-import org.fosstrak.llrp.adaptor.AdaptorManagement;
-import org.fosstrak.llrp.adaptor.Constants;
+import org.fosstrak.llrp.adaptor.config.FileStoreConfiguration;
 import org.fosstrak.llrp.adaptor.exception.LLRPDuplicateNameException;
 import org.fosstrak.llrp.adaptor.exception.LLRPRuntimeException;
 import org.fosstrak.llrp.client.MessageHandler;
 import org.llrp.ltk.types.LLRPMessage;
-
-import junit.framework.TestCase;
 
 /**
  * this class runs some basic tests on the AdaptorManagement. the tests 
@@ -52,6 +51,10 @@ public class AdaptorManagementTest extends TestCase {
 	
 	public static final String READ_CONFIG = "src/test/config/readerDefaultConfig.properties";
 	public static final String WRITE_CONFIG = "src/test/config/readerDefaultConfig.properties";
+	
+
+	/** the logger. */
+	private static Logger log = Logger.getLogger(AdaptorManagementTest.class);
 	
 	protected void setUp() throws Exception {
 		super.setUp();
@@ -75,8 +78,12 @@ public class AdaptorManagementTest extends TestCase {
 	 */
 	private void initializeManagement() throws Exception {
 		if (!AdaptorManagement.getInstance().isInitialized()) {
-			AdaptorManagement.getInstance().initialize(
-					READ_CONFIG, WRITE_CONFIG, false, null, null);
+			Map<String, Object> config = new HashMap<String, Object> ();
+			config.put(FileStoreConfiguration.KEY_LOADFILEPATH, READ_CONFIG);
+			config.put(FileStoreConfiguration.KEY_STOREFILEPATH, WRITE_CONFIG);
+			String configurationClass = FileStoreConfiguration.class.getCanonicalName();
+			
+			AdaptorManagement.getInstance().initialize(config, config, configurationClass, false, null, null);
 		}
 	}
 	
@@ -197,9 +204,9 @@ public class AdaptorManagementTest extends TestCase {
 					Registry r = LocateRegistry.getRegistry(Constants.registryPort);
 					r.bind(Constants.adaptorNameInRegistry, adaptor);					
 				} catch (RemoteException e) {
-					e.printStackTrace();
+					log.error("remote exception", e);
 				} catch (AlreadyBoundException e) {
-					e.printStackTrace();
+					log.error("already bound", e);
 				}				
 			}
 			
@@ -217,9 +224,9 @@ public class AdaptorManagementTest extends TestCase {
 					r = LocateRegistry.getRegistry(Constants.registryPort);
 					r.unbind(Constants.adaptorNameInRegistry);
 				} catch (RemoteException e) {
-					e.printStackTrace();
+					log.error("remote exception", e);
 				} catch (NotBoundException e) {
-					e.printStackTrace();
+					log.error("not bound exception", e);
 				}				
 			}
 			

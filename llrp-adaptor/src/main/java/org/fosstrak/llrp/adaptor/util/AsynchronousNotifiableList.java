@@ -22,6 +22,7 @@
 package org.fosstrak.llrp.adaptor.util;
 
 import java.rmi.RemoteException;
+import java.util.Collections;
 import java.util.LinkedList;
 import java.util.List;
 import java.util.concurrent.ConcurrentLinkedQueue;
@@ -34,13 +35,16 @@ import org.fosstrak.llrp.adaptor.exception.LLRPRuntimeException;
  * helper checks whether there are transmission exception, and if so then the 
  * respective receivers get dropped after a certain number of erroneous 
  * transmissions.
+ * <br/>
+ * <br/>
+ * the implementation is thread safe.
  * @author swieland
  *
  */
 public class AsynchronousNotifiableList implements AsynchronousNotifiable {
 	
 	/** a list with all the receivers of asynchronous messages. */
-	private LinkedList<Receiver> receivers = new LinkedList<Receiver>();
+	private List<Receiver> receivers = Collections.synchronizedList(new LinkedList<Receiver>());
 	
 	/** remove the receiver after this number of unsuccessful connection attempts. */
 	public static final int NUM_NON_RECHABLE_ALLOWED = 3;
@@ -86,14 +90,7 @@ public class AsynchronousNotifiableList implements AsynchronousNotifiable {
 				erroneous.add(this);
 			}
 		}
-		
-		/**
-		 * @return the number of errors occurred on this entry.
-		 */
-		public int numErrors() {
-			return errors;
-		}
-		
+
 		/**
 		 * @return the receiver of this helper.
 		 */
@@ -160,12 +157,10 @@ public class AsynchronousNotifiableList implements AsynchronousNotifiable {
 	 * @param readerName the reader that delivered the message.
 	 * @throws RemoteException when there is an RMI exception.
 	 */
-	public void notify(byte[] message, String readerName)
-			throws RemoteException {
+	public void notify(byte[] message, String readerName) throws RemoteException {
 		
 		for (Receiver receiver : receivers) {
 			try {
-				
 				receiver.getReceiver().notify(message, readerName);
 			} catch (RemoteException e) {
 				receiver.error();
@@ -184,9 +179,7 @@ public class AsynchronousNotifiableList implements AsynchronousNotifiable {
 	 * @param readerName the reader that delivered the exception.
 	 * @throws RemoteException when there is an RMI exception.
 	 */
-	public void notifyError(LLRPRuntimeException e, String readerName)
-			throws RemoteException {
-	
+	public void notifyError(LLRPRuntimeException e, String readerName) throws RemoteException {
 		for (Receiver receiver : receivers) {
 			try {
 				receiver.getReceiver().notifyError(e, readerName);

@@ -518,7 +518,7 @@ public abstract class AbstractSQLROAccessReportsRepository implements ROAccessRe
 //			log.debug(String.format("Generated Timestamp: %s", ts.toString()));
 			return ts;
 		} catch (Exception e) {
-			e.printStackTrace();
+			log.error("could not extract a valid timestamp", e);
 		}
 		return null;
 	}

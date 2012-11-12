@@ -28,6 +28,7 @@ import java.io.FileOutputStream;
 import java.io.IOException;
 import java.util.LinkedList;
 import java.util.List;
+import java.util.Map;
 import java.util.Properties;
 
 import org.apache.log4j.Logger;
@@ -36,16 +37,20 @@ import org.fosstrak.llrp.adaptor.exception.LLRPRuntimeException;
 import org.fosstrak.llrp.adaptor.util.SortedProperties;
 
 /**
- * The {@link ConfigurationLoader} acts as a gateway to the configuration file. it 
+ * The {@link FileStoreConfiguration} acts as a gateway to the configuration file. it 
  * tries to mask away the structure of the configuration file by providing 
  * prototypes for the adaptors and their readers. it provides reading and writing 
  * of configuration files.
  * @author sawielan
  *
  */
-public class ConfigurationLoader {
+public class FileStoreConfiguration extends Configuration {
+	
+	public static final String KEY_STOREFILEPATH = "storeFilePath";
+	public static final String KEY_LOADFILEPATH = "loadFilePath";
+	
 	/** the logger. */
-	private static Logger log = Logger.getLogger(ConfigurationLoader.class);
+	private static Logger log = Logger.getLogger(FileStoreConfiguration.class);
 	
 	/** the properties read from file. */
 	private Properties props = null; 
@@ -73,7 +78,13 @@ public class ConfigurationLoader {
 	/**
 	 * creates a configuration loader.
 	 */
-	public ConfigurationLoader() {
+	public FileStoreConfiguration(Map<String, Object> readParameters,	Map<String, Object> writeParameters) {
+		super(readParameters, writeParameters);
+	}
+
+	@Override
+	public List<AdaptorConfiguration> getConfiguration() throws LLRPRuntimeException {
+		return getConfiguration((String) readParameters.get(KEY_LOADFILEPATH));
 	}
 	
 	/**
@@ -82,7 +93,7 @@ public class ConfigurationLoader {
 	 * @return the prototypes holding the configuration.
 	 * @throws LLRPRuntimeException whenever the configuration file could not be read.
 	 */
-	public List<AdaptorConfiguration> getConfiguration(String propertiesFile ) throws LLRPRuntimeException {
+	private List<AdaptorConfiguration> getConfiguration(String propertiesFile ) throws LLRPRuntimeException {
 		
 		props = new Properties();
 		// try to load the properties file
@@ -152,6 +163,12 @@ public class ConfigurationLoader {
 			}
 		}
 	}
+
+
+	@Override
+	public void writeConfiguration(List<AdaptorConfiguration> configurations) throws LLRPRuntimeException {
+		writeConfiguration(configurations, (String) writeParameters.get(KEY_STOREFILEPATH));
+	}
 	
 	/**
 	 * writes the configuration given by a list of prototypes to the configuration file.
@@ -159,8 +176,7 @@ public class ConfigurationLoader {
 	 * @param propertiesFile the properties file where to store.
 	 * @throws LLRPRuntimeException whenever the file could not be written.
 	 */
-	public void writeConfiguration(List<AdaptorConfiguration> configurations, 
-			String propertiesFile) throws LLRPRuntimeException {
+	private void writeConfiguration(List<AdaptorConfiguration> configurations, String propertiesFile) throws LLRPRuntimeException {
 		
 		Properties props = new SortedProperties();
 
@@ -268,4 +284,5 @@ public class ConfigurationLoader {
 			}
 		}
 	}
+
 }

@@ -96,8 +96,6 @@ public class AdaptorCallback extends UnicastRemoteObject implements Asynchronous
 	}
 
 	public void notifyError(LLRPRuntimeException e, String readerName) throws RemoteException {
-		AdaptorManagement.getInstance().postException(e, e.getExceptionType(),
-				worker.getAdaptor().getAdaptorName(),
-				readerName);
+		AdaptorManagement.getInstance().postException(e, e.getExceptionType(), worker.getAdaptor().getAdaptorName(), readerName);
 	}
 }

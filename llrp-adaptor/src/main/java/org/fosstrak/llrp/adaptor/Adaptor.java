@@ -54,7 +54,7 @@ public interface Adaptor extends Remote {
 	 * @throws LLRPRuntimeException if a runtime exception occurs (like duplicate reader name etc. ...).
 	 * @throws RemoteException when there was an rmi exception.
 	 */
-	public void define(String readerName, 
+	void define(String readerName, 
 			String readerAddress, 
 			boolean clientInitiatedConnection,
 			boolean connectImmediately) throws RemoteException, LLRPRuntimeException;
@@ -80,7 +80,7 @@ public interface Adaptor extends Remote {
 	 * @throws LLRPRuntimeException if a runtime exception occurs (like duplicate reader name etc. ...).
 	 * @throws RemoteException when there was an rmi exception.
 	 */
-	public void define(String readerName, 
+	void define(String readerName, 
 			String readerAddress, 
 			int port, 
 			boolean clientInitiatedConnection,
@@ -92,21 +92,21 @@ public interface Adaptor extends Remote {
 	 * @throws LLRPRuntimeException if a runtime exception occurs (eg reader does not exist etc. ...).
 	 * @throws RemoteException when there was an rmi exception.
 	 */
-	public void undefine(String readerName) throws RemoteException, LLRPRuntimeException;
+	void undefine(String readerName) throws RemoteException, LLRPRuntimeException;
 	
 	/**
 	 * removes all the LLRP readers from this adaptor.
 	 * @throws RemoteException when there was an rmi exception.
 	 * @throws LLRPRuntimeException if a runtime exception occurs (eg reader does not exist etc. ...).
 	 */
-	public void undefineAll() throws RemoteException, LLRPRuntimeException;
+	void undefineAll() throws RemoteException, LLRPRuntimeException;
 	
 	/**
 	 * disconnects all the LLRP readers from this adaptor.
 	 * @throws RemoteException when there was an rmi exception.
 	 * @throws LLRPRuntimeException if a runtime exception occurs (eg reader does not exist etc. ...).
 	 */
-	public void disconnectAll() throws RemoteException, LLRPRuntimeException;
+	void disconnectAll() throws RemoteException, LLRPRuntimeException;
 	
 	/**
 	 * checks whether a readerName already exists.
@@ -114,14 +114,14 @@ public interface Adaptor extends Remote {
 	 * @return true if the reader exists else false.
 	 * @throws RemoteException when there was an rmi exception.
 	 */
-	public boolean containsReader(String readerName) throws RemoteException;
+	boolean containsReader(String readerName) throws RemoteException;
 	
 	/**
 	 * returns a list of all currently registered LLRP readers.
 	 * @return a list of all currently registered LLRP readers.
 	 * @throws RemoteException when there was an rmi exception.
 	 */
-	public List<String> getReaderNames() throws RemoteException;
+	List<String> getReaderNames() throws RemoteException;
 	
 	/**
 	 * returns a requested reader.
@@ -129,21 +129,21 @@ public interface Adaptor extends Remote {
 	 * @return the reader. 
 	 * @throws RemoteException when there was an rmi exception.
 	 */
-	public Reader getReader(String readerName) throws RemoteException;
+	Reader getReader(String readerName) throws RemoteException;
 	
 	/**
 	 * returns the name of this adaptor.
 	 * @return the name of this adaptor.
 	 * @throws RemoteException when there was an rmi exception.
 	 */
-	public String getAdaptorName() throws RemoteException;
+	String getAdaptorName() throws RemoteException;
 	
 	/**
 	 * sets the name of the adaptor.
 	 * @param adaptorName the name of the adaptor to set.
 	 * @throws RemoteException
 	 */
-	public void setAdaptorName(String adaptorName) throws RemoteException;
+	void setAdaptorName(String adaptorName) throws RemoteException;
 	/**
 	 * sends a llrp message to the specified reader.
 	 * @param readerName the name of the reader where to send the message.
@@ -151,7 +151,7 @@ public interface Adaptor extends Remote {
 	 * @throws LLRPRuntimeException whever a runtime error occurs.
 	 * @throws RemoteException when there was an rmi exception.
 	 */
-	public void sendLLRPMessage(String readerName, byte[] message) throws RemoteException, LLRPRuntimeException;
+	void sendLLRPMessage(String readerName, byte[] message) throws RemoteException, LLRPRuntimeException;
 	
 	/**
 	 * sends a llrp message to all the readers.
@@ -159,14 +159,14 @@ public interface Adaptor extends Remote {
 	 * @throws LLRPRuntimeException whever a runtime error occurs.
 	 * @throws RemoteException when there was an rmi exception.
 	 */
-	public void sendLLRPMessageToAllReaders(byte[] message) throws RemoteException, LLRPRuntimeException;
+	void sendLLRPMessageToAllReaders(byte[] message) throws RemoteException, LLRPRuntimeException;
 	
 	/**
 	 * register for asynchronous messages from the reader.
 	 * @param receiver the receiver that shall be notified with the message.
 	 * @throws RemoteException when there was an rmi exception.
 	 */
-	public void registerForAsynchronous(AsynchronousNotifiable receiver) throws RemoteException;
+	void registerForAsynchronous(AsynchronousNotifiable receiver) throws RemoteException;
 	
 	/**
 	 * deregister from the asynchronous messages. the receiver will no more 
@@ -174,7 +174,7 @@ public interface Adaptor extends Remote {
 	 * @param receiver the receiver to deregister.
 	 * @throws RemoteException when there was an rmi exception.
 	 */
-	public void deregisterFromAsynchronous(AsynchronousNotifiable receiver) throws RemoteException;
+	void deregisterFromAsynchronous(AsynchronousNotifiable receiver) throws RemoteException;
 	
 	/**
 	 * when a asynchronous message arrives from the reader this method 
@@ -184,7 +184,7 @@ public interface Adaptor extends Remote {
 	 * @param readerName the name of the reader that triggered the event.
 	 * @throws RemoteException when there was an rmi exception.
 	 */
-	public void messageReceivedCallback(byte[] message, String readerName) throws RemoteException;
+	void messageReceivedCallback(byte[] message, String readerName) throws RemoteException;
 	
 	/**
 	 * callback interface for asynchronous error messages from the reader.
@@ -192,6 +192,6 @@ public interface Adaptor extends Remote {
 	 * @param readerName the name of the reader where the error occured.
 	 * @throws RemoteException whenver there is an error on transport level (rmi).
 	 */
-	public void errorCallback(LLRPRuntimeException e, String readerName) throws RemoteException;
+	void errorCallback(LLRPRuntimeException e, String readerName) throws RemoteException;
 
 }
