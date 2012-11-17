@@ -21,6 +21,7 @@
 
 package org.fosstrak.llrp.adaptor;
 
+import java.io.Serializable;
 import java.rmi.Remote;
 import java.rmi.RemoteException;
 
@@ -32,14 +33,14 @@ import org.fosstrak.llrp.adaptor.exception.LLRPRuntimeException;
  * @author sawielan
  *
  */
-public interface AsynchronousNotifiable extends Remote {
+public interface AsynchronousNotifiable extends Remote, Serializable {
 	/**
 	 * when an asynchronous message arrived, this method will be invoked.
 	 * @param message the LLRPMessage arrived asynchronously.
 	 * @param readerName the nam eof the reader that read the message.
 	 * @throws RemoteException when there has been an error in the communication.
 	 */
-	public void notify(byte[] message, String readerName) throws RemoteException;
+	void notify(byte[] message, String readerName) throws RemoteException;
 	
 	/**
 	 * this method can be called asynchronously when 
@@ -48,5 +49,5 @@ public interface AsynchronousNotifiable extends Remote {
 	 * @param readerName the name of the reader that triggered the error.
 	 * @throws RemoteException when there has been an error in the communication.
 	 */
-	public void notifyError(LLRPRuntimeException e, String readerName) throws RemoteException;
+	void notifyError(LLRPRuntimeException e, String readerName) throws RemoteException;
 }

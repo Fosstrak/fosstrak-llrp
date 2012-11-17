@@ -64,6 +64,17 @@ public class LLRPRuntimeException extends Exception {
 	}
 	
 	/**
+	 * constructor with exception message and exception type.
+	 * @param message the exception message.
+	 * @param e the original exception.
+	 * @param exceptionType the exception type.
+	 */
+	public LLRPRuntimeException(String message, Exception e, LLRPExceptionHandlerTypeMap exceptionType) {
+		super(message, e);
+		this.exceptionType = exceptionType;
+	}
+	
+	/**
 	 * constructor from another exception.
 	 * @param e the other exception.
 	 */

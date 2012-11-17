@@ -89,32 +89,33 @@ public class ReaderMetaData implements Remote, Serializable  {
 	 * @param other the meta data object to clone;
 	 */
 	public ReaderMetaData(ReaderMetaData other) {
-		setReaderName(other.getReaderName());
-		setReaderAddress(other.getReaderAddress());
-		setPort(other.getPort());
+		readerName = other.getReaderName();
+		readerAddress = other.getReaderAddress();
+		port = other.getPort();
 		
-		setAlive(other.isAlive());
+		alive = other.isAlive();
 		
-		setPackagesCurrentSessionReceived(other.getPackagesCurrentSessionReceived());
-		setPackagesCurrentSessionSent(other.getPackagesCurrentSessionSent());
-		setPackagesReceived(other.getPackagesReceived());
-		setPackagesSent(other.getPackagesSent());
+		packagesCurrentSessionReceived = other.getPackagesCurrentSessionReceived();
+		packagesCurrentSessionSent = other.getPackagesCurrentSessionSent();
+		packagesReceived = other.getPackagesReceived();
+		packagesSent = other.getPackagesSent();
 		
-		setReportKeepAlive(other.isReportKeepAlive());
+		reportKeepAlive = other.isReportKeepAlive();
 		
-		setClientInitiated(other.isClientInitiated());
-		setConnected(other.isConnected());
-		setConnectImmediately(other.isConnectImmediately());
+		clientInitiated = other.isClientInitiated();
+		connected = other.isConnected();
+		connectImmediately = other.isConnectImmediately();
 		
-		setAllowNKeepAliveMisses(other.getAllowNKeepAliveMisses());
-		setKeepAlivePeriod(other.getKeepAlivePeriod());
+		allowNKeepAliveMisses = other.getAllowNKeepAliveMisses();
+		keepAlivePeriod = other.getKeepAlivePeriod();
 	}
 
 	/**
 	 * starts a new session.
 	 */
 	public void newSession() {
-		packagesCurrentSessionReceived = packagesCurrentSessionSent = 0;
+		packagesCurrentSessionReceived = 0;
+		packagesCurrentSessionSent = 0;
 	}
 	
 	/**

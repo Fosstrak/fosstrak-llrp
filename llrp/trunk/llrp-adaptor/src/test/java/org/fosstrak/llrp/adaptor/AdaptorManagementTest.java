@@ -186,7 +186,7 @@ public class AdaptorManagementTest {
 		
 		resetManagement();
 	
-		String adaptorName = Constants.adaptorNameInRegistry;
+		String adaptorName = Constants.ADAPTOR_NAME_IN_REGISTRY;
 		
 		/**
 		 * helper class to create a remote server adaptor running on a thread.
@@ -199,13 +199,13 @@ public class AdaptorManagementTest {
 			public MyRunner(Adaptor adaptor) {
 				try {
 					try {
-						LocateRegistry.createRegistry(Constants.registryPort);
+						LocateRegistry.createRegistry(Constants.REGISTRY_PORT);
 					} catch (Exception e) {
 						// the registry already exists...
 					}
 					
-					Registry r = LocateRegistry.getRegistry(Constants.registryPort);
-					r.bind(Constants.adaptorNameInRegistry, adaptor);					
+					Registry r = LocateRegistry.getRegistry(Constants.REGISTRY_PORT);
+					r.bind(Constants.ADAPTOR_NAME_IN_REGISTRY, adaptor);					
 				} catch (RemoteException e) {
 					log.error("remote exception", e);
 				} catch (AlreadyBoundException e) {
@@ -224,8 +224,8 @@ public class AdaptorManagementTest {
 				// deregister the adaptor.
 				Registry r;
 				try {
-					r = LocateRegistry.getRegistry(Constants.registryPort);
-					r.unbind(Constants.adaptorNameInRegistry);
+					r = LocateRegistry.getRegistry(Constants.REGISTRY_PORT);
+					r.unbind(Constants.ADAPTOR_NAME_IN_REGISTRY);
 				} catch (RemoteException e) {
 					log.error("remote exception", e);
 				} catch (NotBoundException e) {

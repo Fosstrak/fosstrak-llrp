@@ -126,7 +126,7 @@ public interface Reader extends Remote  {
 	 * @param receiver the receiver that shall be notified with the message.
 	 * @throws RemoteException whenever there is an RMI error.
 	 */
-	abstract void registerForAsynchronous(AsynchronousNotifiable receiver) throws RemoteException;
+	void registerForAsynchronous(AsynchronousNotifiable receiver) throws RemoteException;
 
 	/**
 	 * deregister from the asynchronous messages. the receiver will no more 

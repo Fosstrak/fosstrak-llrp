@@ -70,13 +70,13 @@ public class AdaptorTest {
 		public MyRunner(Adaptor adaptor) {
 			try {
 				try {
-					LocateRegistry.createRegistry(Constants.registryPort);
+					LocateRegistry.createRegistry(Constants.REGISTRY_PORT);
 				} catch (Exception e) {
 					// the registry already exists...
 				}
 				
-				Registry r = LocateRegistry.getRegistry(Constants.registryPort);
-				r.bind(Constants.adaptorNameInRegistry, adaptor);					
+				Registry r = LocateRegistry.getRegistry(Constants.REGISTRY_PORT);
+				r.bind(Constants.ADAPTOR_NAME_IN_REGISTRY, adaptor);					
 			} catch (RemoteException e) {
 				log.error("caught remote exception", e);
 			} catch (AlreadyBoundException e) {
@@ -95,8 +95,8 @@ public class AdaptorTest {
 			// deregister the adaptor.
 			Registry r;
 			try {
-				r = LocateRegistry.getRegistry(Constants.registryPort);
-				r.unbind(Constants.adaptorNameInRegistry);
+				r = LocateRegistry.getRegistry(Constants.REGISTRY_PORT);
+				r.unbind(Constants.ADAPTOR_NAME_IN_REGISTRY);
 			} catch (RemoteException e) {
 				log.error("remote exception", e);
 			} catch (NotBoundException e) {
@@ -144,16 +144,16 @@ public class AdaptorTest {
 	@Test
 	public void testRemoteAdaptor() throws Exception {
 		// create an adaptor an register it through rmi
-		AdaptorImpl serverAdaptor = new AdaptorImpl(Constants.adaptorNameInRegistry);
+		AdaptorImpl serverAdaptor = new AdaptorImpl(Constants.ADAPTOR_NAME_IN_REGISTRY);
 		Thread thread = new Thread(new MyRunner(serverAdaptor));
 		thread.start();
 
 		// lookup the server adaptor in the registry
-		Registry registry = LocateRegistry.getRegistry("localhost", Constants.registryPort);
-		Adaptor adaptor = (Adaptor) registry.lookup(Constants.adaptorNameInRegistry);
+		Registry registry = LocateRegistry.getRegistry("localhost", Constants.REGISTRY_PORT);
+		Adaptor adaptor = (Adaptor) registry.lookup(Constants.ADAPTOR_NAME_IN_REGISTRY);
 		
 		// test if getAdaptorName works.
-		assertAdaptorName(Constants.adaptorNameInRegistry, adaptor);
+		assertAdaptorName(Constants.ADAPTOR_NAME_IN_REGISTRY, adaptor);
 		
 		// test if containsReader(String) works.
 		assertContainsReader(false, readerName, adaptor);

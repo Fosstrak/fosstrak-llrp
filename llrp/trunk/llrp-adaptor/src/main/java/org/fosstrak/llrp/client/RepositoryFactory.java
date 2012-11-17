@@ -92,9 +92,12 @@ public class RepositoryFactory {
 	 * @throws ClassNotFoundException when the class is not existing.
 	 * @throws LLRPRuntimeException when something other went wrong.
 	 */
-	public static Repository create(Properties properties) 
-		throws InstantiationException, LLRPRuntimeException, 
-			IllegalAccessException, ClassNotFoundException {
+	public static Repository create(Properties properties) throws InstantiationException, LLRPRuntimeException, IllegalAccessException, ClassNotFoundException {
+		
+		if (null == properties) {
+			log.error("given properties are null");
+			throw new IllegalArgumentException("given properties are null");
+		}
 		
 		// extract the settings from the properties.
 		Map<String, String> args = new HashMap<String, String>();

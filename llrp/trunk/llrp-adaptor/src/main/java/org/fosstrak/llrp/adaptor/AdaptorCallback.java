@@ -25,6 +25,7 @@ import java.rmi.RemoteException;
 import java.rmi.StubNotFoundException;
 import java.rmi.server.UnicastRemoteObject;
 
+import org.apache.log4j.Logger;
 import org.fosstrak.llrp.adaptor.exception.LLRPRuntimeException;
 import org.fosstrak.llrp.client.LLRPExceptionHandlerTypeMap;
 import org.llrp.ltk.exceptions.InvalidLLRPMessageException;
@@ -46,6 +47,9 @@ public class AdaptorCallback extends UnicastRemoteObject implements Asynchronous
 	/** the worker that holds this callback. */
 	private AdaptorWorker worker = null;
 	
+	/** the logger. */
+	private static Logger log = Logger.getLogger(AdaptorCallback.class);
+	
 	/**
 	 * creates a callback instance that retrieves asynchronous messages.
 	 * @param remote true if run remotely.
@@ -60,9 +64,9 @@ public class AdaptorCallback extends UnicastRemoteObject implements Asynchronous
 				// java 1.4. since java 1.5 the stub gets auto-generated and so 
 				// there is no stub available -> exception. we can safely 
 				// ignore this exception.
-				System.out.println("ignoring exception as with java > 5 ok.");
+				log.debug("ignoring StubNotFoundException exception as with java > 5 ok.");
 			} catch (RemoteException e) {
-				e.printStackTrace();
+				log.error("caught remote exception while exporting object", e);
 			}
 		}
 	}

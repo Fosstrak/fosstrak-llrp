@@ -97,7 +97,7 @@ import org.llrp.ltk.types.LLRPMessage;
  * @author swieland
  *
  */
-public class AdaptorManagement {
+public final class AdaptorManagement {
 	
 	/** the name for the default local adaptor. */
 	public static final String DEFAULT_ADAPTOR_NAME = "DEFAULT";
@@ -192,6 +192,7 @@ public class AdaptorManagement {
 		
 		this.export = export;
 		
+		log.debug("initialize configuration strategy " + configurationClass);
 		configLoader = initializeConfigurationStrategy(readParameters, writeParameters, configurationClass);
 
 		this.commitChanges = commitChanges;
@@ -203,6 +204,7 @@ public class AdaptorManagement {
 		
 		load();
 		initialized = true;
+		log.debug("adaptor management has been successfully initialized.");
 		return true;
 	}
 	
@@ -218,8 +220,7 @@ public class AdaptorManagement {
 		try {
 			Class<?> clzz = Class.forName(configurationClass);
 			Constructor<?> ctor = clzz.getConstructor(Map.class, Map.class);
-			Object instance = ctor.newInstance(readParameters, writeParameters);
-			return (Configuration) instance;
+			return (Configuration) ctor.newInstance(readParameters, writeParameters);
 		} catch (Exception ex) {
 			log.error("could not initialize the configuration strategy", ex);
 			throw new LLRPRuntimeException(ex);
@@ -388,27 +389,28 @@ public class AdaptorManagement {
 		return localWorkers.containsKey(adapterName);
 	}
 	
-	private Adaptor getRemoteAdapter(String adaptorName, String address) throws LLRPRuntimeException, RemoteException {
+	private Adaptor getRemoteAdapter(String address) throws LLRPRuntimeException, RemoteException {
 		try {
 			// try to get the instance from the remote 
 			// adaptor.
-			Registry registry = LocateRegistry.getRegistry(address, Constants.registryPort);
-			return (Adaptor) registry.lookup(Constants.adaptorNameInRegistry);
+			Registry registry = LocateRegistry.getRegistry(address, Constants.REGISTRY_PORT);
+			return (Adaptor) registry.lookup(Constants.ADAPTOR_NAME_IN_REGISTRY);
 		} catch (NotBoundException ex) {
 			throw new LLRPRuntimeException("Could not get a handle on the remote adaptor", ex);
 		}
 	}
 	
 	/**
-	 * adds a new adaptor to the adaptor list.
-	 * @param adaptorName the name of the new adaptor.
+	 * adds a new adaptor to the adaptor list. <strong>the name might be changed automatically thus have a look at the returned adapter!</strong>
+	 * @param adaptorNamePreferred the preferred name of the new adaptor - the actual name of the created adaptor is returned!
 	 * @param address if you are using a client adaptor you have to provide the address of the server stub.
 	 * @throws LLRPRuntimeException when either name already exists or when there occurs an error in adaptor creation.
 	 * @throws RemoteException when there is an error during transmition.
 	 * @throws NotBoundException when there is no registry available.
 	 */
-	public synchronized String define(String adaptorName, String address) throws LLRPRuntimeException, RemoteException {
+	public synchronized String define(String adaptorNamePreferred, String address) throws LLRPRuntimeException, RemoteException {
 		checkStatus();
+		String adaptorName = adaptorNamePreferred;
 		
 		log.debug("define new adaptor: " + adaptorName + ": " + address);
 		boolean createLocalAdapter = address == null;
@@ -429,7 +431,7 @@ public class AdaptorManagement {
 			adaptorName = hostNamePrefix + hostAddress;
 			
 		} else if (!createLocalAdapter) {
-			adaptor = getRemoteAdapter(adaptorName, address);
+			adaptor = getRemoteAdapter(address);
 			// server adaptor always keeps its name. therefore we rename the adaptor
 			log.debug(String.format("adaptor is remote. therefore renaming %s to %s.", adaptorName, adaptor.getAdaptorName()));					
 			adaptorName = adaptor.getAdaptorName();
@@ -513,12 +515,12 @@ public class AdaptorManagement {
 	private void exportLocalAdapterToRMI(Adaptor adaptor) throws RemoteException {
 		// create the new registry
 		log.debug("create a registry for the export of the local adaptor.");
-		LocateRegistry.createRegistry(Constants.registryPort);
-		Registry registry = LocateRegistry.getRegistry(Constants.registryPort);
+		LocateRegistry.createRegistry(Constants.REGISTRY_PORT);
+		Registry registry = LocateRegistry.getRegistry(Constants.REGISTRY_PORT);
 		
 		log.debug("bind the adaptor to the registry");
 		try {
-			registry.bind(Constants.adaptorNameInRegistry, adaptor);
+			registry.bind(Constants.ADAPTOR_NAME_IN_REGISTRY, adaptor);
 		} catch (AlreadyBoundException e) {
 			// this exception should NEVER occur as we destroy the 
 			// registry when we register the new adaptor.
@@ -566,6 +568,7 @@ public class AdaptorManagement {
 		
 		// make a deep copy (no leakage)
 		for (AdaptorWorker worker : workers.values()) {
+			log.debug("found adaptor name " + worker.getAdaptorName());
 			try {
 				adaptorNames.add(worker.getAdaptor().getAdaptorName());
 				worker.cleanConnFailure();
@@ -574,6 +577,7 @@ public class AdaptorManagement {
 				log.error("could not connect to remote adaptor: " + e.getMessage());
 			}
 		}
+		
 		checkWorkers();
 
 		return adaptorNames;
@@ -786,7 +790,7 @@ public class AdaptorManagement {
 			return;
 		}
 
-		log.debug(String.format("Received error call on callback from '%s'.\nException:\n%s", readerName, e.getMessage(), e));		
+		log.debug(String.format("Received error call on callback from '%s'", readerName), e);		
 		exceptionHandler.postExceptionToGUI(exceptionType, e, adapterName, readerName);
 	}
 	
@@ -834,6 +838,8 @@ public class AdaptorManagement {
 	 */
 	public synchronized void loadConfiguration() throws LLRPRuntimeException {
 
+		log.debug("loading configuration.");
+		
 		// store the commit mode.
 		boolean commitMode = isCommitChanges();
 		setCommitChanges(false);
@@ -847,12 +853,16 @@ public class AdaptorManagement {
 			try {
 				configurations = configLoader.getConfiguration();
 			} catch (LLRPRuntimeException e) {
-				log.info("could not read the config -> create a default configuration");
-				
+				log.debug("caught exception while loading the configuration - will later create a default configuration.", e);
+			}
+			
+			if ((null == configurations) || configurations.isEmpty()) {
+				log.info("could not read the config -> create a default configuration.");
 				createDefaultConfiguration();
 				return;
 			}
 			
+			log.debug("starting to process the configuration read.");
 			for (AdaptorConfiguration adaptorConfiguration : configurations) {
 				
 				String adaptorName = adaptorConfiguration.getAdaptorName();
@@ -946,7 +956,8 @@ public class AdaptorManagement {
  					try {
 						for (String readerName : adaptor.getReaderNames()) {
 							Reader reader = adaptor.getReader(readerName);
-							boolean connectImmediately = false;	// somehow this causes bugs with MINA, if we start the reader at startup.
+							// somehow this causes bugs with MINA, if we start the reader at startup.
+							boolean connectImmediately = false;	
 							boolean clientInit = reader.isClientInitiated();
 							String ip = reader.getReaderAddress();
 							int port = reader.getPort();
@@ -1008,26 +1019,28 @@ public class AdaptorManagement {
 	}
 	
 	private synchronized void checkWorkers() {
-		LinkedList<AdaptorWorker> error = new LinkedList<AdaptorWorker> ();
+		log.debug("check workers...");
+		LinkedList<AdaptorWorker> errors = new LinkedList<AdaptorWorker> ();
 		synchronized (workers) {
 			synchronized (localWorkers) {
 				synchronized (remoteWorkers) {
 					for (AdaptorWorker worker : workers.values()) {
 						if (!worker.ok()) {
-							error.add(worker);
+							errors.add(worker);
 						}
 					}
 					
 					// remove the erroneous
-					for (AdaptorWorker worker : error) {
+					for (AdaptorWorker worker : errors) {
 						// remove from all the workers.
-						workers.remove(worker);
-						remoteWorkers.remove(worker);
-						localWorkers.remove(worker);
+						workers.remove(worker.getAdaptorName());
+						remoteWorkers.remove(worker.getAdaptorName());
+						localWorkers.remove(worker.getAdaptorName());
 					}
 				}
 			}
 		}
+		log.debug("...check workers done");
 		commit();
 	}
 }

@@ -26,13 +26,17 @@ package org.fosstrak.llrp.adaptor;
  * @author sawielan
  *
  */
-public class Constants {
+public final class Constants {
+		
 	/** the port of our rmi registry. */
-	public static final int registryPort = 5556;
+	public static final int REGISTRY_PORT = 5556;
 	
 	/** the name of the llrp adaptor in the rmi registry. */
-	public static final String adaptorNameInRegistry = "llrpServerAdaptor";
+	public static final String ADAPTOR_NAME_IN_REGISTRY = "llrpServerAdaptor";
 	
 	/** the default port for a llrp reader. */
 	public static final int DEFAULT_LLRP_PORT = 5084;
+
+	private Constants() {		
+	}
 }
