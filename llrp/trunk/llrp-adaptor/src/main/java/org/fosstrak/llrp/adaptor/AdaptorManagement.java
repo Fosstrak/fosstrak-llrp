@@ -410,6 +410,7 @@ public class AdaptorManagement {
 	public synchronized String define(String adaptorName, String address) throws LLRPRuntimeException, RemoteException {
 		checkStatus();
 		
+		log.debug("define new adaptor: " + adaptorName + ": " + address);
 		boolean createLocalAdapter = address == null;
 		
 		Adaptor adaptor = null;
