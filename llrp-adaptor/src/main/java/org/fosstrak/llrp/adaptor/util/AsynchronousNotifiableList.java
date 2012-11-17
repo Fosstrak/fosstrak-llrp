@@ -43,6 +43,11 @@ import org.fosstrak.llrp.adaptor.exception.LLRPRuntimeException;
  */
 public class AsynchronousNotifiableList implements AsynchronousNotifiable {
 	
+	/**
+	 * SID.
+	 */
+	private static final long serialVersionUID = 1L;
+
 	/** a list with all the receivers of asynchronous messages. */
 	private List<Receiver> receivers = Collections.synchronizedList(new LinkedList<Receiver>());
 	

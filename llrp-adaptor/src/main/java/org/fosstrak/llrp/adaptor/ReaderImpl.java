@@ -194,7 +194,7 @@ public class ReaderImpl extends UnicastRemoteObject implements LLRPEndpoint, Rea
 			
 		} catch (Exception e) {
 			// catch all unexpected errors...
-			LLRPRuntimeException ex = new LLRPRuntimeException(String.format("Could not connect to reader %s on adapter %s:\nException: %s", getReaderName(), adaptor.getAdaptorName(), e.getMessage()));
+			LLRPRuntimeException ex = new LLRPRuntimeException(String.format("Could not connect to reader %s on adapter %s:", getReaderName(), adaptor.getAdaptorName()), e);
 			reportException(ex);
 			throw ex;
 		}
@@ -335,7 +335,7 @@ public class ReaderImpl extends UnicastRemoteObject implements LLRPEndpoint, Rea
 			// a null-pointer exception occurs when the reader is no more connected.
 			// we therefore report the exception to the GUI.
 			disconnect();
-			reportException(new LLRPRuntimeException(String.format("reader %s is not connected", metaData.getReaderName(), npe),	LLRPExceptionHandlerTypeMap.EXCEPTION_READER_LOST));
+			reportException(new LLRPRuntimeException(String.format("reader %s is not connected", metaData.getReaderName()), npe,	LLRPExceptionHandlerTypeMap.EXCEPTION_READER_LOST));
 		} catch (Exception e) {
 			log.error(e);
 			// just to be sure...
@@ -590,7 +590,9 @@ public class ReaderImpl extends UnicastRemoteObject implements LLRPEndpoint, Rea
 				try {
 					while (true) {
 						synchronized (outqueue) {
-							while (outqueue.isEmpty()) outqueue.wait(PERIODICAL_WAKEUP_TIME);
+							while (outqueue.isEmpty()) {
+								outqueue.wait(PERIODICAL_WAKEUP_TIME);
+							}
 							
 							LLRPMessage msg = outqueue.remove();
 							try {
@@ -618,7 +620,9 @@ public class ReaderImpl extends UnicastRemoteObject implements LLRPEndpoint, Rea
 				try {
 					synchronized (inqueue) {
 						while (true) {
-							while (inqueue.isEmpty()) inqueue.wait(PERIODICAL_WAKEUP_TIME);
+							while (inqueue.isEmpty()) {
+								inqueue.wait(PERIODICAL_WAKEUP_TIME);
+							}
 							
 							byte[] msg = inqueue.remove();
 							deliverMessage(msg);

@@ -21,7 +21,7 @@
 
 package org.fosstrak.llrp.adaptor;
 
-import java.util.LinkedList;
+import java.util.concurrent.ConcurrentLinkedQueue;
 
 import org.apache.log4j.Logger;
 import org.fosstrak.llrp.adaptor.exception.LLRPRuntimeException;
@@ -49,13 +49,18 @@ public class AdaptorWorker implements Runnable {
 	private Adaptor adaptor = null;	
 	
 	/** the queue holding messages to be sent to readers. */
-	private LinkedList<QueueEntry> outQueue = new LinkedList<QueueEntry> ();
+	private final ConcurrentLinkedQueue<QueueEntry> outQueue = new ConcurrentLinkedQueue<QueueEntry> ();
 	
 	/** as long as this value is set to true the worker will accept and process messages. */
 	private boolean isRunning = true;
 	
 	/** the ip address of this adaptor. if its the local adaptor it returns null. */
 	private String adaptorIpAddress = null;
+	
+	/**
+	 * shortcut to the name of the adaptor.
+	 */
+	private final String adaptorName;
 	
 	/** 
 	 * the number of connection failures. The initial value is chosen in 
@@ -69,6 +74,7 @@ public class AdaptorWorker implements Runnable {
 	/** the number of allowed connection failures between adaptor and client. */
 	public static final int MAX_CONN_FAILURES = 3;
 	
+	
 	/**
 	 * creates a new LLRPAdaptorWorker. 
 	 * @param callback the callback for asynchronous message retrieval. 
@@ -79,6 +85,11 @@ public class AdaptorWorker implements Runnable {
 		callback.setWorker(this);
 		
 		this.adaptor = adaptor;
+		try {
+			this.adaptorName = adaptor.getAdaptorName();
+		} catch (Exception ex) {
+			throw new IllegalArgumentException(ex);
+		}
 	}
 	public void run() {
 		while (isRunning) {
@@ -89,10 +100,12 @@ public class AdaptorWorker implements Runnable {
 					// when someone posts a new message to the queue to 
 					// poster has to call the notifyAll() method and by 
 					// that awake this thread.
-					while (outQueue.isEmpty()) outQueue.wait();
+					while (outQueue.isEmpty()) {
+						outQueue.wait(100L);
+					}
 					// the thread has been awakened and is now able to 
 					// process the first element in the queue.
-					entry = outQueue.removeFirst();
+					entry = outQueue.remove();
 					
 					process(entry);
 				}
@@ -151,27 +164,11 @@ public class AdaptorWorker implements Runnable {
 	}
 
 	/**
-	 * sets the callback for asynchronous message retrieval. 
-	 * @param callback the callback for asynchronous message retrieval. 
-	 */
-	public void setCallback(AdaptorCallback callback) {
-		this.callback = callback;
-	}
-
-	/**
 	 * the adaptor holding the connection to the readers. 
 	 * @return the adaptor holding the connection to the readers.
 	 */
 	public Adaptor getAdaptor() {
 		return adaptor;
-	}
-
-	/**
-	 * sets the adaptor holding the connection to the readers.
-	 * @param adaptor the adaptor holding the connection to the readers.
-	 */
-	public void setAdaptor(Adaptor adaptor) {
-		this.adaptor = adaptor;
 	}
 	
 	/**
@@ -235,5 +232,13 @@ public class AdaptorWorker implements Runnable {
 	 */
 	public boolean ok() {
 		return (connFailures < MAX_CONN_FAILURES);
+	}
+	
+	/**
+	 * the name of the internal adaptor being processed.
+	 * @return the name of the internal adaptor being processed.
+	 */
+	public String getAdaptorName() {
+		return adaptorName;
 	}
 }
