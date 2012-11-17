@@ -28,6 +28,7 @@ import java.util.List;
 import java.util.Map;
 import java.util.concurrent.ConcurrentHashMap;
 
+import org.apache.log4j.Logger;
 import org.fosstrak.llrp.adaptor.exception.LLRPDuplicateNameException;
 import org.fosstrak.llrp.adaptor.exception.LLRPRuntimeException;
 import org.fosstrak.llrp.adaptor.util.AsynchronousNotifiableList;
@@ -44,6 +45,9 @@ public class AdaptorImpl extends UnicastRemoteObject implements Adaptor {
 	 */
 	private static final long serialVersionUID = -5896254195502117705L;
 
+	/** the logger. */
+	private static Logger log = Logger.getLogger(AdaptorImpl.class);
+	
 	/** a map holding all the readers contained in this adaptor. */
 	private Map<String, Reader> readers = new ConcurrentHashMap<String, Reader> ();
 	
@@ -63,6 +67,7 @@ public class AdaptorImpl extends UnicastRemoteObject implements Adaptor {
 	public AdaptorImpl(String adaptorName) throws RemoteException {
 		super();
 		this.adaptorName = adaptorName;
+		log.debug("new adaptor instance: " + adaptorName);
 	}
 
 	@Override	
@@ -80,8 +85,10 @@ public class AdaptorImpl extends UnicastRemoteObject implements Adaptor {
 		define(new ReaderImpl(this, readerName, readerAddress, port), clientInitiatedConnection, connectImmediately);
 	}
 	
-	private void define(Reader reader, boolean clientInitiatedConnection, boolean connectImmediately) throws RemoteException, LLRPRuntimeException {
+	private void define(Reader reader, boolean clientInitiatedConnection, boolean connectImmediately) throws RemoteException, LLRPRuntimeException {		
 		final String readerName = reader.getReaderName();
+		
+		log.debug(String.format("define new reader: %s, clientInitiated: %b, connectImmediately: %b", readerName, clientInitiatedConnection, connectImmediately));
 
 		if (containsReader(readerName)) {
 			throw new LLRPDuplicateNameException(readerName, "Reader '" + readerName + "' already exists.");

@@ -153,9 +153,11 @@ public class ReaderImpl extends UnicastRemoteObject implements LLRPEndpoint, Rea
 		metaData.setPort(port);
 	}
 	
+	/*
 	public ReaderImpl(Adaptor adaptor, String readerName, LLRPConnection connection) throws RemoteException {
 		this.readerConnection = connection;
 	}
+	*/
 	
 	/* (non-Javadoc)
 	 * @see org.fosstrak.llrp.adaptor.ReaderIface#connect(boolean)
@@ -164,14 +166,17 @@ public class ReaderImpl extends UnicastRemoteObject implements LLRPEndpoint, Rea
 	public void connect(boolean clientInitiatedConnection) throws LLRPRuntimeException, RemoteException {
 		// FIXME: need to handle the case when the reader is already connected.
 		try {
+			log.debug("connecting the reader.");
 			metaData.setClientInitiated(clientInitiatedConnection);
 			
 			// start a new counter session
 			metaData.newSession();
 			
-			if (readerConnection != null) {
+			if (readerConnection == null) {
+				log.debug("setup new connection.");
 				readerConnection = prepareConnectionAndConnect();
 			}
+
 			metaData.setConnected(true);
 			
 			outQueueWorker = new Thread(getOutQueueWorker());
@@ -182,6 +187,7 @@ public class ReaderImpl extends UnicastRemoteObject implements LLRPEndpoint, Rea
 	
 			// only do heart beat in client initiated mode.
 			if (clientInitiatedConnection) {
+				log.debug("enabling heart beat");
 				enableHeartBeat();
 			}
 			log.info(String.format("reader %s connected.", metaData.getReaderName()));
@@ -325,11 +331,13 @@ public class ReaderImpl extends UnicastRemoteObject implements LLRPEndpoint, Rea
 			readerConnection.send(llrpMessage);
 			metaData.packageSent();
 		} catch (NullPointerException npe) {
+			log.error("caught nullpointer exception.", npe);
 			// a null-pointer exception occurs when the reader is no more connected.
 			// we therefore report the exception to the GUI.
 			disconnect();
-			reportException(new LLRPRuntimeException(String.format("reader %s is not connected", metaData.getReaderName()),	LLRPExceptionHandlerTypeMap.EXCEPTION_READER_LOST));
+			reportException(new LLRPRuntimeException(String.format("reader %s is not connected", metaData.getReaderName(), npe),	LLRPExceptionHandlerTypeMap.EXCEPTION_READER_LOST));
 		} catch (Exception e) {
+			log.error(e);
 			// just to be sure...
 			disconnect();			
 		}		
