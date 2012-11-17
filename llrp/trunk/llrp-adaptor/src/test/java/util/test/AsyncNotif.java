@@ -19,7 +19,7 @@
  *
  */
 
-package util;
+package util.test;
 
 import java.rmi.RemoteException;
 import java.rmi.StubNotFoundException;

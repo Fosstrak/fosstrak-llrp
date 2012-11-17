@@ -22,13 +22,14 @@
 package org.fosstrak.llrp.adaptor.util;
 
 import java.rmi.RemoteException;
-import java.util.Collections;
 import java.util.LinkedList;
 import java.util.List;
-import java.util.concurrent.ConcurrentLinkedQueue;
+import java.util.Set;
+import java.util.concurrent.ConcurrentSkipListSet;
 
 import org.fosstrak.llrp.adaptor.AsynchronousNotifiable;
 import org.fosstrak.llrp.adaptor.exception.LLRPRuntimeException;
+import org.fosstrak.llrp.adaptor.util.type.NotifiableFailureCounter;
 
 /**
  * helper class to maintain a list of asynchronous message receivers. the 
@@ -49,69 +50,14 @@ public class AsynchronousNotifiableList implements AsynchronousNotifiable {
 	private static final long serialVersionUID = 1L;
 
 	/** a list with all the receivers of asynchronous messages. */
-	private List<Receiver> receivers = Collections.synchronizedList(new LinkedList<Receiver>());
-	
-	/** remove the receiver after this number of unsuccessful connection attempts. */
-	public static final int NUM_NON_RECHABLE_ALLOWED = 3;
-	
-	/** erroneous receivers that will be removed during cleanup. */
-	private ConcurrentLinkedQueue<Receiver> erroneous = null;
-	
-	/**
-	 * internal wrapper class that helps counting the errors...
-	 * @author sawielan
-	 *
-	 */
-	private class Receiver {
-		// the number of errors occurred.
-		private int errors = 0;
-		
-		// the receiver.
-		private AsynchronousNotifiable receiver = null;
-		
-		/**
-		 * creates a wrapper class.
-		 * @param receiver the receiver.
-		 */
-		public Receiver(AsynchronousNotifiable receiver) {
-			this.receiver = receiver;
-		}
-		
-		/**
-		 * sets the error-count to zero.
-		 */
-		public void clean() {
-			errors = 0;
-		}
-		
-		/**
-		 * increases the error-count by one.
-		 */
-		public void error() {
-			errors++;
-			
-			if ((NUM_NON_RECHABLE_ALLOWED < errors) && (null == erroneous)) {
-				erroneous = new ConcurrentLinkedQueue<Receiver> ();
-				erroneous.add(this);
-			}
-		}
-
-		/**
-		 * @return the receiver of this helper.
-		 */
-		public AsynchronousNotifiable getReceiver() {
-			return receiver;
-		}
-	}
+	private Set<NotifiableFailureCounter> receivers = new ConcurrentSkipListSet<NotifiableFailureCounter>();
 	
 	/**
 	 * add a new receiver to the list.
 	 * @param entry the new receiver to be stored in the list.
 	 */
 	public void add(AsynchronousNotifiable entry) {
-		synchronized (receivers) {
-			receivers.add(new Receiver(entry));
-		}
+		receivers.add(new NotifiableFailureCounter(entry));
 	}
 	
 	/**
@@ -119,40 +65,26 @@ public class AsynchronousNotifiableList implements AsynchronousNotifiable {
 	 * @param entry the receiver to be removed.
 	 */
 	public void remove(AsynchronousNotifiable entry) {
-		synchronized (receivers) {
-			Receiver toBeRemoved = null;
-			for (Receiver r : receivers) {
-				if (r.getReceiver().equals(entry)) {
-					toBeRemoved = r;
-					break;
-				}
-			}
-			if (null != toBeRemoved) {
-				receivers.remove(toBeRemoved);
+		for (NotifiableFailureCounter r : receivers) {
+			if (r.getReceiver().equals(entry)) {
+				receivers.remove(r);
 			}
 		}
 	}
 	
 	/**
-	 * @return if true then the list contains erroneous receivers.
-	 */
-	private boolean isDirty() {
-		return (null == erroneous);
-	}
-	
-	/**
 	 * removes all the erroneous receivers from the list.
 	 */
-	private synchronized void cleanup() {	
-		if (null != erroneous) {
-			synchronized (erroneous) {	
-				synchronized(receivers) {
-					for (Receiver e : erroneous) {
-						receivers.remove(e);
-					}
-					erroneous = null;
-				}
-			}			
+	private synchronized void cleanup() {
+		List<NotifiableFailureCounter> aboveThreshold = new LinkedList<NotifiableFailureCounter> ();
+		for (NotifiableFailureCounter counter : receivers) {
+			if (counter.isAboveThreshold()) {
+				aboveThreshold.add(counter);
+			}
+		}
+		
+		for (NotifiableFailureCounter counter : aboveThreshold) {
+			receivers.remove(counter);
 		}
 	}
 
@@ -164,18 +96,17 @@ public class AsynchronousNotifiableList implements AsynchronousNotifiable {
 	 */
 	public void notify(byte[] message, String readerName) throws RemoteException {
 		
-		for (Receiver receiver : receivers) {
+		for (NotifiableFailureCounter receiver : receivers) {
 			try {
 				receiver.getReceiver().notify(message, readerName);
+				// if notified successfully, clean the error counter.
+				receiver.clean();
 			} catch (RemoteException e) {
 				receiver.error();
 			}
-			receiver.clean();
 		}
 		// run the cleanup routine.
-		if (isDirty()) {
-			cleanup();
-		}
+		cleanup();
 	}
 
 	/**
@@ -185,24 +116,23 @@ public class AsynchronousNotifiableList implements AsynchronousNotifiable {
 	 * @throws RemoteException when there is an RMI exception.
 	 */
 	public void notifyError(LLRPRuntimeException e, String readerName) throws RemoteException {
-		for (Receiver receiver : receivers) {
+		for (NotifiableFailureCounter receiver : receivers) {
 			try {
 				receiver.getReceiver().notifyError(e, readerName);
+				// if notified successfully, clean the error counter.
+				receiver.clean();
 			} catch (RemoteException ex) {
 				receiver.error();
 			}
-			receiver.clean();
 		}
 		// run the cleanup routine.
-		if (isDirty()) {
-			cleanup();
-		}
+		cleanup();
 	}
 
 	/**
-	 * @return a list holding all the registered receivers.
+	 * @return a set holding all the registered receivers.
 	 */
-	public List<Receiver> getAll() {
+	public Set<NotifiableFailureCounter> getAll() {
 		return receivers;
 	}
 }

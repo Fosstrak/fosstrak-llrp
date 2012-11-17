@@ -28,7 +28,7 @@ import java.util.Vector;
 
 /**
  * Extend the default properties to write a sorted configuration file.
- * @author sawielan
+ * @author swieland
  *
  */
 public class SortedProperties extends Properties {
@@ -37,7 +37,7 @@ public class SortedProperties extends Properties {
 	private static final long serialVersionUID = 1520361645438527317L;
 	
 	@Override
-	@SuppressWarnings("unchecked")
+	@SuppressWarnings({ "unchecked", "rawtypes" })
 	public synchronized Enumeration keys() {
 		Enumeration keysEnum = super.keys();
 		Vector keyList = new Vector();

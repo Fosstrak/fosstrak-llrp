@@ -96,6 +96,8 @@ public class FileStoreConfigurationTest {
 		final String prefix = "adaptorPrefix";
 		final String ip = "5.5.5.5";
 		AdaptorConfiguration adaptor2 = new AdaptorConfiguration(adaptorName, ip, false, prefix);
+		// reset the adaptor name in order to complete the test coverage.
+		adaptor2.setAdaptorName(adaptorName);
 
 		ReaderConfiguration reader1 = new ReaderConfiguration("reader1", "1.2.3.4", 1234, true, true);
 		ReaderConfiguration reader2 = new ReaderConfiguration("reader2", "2.3.4.5", 1234, false, false);
@@ -116,5 +118,23 @@ public class FileStoreConfigurationTest {
 		// and read it again.
 		List<AdaptorConfiguration> result = config.getConfiguration();
 		Assert.assertNotNull(result);
+	}
+	
+	@Test(expected = LLRPRuntimeException.class)
+	public void testWriteToNonExistingFile() throws LLRPRuntimeException, IOException {
+
+		AdaptorConfiguration defaultAdaptor = new AdaptorConfiguration(AdaptorManagement.DEFAULT_ADAPTOR_NAME, null, true, null);
+		ReaderConfiguration reader1 = new ReaderConfiguration("reader1", "1.2.3.4", 1234, true, true);
+		defaultAdaptor.setReaderConfigurations(Arrays.asList(new ReaderConfiguration[] {reader1 }) );
+		
+		// write the nice stuff
+		tempFolder.create();
+		File storePath = tempFolder.newFile("testFile");
+		Map<String, Object> parameters = new HashMap<String, Object> ();
+		parameters.put(FileStoreConfiguration.KEY_STOREFILEPATH, "http://" + storePath.getAbsolutePath());
+		FileStoreConfiguration config = new FileStoreConfiguration(parameters, parameters);
+		
+		// must trigger a LLRPRuntimeException.
+		config.writeConfiguration(Arrays.asList(new AdaptorConfiguration[] {defaultAdaptor} ));
 	}
 }

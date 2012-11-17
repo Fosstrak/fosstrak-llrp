@@ -19,7 +19,7 @@
  *
  */
 
-package org.fosstrak.llrp.adaptor;
+package org.fosstrak.llrp.adaptor.test;
 
 import java.io.FileReader;
 import java.rmi.AlreadyBoundException;
@@ -33,6 +33,9 @@ import java.util.List;
 import junit.framework.Assert;
 
 import org.apache.log4j.Logger;
+import org.fosstrak.llrp.adaptor.Adaptor;
+import org.fosstrak.llrp.adaptor.AdaptorImpl;
+import org.fosstrak.llrp.adaptor.Constants;
 import org.jdom.Document;
 import org.jdom.input.SAXBuilder;
 import org.junit.Before;
@@ -40,7 +43,7 @@ import org.junit.Test;
 import org.llrp.ltk.generated.LLRPMessageFactory;
 import org.llrp.ltk.types.LLRPMessage;
 
-import util.AsyncNotif;
+import util.test.AsyncNotif;
 
 /**
  * this class runs basic tests on the adaptor.

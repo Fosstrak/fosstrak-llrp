@@ -19,7 +19,7 @@
  *
  */
 
-package org.fosstrak.llrp.adaptor;
+package org.fosstrak.llrp.adaptor.test;
 
 import java.rmi.AlreadyBoundException;
 import java.rmi.NotBoundException;
@@ -34,6 +34,10 @@ import junit.framework.Assert;
 import org.apache.log4j.BasicConfigurator;
 import org.apache.log4j.Level;
 import org.apache.log4j.Logger;
+import org.fosstrak.llrp.adaptor.Adaptor;
+import org.fosstrak.llrp.adaptor.AdaptorImpl;
+import org.fosstrak.llrp.adaptor.AdaptorManagement;
+import org.fosstrak.llrp.adaptor.Constants;
 import org.fosstrak.llrp.adaptor.config.FileStoreConfiguration;
 import org.fosstrak.llrp.adaptor.exception.LLRPDuplicateNameException;
 import org.fosstrak.llrp.adaptor.exception.LLRPRuntimeException;

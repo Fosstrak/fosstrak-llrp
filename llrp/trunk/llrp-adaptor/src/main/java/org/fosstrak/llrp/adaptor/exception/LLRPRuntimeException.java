@@ -36,7 +36,7 @@ public class LLRPRuntimeException extends Exception {
 	 */
 	private static final long serialVersionUID = -174158847556608407L;
 
-	protected LLRPExceptionHandlerTypeMap exceptionType = LLRPExceptionHandlerTypeMap.EXCEPTION_UNKOWN;
+	private LLRPExceptionHandlerTypeMap exceptionType = LLRPExceptionHandlerTypeMap.EXCEPTION_UNKOWN;
 	
 	/**
 	 * default constructor.

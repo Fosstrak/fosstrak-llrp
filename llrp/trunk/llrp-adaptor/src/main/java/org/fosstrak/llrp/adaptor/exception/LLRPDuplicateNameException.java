@@ -35,7 +35,7 @@ public class LLRPDuplicateNameException extends LLRPRuntimeException {
 	private static final long serialVersionUID = -5236575385965206938L;
 	
 	/** the name that caused the exception. */
-	protected String name = null;
+	private String name = null;
 	
 	/**
 	 * default constructor.
@@ -67,6 +67,14 @@ public class LLRPDuplicateNameException extends LLRPRuntimeException {
 	 * @return the name that caused the exception.
 	 */
 	public String getDuplicateName() {
-		return this.name;
+		return this.getName();
+	}
+
+	/**
+	 * get the duplicate name.
+	 * @return the duplicate name.
+	 */
+	public String getName() {
+		return name;
 	}
 }

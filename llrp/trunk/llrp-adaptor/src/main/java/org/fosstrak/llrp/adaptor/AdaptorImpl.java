@@ -21,6 +21,7 @@
 
 package org.fosstrak.llrp.adaptor;
 
+import java.io.Serializable;
 import java.rmi.RemoteException;
 import java.rmi.server.UnicastRemoteObject;
 import java.util.LinkedList;
@@ -38,7 +39,7 @@ import org.fosstrak.llrp.adaptor.util.AsynchronousNotifiableList;
  * @author sawielan
  *
  */
-public class AdaptorImpl extends UnicastRemoteObject implements Adaptor {
+public class AdaptorImpl extends UnicastRemoteObject implements Adaptor, Serializable {
 	
 	/**
 	 * default serial for serialization.

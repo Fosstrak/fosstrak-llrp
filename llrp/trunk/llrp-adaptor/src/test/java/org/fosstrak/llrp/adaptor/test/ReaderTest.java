@@ -19,19 +19,23 @@
  *
  */
 
-package org.fosstrak.llrp.adaptor;
+package org.fosstrak.llrp.adaptor.test;
 
 import java.io.FileReader;
 
 import junit.framework.Assert;
 
+import org.fosstrak.llrp.adaptor.Adaptor;
+import org.fosstrak.llrp.adaptor.AdaptorImpl;
+import org.fosstrak.llrp.adaptor.Reader;
+import org.fosstrak.llrp.adaptor.ReaderImpl;
 import org.jdom.Document;
 import org.jdom.input.SAXBuilder;
 import org.junit.Test;
 import org.llrp.ltk.generated.LLRPMessageFactory;
 import org.llrp.ltk.types.LLRPMessage;
 
-import util.AsyncNotif;
+import util.test.AsyncNotif;
 
 /**
  * test the default implementation of the reader.
