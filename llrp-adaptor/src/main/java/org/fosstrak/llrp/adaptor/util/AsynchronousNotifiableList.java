@@ -22,10 +22,10 @@
 package org.fosstrak.llrp.adaptor.util;
 
 import java.rmi.RemoteException;
+import java.util.Collection;
 import java.util.LinkedList;
 import java.util.List;
-import java.util.Set;
-import java.util.concurrent.ConcurrentSkipListSet;
+import java.util.concurrent.ConcurrentLinkedQueue;
 
 import org.fosstrak.llrp.adaptor.AsynchronousNotifiable;
 import org.fosstrak.llrp.adaptor.exception.LLRPRuntimeException;
@@ -50,7 +50,7 @@ public class AsynchronousNotifiableList implements AsynchronousNotifiable {
 	private static final long serialVersionUID = 1L;
 
 	/** a list with all the receivers of asynchronous messages. */
-	private Set<NotifiableFailureCounter> receivers = new ConcurrentSkipListSet<NotifiableFailureCounter>();
+	private ConcurrentLinkedQueue<NotifiableFailureCounter> receivers = new ConcurrentLinkedQueue<NotifiableFailureCounter>();
 	
 	/**
 	 * add a new receiver to the list.
@@ -132,7 +132,7 @@ public class AsynchronousNotifiableList implements AsynchronousNotifiable {
 	/**
 	 * @return a set holding all the registered receivers.
 	 */
-	public Set<NotifiableFailureCounter> getAll() {
+	public Collection<NotifiableFailureCounter> getAll() {
 		return receivers;
 	}
 }
