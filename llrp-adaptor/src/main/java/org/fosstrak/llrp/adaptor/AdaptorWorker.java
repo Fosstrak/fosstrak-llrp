@@ -74,6 +74,8 @@ public class AdaptorWorker implements Runnable {
 	/** the number of allowed connection failures between adaptor and client. */
 	public static final int MAX_CONN_FAILURES = 3;
 	
+	private static final long WAIT_INTERVALL = 100L;
+	
 	
 	/**
 	 * creates a new LLRPAdaptorWorker. 
@@ -101,7 +103,7 @@ public class AdaptorWorker implements Runnable {
 					// poster has to call the notifyAll() method and by 
 					// that awake this thread.
 					while (outQueue.isEmpty()) {
-						outQueue.wait(100L);
+						outQueue.wait(WAIT_INTERVALL);
 					}
 					// the thread has been awakened and is now able to 
 					// process the first element in the queue.

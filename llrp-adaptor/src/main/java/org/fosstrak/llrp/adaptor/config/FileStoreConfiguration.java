@@ -121,8 +121,7 @@ public class FileStoreConfiguration extends Configuration {
 			boolean isLocal = Boolean.parseBoolean(props.getProperty(adaptorPrefix + CFG_ADAPTOR_MODE));
 			String adaptorIP = props.getProperty(adaptorPrefix + CFG_ADAPTOR_IP, null);
 			
-			log.debug(String.format("read adaptor values: (name:%s, ip:%s, local:%b)", 
-					adaptorName, adaptorIP, isLocal));
+			log.debug(String.format("read adaptor values: (name:%s, ip:%s, local:%b)", adaptorName, adaptorIP, isLocal));
 			
 			adaptorConfigurations.add(new AdaptorConfiguration(adaptorName, adaptorIP, isLocal, adaptorPrefix));
 		}
@@ -151,9 +150,7 @@ public class FileStoreConfiguration extends Configuration {
 					boolean readerClientInitiated = Boolean.parseBoolean(props.getProperty(readerPrefix + CFG_READER_INITIATION));
 					boolean connectImmediately = Boolean.parseBoolean(props.getProperty(readerPrefix + CFG_READER_CONNECT_IMMEDIATELY));
 					
-					readerConfigurations.add(new ReaderConfiguration(
-							readerName, readerIp, readerPort, 
-							readerClientInitiated, connectImmediately));
+					readerConfigurations.add(new ReaderConfiguration(readerName, readerIp, readerPort, readerClientInitiated, connectImmediately));
 					
 					log.debug(String.format("read reader values: (name:%s, ip:%s, port:%d, clientInitiatedConnection: %b, connectImmediately: %b)", 
 							readerName, readerIp, readerPort, readerClientInitiated, connectImmediately));
@@ -168,9 +165,11 @@ public class FileStoreConfiguration extends Configuration {
 	@Override
 	public void writeConfiguration(List<AdaptorConfiguration> configurations) throws LLRPRuntimeException {
 		if (writeParameters == null) {
+			log.error("writeParameters must not be null - aborting.");
 			throw new IllegalArgumentException("writeParameters null - aborting.");
 		}
 		if (configurations == null) {
+			log.error("there is no configuration to be written - aborting.");
 			throw new IllegalArgumentException("configuration to write must not be null - aborting.");
 		}
 		writeConfiguration(configurations, (String) writeParameters.get(KEY_STOREFILEPATH));
@@ -189,9 +188,7 @@ public class FileStoreConfiguration extends Configuration {
 		log.info("storing adaptors to configuration file " + propertiesFile);
 		
 		// write the number of adaptors to the properties
-		log.debug(String.format("writing property/value (%s,%d)", 
-				CFG_NBR_ADAPTORS,
-				configurations.size()));
+		log.debug(String.format("writing property/value (%s,%d)", CFG_NBR_ADAPTORS, configurations.size()));
 		props.setProperty(CFG_NBR_ADAPTORS, String.format("%s", configurations.size()));
 		
 		// the first adapter we write is the default adapter
@@ -236,14 +233,10 @@ public class FileStoreConfiguration extends Configuration {
 		if (adaptor.isLocal()) {
 			isLocal = true;
 		} else {
-			log.debug(String.format("writing property/value (%s,%s)",
-					adaptorPrefix + CFG_ADAPTOR_IP,
-					adaptor.getIp()));
+			log.debug(String.format("writing property/value (%s,%s)", adaptorPrefix + CFG_ADAPTOR_IP, adaptor.getIp()));
 			props.setProperty(adaptorPrefix + CFG_ADAPTOR_IP, adaptor.getIp());
 		}
-		log.debug(String.format("writing property/value (%s,%b)",
-				adaptorPrefix + CFG_ADAPTOR_MODE,
-				isLocal));
+		log.debug(String.format("writing property/value (%s,%b)", adaptorPrefix + CFG_ADAPTOR_MODE, isLocal));
 		props.setProperty(adaptorPrefix + CFG_ADAPTOR_MODE, String.format("%b", isLocal));
 		
 		// now store the reader part
@@ -257,32 +250,21 @@ public class FileStoreConfiguration extends Configuration {
 				String readerPrefix = adaptorPrefix + CFG_READER_PREFIX + j + CFG_SEPARATOR;
 				j++;
 				
-				log.debug(String.format("writing property/value (%s,%s)",
-						readerPrefix + CFG_READER_NAME,
-						reader.getReaderName()));
+				log.debug(String.format("writing property/value (%s,%s)", readerPrefix + CFG_READER_NAME, reader.getReaderName()));
 				props.setProperty(readerPrefix + CFG_READER_NAME, reader.getReaderName());
 				
-				log.debug(String.format("writing property/value (%s,%s)",
-						readerPrefix + CFG_READER_IP,
-						reader.getReaderIp()));
+				log.debug(String.format("writing property/value (%s,%s)", readerPrefix + CFG_READER_IP, reader.getReaderIp()));
 				props.setProperty(readerPrefix + CFG_READER_IP, reader.getReaderIp());
 				
-				log.debug(String.format("writing property/value (%s,%d)",
-						readerPrefix + CFG_READER_PORT,
-						reader.getReaderPort()));
+				log.debug(String.format("writing property/value (%s,%d)", readerPrefix + CFG_READER_PORT, reader.getReaderPort()));
 				props.setProperty(readerPrefix + CFG_READER_PORT, String.format("%d", reader.getReaderPort()));
 				
-				log.debug(String.format("writing property/value (%s,%b)",
-						readerPrefix + CFG_READER_INITIATION,
-						reader.isReaderClientInitiated()));
+				log.debug(String.format("writing property/value (%s,%b)", readerPrefix + CFG_READER_INITIATION, reader.isReaderClientInitiated()));
 				props.setProperty(readerPrefix + CFG_READER_INITIATION, String.format("%b", reader.isReaderClientInitiated()));
 				
-				log.debug(String.format("writing property/value (%s,%b)",
-						readerPrefix + CFG_READER_CONNECT_IMMEDIATELY,
-						true));
+				log.debug(String.format("writing property/value (%s,%b)", readerPrefix + CFG_READER_CONNECT_IMMEDIATELY, true));
 				props.setProperty(readerPrefix + CFG_READER_CONNECT_IMMEDIATELY, String.format("%b", reader.isConnectImmediately()));
 			}
 		}
 	}
-
 }

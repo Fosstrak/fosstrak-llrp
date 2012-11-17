@@ -29,6 +29,7 @@ import org.llrp.ltk.types.LLRPMessage;
  *
  */
 public class QueueEntry {
+	
 	/** the llrp message. */
 	private LLRPMessage message;
 	
