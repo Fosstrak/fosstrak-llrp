@@ -19,12 +19,6 @@
 	<modules>
 		<module>llrp-adaptor</module>
 		<module>llrp-adaptor-integration</module>
-		<!--
-		LLRP Commander will be moved into its own project and thus 
-		be deleted from the source trunk here. For the sake of 
-		simplicity, keep it deactivated here for now.
-		<module>llrp-commander</module>
-		-->
 	</modules>
 
 
