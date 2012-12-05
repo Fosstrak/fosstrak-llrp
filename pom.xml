@@ -146,12 +146,11 @@
 	<!-- =========================================================== -->
 	<!-- Infrastructure                                              -->
 	<!-- =========================================================== -->
-	<scm>
-		<!-- keep empty tags here to avoid release:prepare crashes -->
-		<connection></connection>
-		<developerConnection>scm:svn:https://svn.fosstrak.org/repos/llrp/trunk</developerConnection>
-		<url>https://svn.fosstrak.org/repos/llrp/</url>
-	</scm>
+  	<scm>
+    		<connection>https://fosstrak.googlecode.com/svn/llrp/trunk</connection>
+   		<developerConnection>scm:svn:https://fosstrak.googlecode.com/svn/llrp/trunk</developerConnection>
+    		<url>https://fosstrak.googlecode.com/svn/llrp/trunk</url>
+  	</scm>
 	<distributionManagement>
 		<repository>
 			<id>fosstrak-repository</id>
