@@ -120,18 +120,11 @@ public class ROAccessItem {
 	 * @param readerName the name of the reader.
 	 * @return a list of ROAccessItem.
 	 */
-	public static List<ROAccessItem> parse(
-			RO_ACCESS_REPORT report, 
-			String adapterName, 
-			String readerName,
-			long currentTime) {
-		
+	public static List<ROAccessItem> parse(RO_ACCESS_REPORT report, String adapterName, String readerName, long currentTime) {
 		List<ROAccessItem> items = new LinkedList<ROAccessItem> ();
-		
 		List<TagReportData> tagDataList = report.getTagReportDataList();
 		
 		for (TagReportData tagData : tagDataList) {
-			
 			ROAccessItem item = new ROAccessItem();
 			
 			// log time.
@@ -174,13 +167,9 @@ public class ROAccessItem {
 			}
 			
 			// inventory parameter spec ID.
-			InventoryParameterSpecID inventoryPrmSpecID = 
-				tagData.getInventoryParameterSpecID();
-			if ((null != inventoryPrmSpecID) && 
-					(null != inventoryPrmSpecID.getInventoryParameterSpecID())) {
-				item.setInventoryPrmSpecID( 
-						tagData.getInventoryParameterSpecID().
-						getInventoryParameterSpecID().toInteger());	
+			InventoryParameterSpecID inventoryPrmSpecID = tagData.getInventoryParameterSpecID();
+			if ((null != inventoryPrmSpecID) && (null != inventoryPrmSpecID.getInventoryParameterSpecID())) {
+				item.setInventoryPrmSpecID(inventoryPrmSpecID.getInventoryParameterSpecID().toInteger());	
 			}
 			
 			// antenna ID.
@@ -202,39 +191,27 @@ public class ROAccessItem {
 			}
 			
 			// extract the first seen UTC time stamp.
-			FirstSeenTimestampUTC frstSnUTC = 
-				tagData.getFirstSeenTimestampUTC();
+			FirstSeenTimestampUTC frstSnUTC = tagData.getFirstSeenTimestampUTC();
 			if ((null != frstSnUTC) && (null != frstSnUTC.getMicroseconds())) {
-				item.setFirstSeenUTC( 
-						AbstractSQLROAccessReportsRepository.extractTimestamp(
-								frstSnUTC.getMicroseconds()));
+				item.setFirstSeenUTC(AbstractSQLROAccessReportsRepository.extractTimestamp(frstSnUTC.getMicroseconds()));
 			}
 			
 			// extract the first seen since uptime time stamp.
-			FirstSeenTimestampUptime frstSnUptime = 
-				tagData.getFirstSeenTimestampUptime();
+			FirstSeenTimestampUptime frstSnUptime = tagData.getFirstSeenTimestampUptime();
 			if ((null != frstSnUptime) && (null != frstSnUptime.getMicroseconds())) {
-				item.setFirstSeenUptime( 
-						AbstractSQLROAccessReportsRepository.extractTimestamp(
-								frstSnUptime.getMicroseconds()));
+				item.setFirstSeenUptime(AbstractSQLROAccessReportsRepository.extractTimestamp(frstSnUptime.getMicroseconds()));
 			} 
 			
 			// extract the last seen time stamp UTC.
-			LastSeenTimestampUTC lstSnUTC = 
-				tagData.getLastSeenTimestampUTC();
+			LastSeenTimestampUTC lstSnUTC = tagData.getLastSeenTimestampUTC();
 			if ((null != lstSnUTC) && (null != lstSnUTC.getMicroseconds())) {
-				item.setLastSeenUTC(
-						AbstractSQLROAccessReportsRepository.extractTimestamp(
-								lstSnUTC.getMicroseconds()));
+				item.setLastSeenUTC(AbstractSQLROAccessReportsRepository.extractTimestamp(lstSnUTC.getMicroseconds()));
 			}
 			
 			// extract the last seen time stamp since uptime.
-			LastSeenTimestampUptime lstSnUptime = 
-				tagData.getLastSeenTimestampUptime();
+			LastSeenTimestampUptime lstSnUptime = tagData.getLastSeenTimestampUptime();
 			if ((null != lstSnUptime) && (null != lstSnUptime.getMicroseconds())) {
-				item.setLastSeenUptime(
-						AbstractSQLROAccessReportsRepository.extractTimestamp(
-								lstSnUptime.getMicroseconds()));
+				item.setLastSeenUptime(AbstractSQLROAccessReportsRepository.extractTimestamp(lstSnUptime.getMicroseconds()));
 			}
 			
 			// extract the tag count.
@@ -243,9 +220,7 @@ public class ROAccessItem {
 				item.setTagSeenCount(tagSeenCount.getTagCount().toInteger());
 			}
 			
-			List<AirProtocolTagData> airProtoTagData = 
-				tagData.getAirProtocolTagDataList();
-			
+			List<AirProtocolTagData> airProtoTagData = tagData.getAirProtocolTagDataList();
 			for (AirProtocolTagData aptd : airProtoTagData) {
 				if (aptd instanceof C1G2_CRC) {
 					C1G2_CRC c1g2_crc = (C1G2_CRC) aptd;
@@ -264,14 +239,12 @@ public class ROAccessItem {
 			
 			// extract the access spec ID.
 			AccessSpecID accessSpecID = tagData.getAccessSpecID();
-			if ((null != accessSpecID) && 
-					(null != accessSpecID.getAccessSpecID())) {
+			if ((null != accessSpecID) && (null != accessSpecID.getAccessSpecID())) {
 				item.setAccessSpecID(accessSpecID.getAccessSpecID().toLong());
 			}
 			
 			items.add(item);
 		}
-		
 		return items;
 	}
 
@@ -608,5 +581,4 @@ public class ROAccessItem {
 		}
 		return str.toString();
 	}
-	
 }

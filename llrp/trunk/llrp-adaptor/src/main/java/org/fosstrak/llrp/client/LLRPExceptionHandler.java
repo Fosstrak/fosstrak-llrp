@@ -40,5 +40,5 @@ public interface LLRPExceptionHandler {
 	 * @param aAdapter the adapter that triggered the exception.
 	 * @param aReader the reader that triggered the exception.
 	 */
-	public void postExceptionToGUI(LLRPExceptionHandlerTypeMap aExceptionType, LLRPRuntimeException e, String aAdapter, String aReader);
+	void postExceptionToGUI(LLRPExceptionHandlerTypeMap aExceptionType, LLRPRuntimeException e, String aAdapter, String aReader);
 }

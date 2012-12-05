@@ -144,11 +144,12 @@ public class Reader {
     /**
      * Get the description of the Reader.
      */
+	@Override
 	public String toString() {
 		StringBuffer sb = new StringBuffer();
 		sb.append("Name:");
 		sb.append(getName());
-		sb.append(" Adater:");
+		sb.append(" Adapter:");
 		sb.append(getAdapterName());
 		sb.append(" IP:");
 		sb.append(getIp());

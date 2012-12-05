@@ -46,23 +46,22 @@ public interface Repository {
 	 * @param args hash-map with the parameters.
 	 * @throws when there is a problem with initialization (eg. missing param).
 	 */
-	public void initialize(Map<String, String> args) 
-		throws LLRPRuntimeException;
+	void initialize(Map<String, String> args) throws LLRPRuntimeException;
 	
 	/**
 	 * @return a hash map with the properties passed by the initializer.
 	 */
-	public Map<String, String> getArgs();
+	Map<String, String> getArgs();
 	
 	/**
 	 * Closing the repository.
 	 */
-	public void close();
+	void close();
 	
 	/**
 	 * @return true if the repository is OK, false otherwise.
 	 */
-	public boolean isHealth();
+	boolean isHealth();
 	
 	/**
 	 * Get the LLRP Message Item from repository according to the unique Message ID.
@@ -70,14 +69,14 @@ public interface Repository {
 	 * @param aMsgSysId The unique message ID
 	 * @return LLRP Message Wrapper Item
 	 */
-	public LLRPMessageItem get(String aMsgSysId);
+	LLRPMessageItem get(String aMsgSysId);
 	
 	/**
 	 * Put the LLRP Message Item to the repository
 	 * 
 	 * @param aMessage LLRP Message Wrapper Item
 	 */
-	public void put(LLRPMessageItem aMessage);
+	void put(LLRPMessageItem aMessage);
 	
 	/**
 	 * returns all the messages from the specified adaptor and the reader 
@@ -90,8 +89,7 @@ public interface Repository {
 	 * @param content if true retrieve the message content, false no content.
 	 * @return a list of messages.
 	 */
-	public ArrayList<LLRPMessageItem> get(
-			String adaptorName, String readerName, int num, boolean content);
+	ArrayList<LLRPMessageItem> get(String adaptorName, String readerName, int num, boolean content);
 	
 	/**
 	 * returns the number of messages in the repository to a given filter.
@@ -101,31 +99,31 @@ public interface Repository {
 	 * messages of the given adaptor will be returned.
 	 * @return the number of messages in the repository.
 	 */
-	public int count(String adaptor, String reader);
+	int count(String adaptor, String reader);
 	
 	/**
 	 * Clear all the items in repository.
 	 */
-	public void clearAll();
+	void clearAll();
 	
 	/**
 	 * clear all the items that belong to a given adapter.
 	 * @param adapter the name of the adapter to clear.
 	 */
-	public void clearAdapter(String adapter);
+	void clearAdapter(String adapter);
 	
 	/**
 	 * clear all the items that belong to a given reader on a given adapter.
 	 * @param adapter the name of the adapter where the reader belongs to.
 	 * @param reader the name of the reader to clear.
 	 */
-	public void clearReader(String adapter, String reader);
+	void clearReader(String adapter, String reader);
 	
 	/**
 	 * @return a handle to the database connection. users of the repository are 
 	 * allowed to use the database for their own purposes.
 	 */
-	public Connection getDBConnection();
+	Connection getDBConnection();
 	
 	/**
 	 * The {@link ROAccessReportsRepository} is implemented via the strategy 
@@ -138,5 +136,5 @@ public interface Repository {
 	 * implementation of the repository does not implement this functionality, 
 	 * it shall return <code>null</code>.
 	 */
-	public ROAccessReportsRepository getROAccessRepository();
+	ROAccessReportsRepository getROAccessRepository();
 }

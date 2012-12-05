@@ -40,8 +40,7 @@ public class LLRPMessageItem {
 	private final static String EMPTY_READER_ID = "Unknown Reader";
 	private final static String EMPTY_MESSAGE_TYPE = "Unknown Type";
 	
-	private static final DateFormat DATE_FORMATTER = new SimpleDateFormat(
-	"yyyy-MMM-dd-HH-mm-ss-SSS");
+	private static final DateFormat DATE_FORMATTER = new SimpleDateFormat("yyyy-MMM-dd-HH-mm-ss-SSS");
 	
 	/**
 	 * Static DB field value for Imcoming Message.
