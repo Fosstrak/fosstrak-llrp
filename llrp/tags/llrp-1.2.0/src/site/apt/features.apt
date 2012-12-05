@@ -1,0 +1,44 @@
+       ------
+                                    LLRP Commander - Features
+                                    ------
+                                    ------
+
+Features
+				    
+* Overview
+
+	[[]] {{{#Navigator}Message Navigator}}
+	
+	[[]] {{{#Messagebox}LLRP Messagebox}}
+	
+	[[]] {{{#Reader}Reader Explorer View}}
+	
+	[[]] {{{#Editor}Editor View}}
+				    
+
+* Message {Navigator}
+
+  Use the built-in wizard to create new LLRP messages. Manage, rename and delete existing LLRP messages within the flexible and easily navigable tree structure.
+
+[images/llrpMessageWizard-edited.png]
+
+* {Reader} Explorer View
+
+  The reader explorer view helps you to group readers into hierarchical structures and greatly enhances overview. The dynamic context menu gives you access to reader settings and allows you to send and retrieve LLRP messages to/from the LLRP readers.
+
+[images/readerExplorerView-edited.png]
+
+* LLRP {Messagebox}
+
+  The LLRP messagebox displays outgoing and incoming LLRP messages.
+
+[images/messageBoxView-edited.png]
+
+* {Editor} View
+
+  Three different editor views (XML, binary and graphical) allow you to conveniently inspect and modify LLRP messages.
+
+[images/editorView-edited.png]
+
+	
+	
