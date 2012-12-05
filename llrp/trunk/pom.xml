@@ -147,31 +147,10 @@
 	<!-- Infrastructure                                              -->
 	<!-- =========================================================== -->
   	<scm>
-    		<connection>https://fosstrak.googlecode.com/svn/llrp/trunk</connection>
+  		<connection>https://fosstrak.googlecode.com/svn/llrp/trunk</connection>
    		<developerConnection>scm:svn:https://fosstrak.googlecode.com/svn/llrp/trunk</developerConnection>
-    		<url>https://fosstrak.googlecode.com/svn/llrp/trunk</url>
+   		<url>https://fosstrak.googlecode.com/svn/llrp/trunk</url>
   	</scm>
-	<distributionManagement>
-		<repository>
-			<id>fosstrak-repository</id>
-			<name>Fosstrak repository</name>
-			<url>sftp://maven-repository.fosstrak.org/local/home/fosstrakrep/public_html/releases</url>
-		</repository>
-		<snapshotRepository>
-			<id>fosstrak-repository</id>
-			<name>Fosstrak repository</name>
-			<url>sftp://maven-repository.fosstrak.org/local/home/fosstrakrep/public_html/snapshots</url>
-		</snapshotRepository>
-		<site>
-			<id>fosstrak-website</id>
-			<name>Fosstrak website</name>
-			<url>sftp://www.fosstrak.org/local/home/fosstrakweb/public_html/llrp</url>
-		</site>
-	</distributionManagement>
-	<issueManagement>
-		<system>Sourceforge</system>
-		<url>https://sourceforge.net/tracker/?group_id=264338&amp;atid=1127708</url>
-  </issueManagement>
   <mailingLists>
     <mailingList>
       <name>LLRP commander user mailing list</name>
