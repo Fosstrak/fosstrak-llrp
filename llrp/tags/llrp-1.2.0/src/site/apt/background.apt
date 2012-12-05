@@ -1,0 +1,116 @@
+       ------
+                                    LLRP Commander
+                                    ------
+                                    ------
+
+
+
+Background and Motivation
+
+	LLRP stands for "low-level reader protocol" and specifies a protocol 
+	for the control of RFID readers 
+	(see {{{http://www.epcglobalinc.org/standards/llrp}
+	http://www.epcglobalinc.org/standards/llrp}} for the standards 
+	documents as well as a more detailed introduction). 
+	LLRP is called "low-level" because 
+	it enables the client to finetune many parameters of an RFID reader, 
+	such as the radio power, the antennas present, and even its modes of 
+	operation. 
+	
+	Communication between two LLRP endpoints is handled by a 
+	binary protocol, which is efficient and fast. The LLRP Commander project 
+	uses the {{{http://www.llrp.org}LTKJava library}} (to convert binary LLRP messages, 
+	to Java objects and XML instances (and vice versa).
+	
+	The motivation for the LLRP Commander arises from four  
+	issues:
+		
+	[[1]] Tedious and complicated messages that are hard to assemble
+	
+	There are many dependencies within LLRP messages a user has to 
+	take care of. (E.g., some parameters require to lie within a 
+	specific interval, others require the 
+	presence / absence of certain parameters, ...) 
+	Already a single missing parameter results in an invalid 
+	binary that cannot be read or parsed by the RFID 
+	reader. The reader will answer with an error message in binary 
+	format. For the user, this implies tedious try-and-error cycles until 
+	the message has the correct format. The LLRP Commander makes this
+	process much easier. It allows users to assemble different 
+	LLRP messages, using either a graphical editor or a textual 
+	XML editor. All messages are checked dynamically at runtime 
+	for missing parameters or for invalid entries, giving the 
+	user immediate feedback. Errors can be easily corrected
+	before the message is sent.
+	
+	[[2]] Binary protocol is hard to debug
+	
+	When an LLRP message does not perform the task intended (e.g., user
+	wants to enable an RO_SPEC, but accidentally chooses the wrong RO_SPEC id),
+	it is very 
+	hard to find out what caused the unexpected behavior. Debugging 
+	is only possible by manually inspecting and validating all  
+	message parameters. This means to split a possibly 
+	very long bitstring of zeros and ones into the numerous 
+	message parts. The LLRP Commander has the ability to 
+	transform the binary string automatically into a more 
+	user-friendly form (such as an XML message or a 
+	tree displaying all the parameters as leaves). It is even 
+	possible to correct erroneous parameters on the fly.
+	
+	[[3]] Many different RFID readers with proprietary interfaces <but> 
+		with a standardized LLRP protocol
+	
+	As there are many different RFID readers from different 
+	vendors available, it is not feasible to configure these 
+	readers through the client applications delivered by the 
+	vendor. Consider the example where a client has 10 readers 
+	from 10 different vendors with a completely incompatible 
+	configuration application for each of the readers. With 
+	LLRP as a standardized protocol for communication, 
+	the LLRP Commander allows users to configure and 
+	maintain all of the 10 readers with a single tool, simplifying 
+	life a great deal.
+	
+	[[4]] Many messages
+	
+	LLRP is a low-level protocol. It is therefore not surprising 
+	that there are many messages exchanged between the reader 
+	and the client. User need assistance in receiving and 
+	storing those messages. The LLRP Commander receives 
+	the messages for users and stores them separately for each 
+	of the registered readers. The messages are clearly flagged by 
+	their message type, allowing users to easily distinguish 
+	between useful messages and messages that are not relevant. 
+	
+	[]
+
+Integration into Fosstrak
+
+	The LLRP Commander is a part of the Fosstrak project. It has 
+	been developed in such a way that it can interact with other  
+	Fosstrak modules. It has been a goal of the 
+	project to enrich the existing Filtering and Collection module
+	(ALE middleware) with the ability 
+	to communicate with LLRP-enabled RFID readers. Most parts of 
+	the communication layer of the LLRP Commander can be used 
+	without modification directly by Fosstrak's Filtering and 
+	Collection module.
+	
+[images/developer/fcIntegration.png]
+	Filtering and Collection integration
+	
+	For a more detailed introduction, please refer to the respective 
+	sections in the developer guide:
+		
+	Filtering and Collection:
+		
+	* Logical Reader Concept
+	
+	* How to implement an Adaptor
+	
+	[]
+	
+	LLRP Commander:
+		
+	* AdaptorManagement
