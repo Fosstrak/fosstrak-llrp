@@ -39,6 +39,12 @@
 			<version>1.5</version>
 		</dependency> 
 	</dependencies>
+	
+	<scm>
+		<connection>https://fosstrak.googlecode.com/svn/llrp/trunk/llrp-adaptor-integration</connection>
+		<developerConnection>scm:svn:https://fosstrak.googlecode.com/svn/llrp/trunk/llrp-adaptor-integration</developerConnection>
+		<url>https://fosstrak.googlecode.com/svn/llrp/trunk/llrp-adaptor-integration</url>
+	</scm>
 
 	<!-- =========================================================== -->
 	<!-- Build settings                                              -->
