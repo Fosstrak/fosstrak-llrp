@@ -47,7 +47,7 @@ public interface ROAccessReportsRepository extends MessageHandler {
 	 * set the repository that "owns" this RO_ACCESS_REPORTS repository.
 	 * @param repository the repository that "owns" this RO_ACCESS_REPORTS repository.
 	 */
-	public void setRepository(Repository repository);
+	void setRepository(Repository repository);
 	
 	/**
 	 * Initializer for the RO_ACCESS_REPORTS repository. 
@@ -57,7 +57,7 @@ public interface ROAccessReportsRepository extends MessageHandler {
 	 * @param repository the repository belonging to this RO_ACCESS_REPORTS DB.
 	 * @throws when there is a problem with initialization (eg. missing param).
 	 */
-	public void initialize(Repository repository) throws LLRPRuntimeException;
+	void initialize(Repository repository) throws LLRPRuntimeException;
 	
 	/**
 	 * retrieves all the RO_ACCESS_REPORTS elements in the database.
@@ -65,11 +65,11 @@ public interface ROAccessReportsRepository extends MessageHandler {
 	 * {@link ROAccessItem}.
 	 * @throws Exception when there is an error of any kind.
 	 */
-	public List<ROAccessItem> getAll() throws Exception;
+	List<ROAccessItem> getAll() throws Exception;
 	
 	/**
 	 * drop all the messages in the repository.
 	 * @throws Exception when there is an error of any kind.
 	 */
-	public void clear() throws Exception;
+	void clear() throws Exception;
 }

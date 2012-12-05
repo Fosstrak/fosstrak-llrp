@@ -41,5 +41,5 @@ public interface MessageHandler {
 	 * @param readerName the name of the receiving reader.
 	 * @param message the LLRP message.
 	 */
-	public void handle(String adaptorName, String readerName, LLRPMessage message);
+	void handle(String adaptorName, String readerName, LLRPMessage message);
 }
