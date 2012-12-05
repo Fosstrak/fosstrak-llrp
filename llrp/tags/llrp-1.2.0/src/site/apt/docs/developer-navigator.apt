@@ -1,0 +1,77 @@
+       ------
+                                    Developers guide - Project Navigator
+                                    ------
+                                    ------
+
+
+Developers guide - Project Navigator
+
+* Content
+	
+	[[1]] {{{#Overview}Overview}}
+	
+	[[2]] {{{#HealthCheck}HealthCheck}}
+	
+
+* {Overview}
+
+	Project Navigator leverages the existing Eclipse Project Navigator view, 
+	to manage the LLRP XML messages and its templates in Eclipse workspaces.
+
+	When one message is retrieved from the Message Repository, which is 
+	triggered by users, the message would be written to a new file 
+	(Refer the writeMessageToFile() in ResourceCenter.java). The new 
+	generated file will be showed and managed in the Project Navigator view.
+	
+
+* {HealthCheck}
+
+	The Project Navigator enables users to specify the Eclipse Project which 
+	holds the LLRP message file. 
+
+	By default, especially in the case when user installed the Plug-In and 
+	starts in first time, the Eclipse project <<LLRP_CLIENT>> is required. 
+	To simplify the configuration task for the users, the Plug-In provides 
+	one <<<Health Check>>> feature to detect the Eclipse configuration. 
+	This function makes the commander starting properly, even without 
+	configuration.
+
+	When Eclipse loads the LLRP Client, the Health Check function is triggered 
+	to validate whether the environment is ready for use. If any significant 
+	error is detected (for example, the folders corrupted or database table 
+	doesn’t	exist), the report form will pop up at startup. 
+
++---+
+HealthCheckDialog dlg = new HealthCheckDialog(
+	PlatformUI.getWorkbench().getActiveWorkbenchWindow().getShell());
+	
+if (!dlg.getHealthCheck().validate()) {
+	dlg.open();
+}
++---+
+
+	HeathCheck class is designed in a <<Chain of Responsibility>> pattern. It 
+	maintains the list <<<HealthItem class>>>. When the Plug-In starts, it 
+	registers the check items in the <<<HealthCheck>>>. Each <<<HealthItem>>> 
+	inplements two functions: <<<validate()>>> and <<<fix()>>>.
+
++---+
+public boolean validate();
+
+public void fix();
++---+
+
+	At first, the <<<HealthCheck>>> iterates all the items and run their 
+	<<<validate()>>> one by one. Those <<<validate()>>> compiles the errors 
+	when they occur the problems.  Then, as the user requests, the HealthCheck 
+	can iterate all marked items, which includes health problems, and execute 
+	those <<<fix()>>> function to solve the problem.
+	
+	In current release, there are two CheckItem provided. 
+	
+	* CheckEclipseProject.java, which checks the existence of Eclipse Project
+	 and its subfolders, and 
+	
+	* CheckRepository.java, which validates the JavaDB as message holder.
+
+

@@ -1,0 +1,35 @@
+       ------
+                                    Developer Guide
+                                    ------
+                                    ------
+
+
+Developer Guide
+
+* Contents
+	
+	[[1]] {{{#Objective}Objective}}
+	
+	[[2]] {{{#Overview}Overview}}
+	
+	[[3]] {{{#Requirements}Requirements}}
+
+
+* {Objective}
+
+	This document addresses the needs of developers that want to maintain or 
+	extend the LLRP Commander.
+		
+* {Overview}
+
+	The developer guide is divided into three parts. 
+
+        * <<Installation>>: How to package and install the plugin automatically.
+	
+	* <<GUI>>: All the graphical user interface parts.
+	
+	* <<Management>>: Essentials of the reader management part.
+
+* {Requirements}
+
+	* {{{http://java.com}Java 1.5}}
