@@ -7,11 +7,11 @@
 
 	<groupId>org.fosstrak.llrp</groupId>
 	<artifactId>llrp-adaptor-integration</artifactId>
-	<version>1.2.0</version>
+	<version>1.2.1-SNAPSHOT</version>
 	<parent>
 		<artifactId>llrp</artifactId>
 		<groupId>org.fosstrak.llrp</groupId>
-		<version>1.2.0</version>
+		<version>1.2.1-SNAPSHOT</version>
 	</parent>
 	<packaging>bundle</packaging>
 	<modelVersion>4.0.0</modelVersion>
@@ -41,9 +41,9 @@
 	</dependencies>
 	
 	<scm>
-		<connection>https://fosstrak.googlecode.com/svn/llrp/tags/llrp-1.2.0/llrp-adaptor-integration</connection>
-		<developerConnection>scm:svn:https://fosstrak.googlecode.com/svn/llrp/tags/llrp-1.2.0/llrp-adaptor-integration</developerConnection>
-		<url>https://fosstrak.googlecode.com/svn/llrp/tags/llrp-1.2.0/llrp-adaptor-integration</url>
+		<connection>https://fosstrak.googlecode.com/svn/llrp/trunk/llrp-adaptor-integration</connection>
+		<developerConnection>scm:svn:https://fosstrak.googlecode.com/svn/llrp/trunk/llrp-adaptor-integration</developerConnection>
+		<url>https://fosstrak.googlecode.com/svn/llrp/trunk/llrp-adaptor-integration</url>
 	</scm>
 
 	<!-- =========================================================== -->
