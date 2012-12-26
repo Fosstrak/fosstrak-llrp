@@ -1,0 +1,201 @@
+       ------
+                                    Developers guide - Adaptors
+                                    ------
+                                    ------
+
+
+Developers guide - Adaptors
+
+* Content
+	
+	[[1]] {{{#Overview}Overview}}
+	
+	[[2]] {{{#LocalAdaptor}LocalAdaptor}}
+	
+	[[3]] {{{#RemoteAdaptor}RemoteAdaptor}}
+	
+	[[4]] {{{#Definition}Definition}}
+	
+	[[5]] {{{#Undefinition}Undefinition}}
+	
+	[[6]] {{{#Sending}Sending}}
+	
+	[[7]] {{{#Callback}Callback}}
+	
+
+* {Overview}
+
+	Adaptors provide an interface for the creation, 
+	modification and deletion of LLRP readers.
+	
+	For each physical LLRP reader the adaptor creates a logical 
+	reader that will then maintain the connection. For more 
+	details refer to the chapter <<<Readers>>>.
+	
+	If you want to know more about the creation of an 
+	adaptor instance please refere the the chapter 
+	<<<Adaptor Management>>>.
+	
+	One Implementation of the interface is the class 
+	<<<AdaptorImpl>>>. Within this guide we will refer to this 
+	reference implementation.	
+	
+	This guide will explain the basic behaviour by explaining 
+	the most important methods available in the adaptor 
+	interface.
+	
+* {LocalAdaptor}
+
+	The adaptor runs locally on the same machine as the LLRP GUI Client. 
+	In this modes all the calls to the adaptor are performed locally.
+
+
+* {RemoteAdaptor}
+
+	This mode allows the adaptor to be run on a different machine than 
+	the LLRP GUI Client (eg. in a filtering and collection environment). 
+	That for the adaptor gets exported through java rmi. In this mode 
+	of operation a stub gets aquired from the java rmi registry and 
+	all calls are performed remotely through this stub.
+	
+	The only thing that a user has to take care of is the ip address of 
+	the adaptor (only for the creation of the adaptor). The remote 
+	adaptor should behave in exactly the same way as the local adaptor.
+
+
+* {Definition}
+	
++---+
+public void define(String readerName, 
+		String readerAddress,
+		int port, 
+		boolean clientInitiatedConnection,
+		boolean connectImmediately) 
+		throws RemoteException, LLRPRuntimeException;
++---+
+
+	With this method you can create a new reader on this adaptor. In 
+	the fist step a check is performed whether the specified 
+	reader name already exists on the current adaptor.If not 
+	a new instance of a reader is generated. 
+	
+	There exist two different connection models specified by LLRP. 
+	
+	* client initiated: in this model the client tries to establish 
+		the connection to the reader.
+		
+	* reader initiated: in this model the client waits for a 
+		reader to establish the connection.
+		
+	[]
+		
+	You can select the profile according the boolean 
+	<<<clientInitiatedConnection>>>. 
+	
+	The boolean <<<connectImmediately>>> gives you the possibility 
+	to delay the connection establishment between the reader-stub 
+	and the physical reader. If you set it to false you will have 
+	to establish the connection through the reader interface at a 
+	later time before using the reader.
+	
+	<<Attention>>: LLRP connections are a 1-to-1 relation. This means 
+	one physical reader can only open exactly <<one>> connection to 
+	a client.
+
+	
+* {Undefinition}
+
++---+
+public void undefine(String readerName) throws RemoteException, LLRPRuntimeException;
++---+
+
+	When you call this method the reader gets disconnected first and 
+	then removed from the adaptor.
+	
+	
+* {Sending}
+
++---+
+public void sendLLRPMessage(String readerName, byte[] message) 
+    throws RemoteException, LLRPRuntimeException;
++---+
+
+	To send an LLRP message to one of the readers you can use 
+	this short-cut message. Just provide the reader name 
+	and the message.
+	
+	<<Remark>>: We advise you to use the adaptor management 
+	to enqueue messages instead of this sending facility. The 
+	reason is that a sending through this method is blocking 
+	(synchronous) whereas the sending through the adaptor 
+	management is (non-blocking) asynchronous.
+
+
+* {Callback}
+
+	Adaptors support a asynchronous callback mechanism for 
+	exceptions and for incoming LLRP messages. Before you 
+	can use the asynchronous reporting facility you need to 
+	register the interface <<<AsynchronousNotifiable>>> on 
+	the adaptor. Whenever an exception occurs or when a 
+	LLRP message arrives the notifier will be updated and be 
+	provided with the message/exception.
+	
+	<<Notice>>: When you create an adaptor through the 
+	adaptor management this callback mechanism is already 
+	setup for you and you will not need to perform any 
+	additional steps.
+	
+	The registering and deregistering can be done with 
+	the following methods:
+	
++---+
+// registering
+public void registerForAsynchronous(AsynchronousNotifiable receiver) 
+    throws RemoteException;
+
+// deregistering
+public void deregisterFromAsynchronous(AsynchronousNotifiable receiver) 
+    throws RemoteException;
++---+
+
+	The following graphic shall give you an overview to the 
+	mechanism of the asynchronous callback mechanism.
+
+[../images/developer/adaptorAsynchronousNotification.png]
+AsynchronousNotification
+
+** ErrorReporting
+
+	Whenever an error occurs on one of the readers or on the adaptor 
+	the error callback is invoked.
+	
++---+
+public void errorCallback(LLRPRuntimeException e, String readerName) 
+    throws RemoteException;
++---+
+
+	Basically this corresponds to a observer-Pattern. The observable 
+	(in this case the adaptor) notifies all the observers (in this case 
+	all the registered asynchronous notifiables). The observable 
+	triggers the method <<<notifyError>>>.
+
+** MessageReporting
+
+	Whenever an LLRP message arrived from one of the readers, the 
+	message callback is invoked.
+
++---+
+public void messageReceivedCallback(byte[] message, String readerName)
+			throws RemoteException;
++---+
+
+	As with the error callback this is comparable to the observer-
+	pattern. The observable triggers the method <<<notify>>> on 
+	all the observers.
+
+
+	
+	
+	
+	
