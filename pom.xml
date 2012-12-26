@@ -7,7 +7,7 @@
 
 	<groupId>org.fosstrak.llrp</groupId>
 	<artifactId>llrp</artifactId>
-	<version>1.2.1-SNAPSHOT</version>
+	<version>1.2.1</version>
 	<packaging>pom</packaging>
 	<modelVersion>4.0.0</modelVersion>
 	<parent>
@@ -152,9 +152,9 @@
 	<!-- Infrastructure                                              -->
 	<!-- =========================================================== -->
   	<scm>
-  		<connection>https://fosstrak.googlecode.com/svn/llrp/trunk</connection>
-   		<developerConnection>scm:svn:https://fosstrak.googlecode.com/svn/llrp/trunk</developerConnection>
-   		<url>https://fosstrak.googlecode.com/svn/llrp/trunk</url>
+  		<connection>https://fosstrak.googlecode.com/svn/llrp/tags/llrp-1.2.1</connection>
+   		<developerConnection>scm:svn:https://fosstrak.googlecode.com/svn/llrp/tags/llrp-1.2.1</developerConnection>
+   		<url>https://fosstrak.googlecode.com/svn/llrp/tags/llrp-1.2.1</url>
   	</scm>
   <mailingLists>
     <mailingList>
